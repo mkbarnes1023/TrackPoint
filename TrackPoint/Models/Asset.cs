@@ -8,7 +8,16 @@ namespace TrackPoint.Models
 	 */ 
 	public class Asset
 	{
+		/**
+		 * Properties pulled from the Excel sheet provided by LSNF
+		 * Other properties that have been discussed:
+		 *  - Expiration date
+		 *  - Warrenty Information
+		 *  - Whether the asset is part of a Outreach Kit (Will likely need its own class with a foreign key)
+		 *  - 
+		 */
 		[Key]
+		// Client's asset tag is primary key for now, but maybe it should be a int for consistancy
 		public string AssetTag { get; set; }
 		public string? Make { get; set; }
 		public string? Model { get; set; }
@@ -35,6 +44,7 @@ namespace TrackPoint.Models
 		public AssetStatus Status { get; set; }
 		public string? Notes { get; set; }
 
+		// Constructor for the purpose of creating sample data
 		public Asset(string assetTag, string? make, string? model, string? category, string? location, string? issuedTo, AssetStatus status, string? notes)
 		{
 			AssetTag = assetTag;
