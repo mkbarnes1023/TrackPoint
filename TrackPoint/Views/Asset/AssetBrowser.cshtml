@@ -17,6 +17,7 @@
             <th>Issued To</th>
             <th>Status</th>
             <th>Notes</th>
+            <th>Actions</th>
 		</tr>
     </thead>
     <tbody>
@@ -30,6 +31,12 @@
                 <td>@asset.Location</td>
                 <td>@asset.IssuedTo</td>
                 <!-- Color statuses -->
+                <!-- 
+                    Key: 
+                     - Red: Unavailable to borrow
+                     - Green: Available to borrow
+                     - Grey: No longer in circulation
+                -->
                 @if (asset.Status == Asset.AssetStatus.InUse || asset.Status == Asset.AssetStatus.UnderMaintenance)
                 {
                     <td style="color:red">@asset.Status</td>
@@ -47,6 +54,20 @@
                     <td>@asset.Status</td>
 				}
                 <td>@asset.Notes</td>
+                <td>
+                    <!-- 
+                        Disable the button for unavailable assets.
+                        asp-action will be added in future iterations.
+                    -->
+                    @if (asset.Status == Asset.AssetStatus.InStorage || asset.Status == Asset.AssetStatus.Transfered)
+                    {
+                        <a class="btn btn-sm btn-success">Borrow</a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-sm btn-outline-success disabled" aria-disabled="true">Borrow</a>
+                    }
+                </td>
             </tr>
 		}
     </tbody>
