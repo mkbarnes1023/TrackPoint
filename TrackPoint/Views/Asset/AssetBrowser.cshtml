@@ -1,0 +1,53 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model IEnumerable<TrackPoint.Models.Asset>
+@{
+}
+
+<h1>Browse Available Assets</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Asset Tag</th>
+            <th>Make</th>
+            <th>Model</th>
+            <th>Category</th>
+            <th>Location</th>
+            <th>Issued To</th>
+            <th>Status</th>
+            <th>Notes</th>
+		</tr>
+    </thead>
+    <tbody>
+        @foreach (var asset in Model)
+        {
+            <tr>
+                <td>@asset.AssetTag</td>
+                <td>@asset.Make</td>
+                <td>@asset.Model</td>
+                <td>@asset.Category</td>
+                <td>@asset.Location</td>
+                <td>@asset.IssuedTo</td>
+                <!-- Color statuses -->
+                @if (asset.Status == Asset.AssetStatus.InUse || asset.Status == Asset.AssetStatus.UnderMaintenance)
+                {
+                    <td style="color:red">@asset.Status</td>
+                }
+                else if (asset.Status == Asset.AssetStatus.InStorage || asset.Status == Asset.AssetStatus.Transfered)
+                {
+                    <td style="color:green">@asset.Status</td>
+                }
+                else if(asset.Status == Asset.AssetStatus.Retired || asset.Status == Asset.AssetStatus.Lost)
+                {
+                    <td style="color:grey">@asset.Status</td>
+                }
+                else
+                {
+                    <td>@asset.Status</td>
+				}
+                <td>@asset.Notes</td>
+            </tr>
+		}
+    </tbody>
+</table>
