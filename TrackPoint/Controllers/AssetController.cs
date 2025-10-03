@@ -12,5 +12,14 @@ namespace TrackPoint.Controllers
 		{
 			return View(Asset.SampleAssets);
 		}
-	}
+
+        /**
+         * Return the view for the Transfer Log with the sample data sorted by TransferDate descending as the model
+         */
+        public IActionResult TransferLog()
+        {
+            var sorted = Asset.SampleAssets.OrderByDescending(a => a.TransferDate).ToList();
+            return View(sorted);
+        }
+    }
 }
