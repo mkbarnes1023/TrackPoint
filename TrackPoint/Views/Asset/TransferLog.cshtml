@@ -1,0 +1,33 @@
+﻿@model IEnumerable<TrackPoint.Models.Asset>
+@{
+}
+
+<h1>Transfer Log</h1>
+<p>These are assets which had recently been transferred to another employee, sorted by the most recent.</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Asset Tag</th>
+            <th>Make</th>
+            <th>Model</th>
+            <th>Category</th>
+            <th>Location</th>
+            <th>Issued To</th>
+            <th>Transfer Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var asset in Model)
+        {
+        <tr>
+            <td>@asset.AssetTag</td>
+            <td>@asset.Make</td>
+            <td>@asset.Model</td>
+            <td>@asset.Category</td>
+            <td>@asset.Location</td>
+            <td>@asset.IssuedTo</td>
+            <td>@asset.TransferDate.ToString("g")</td>
+        </tr>
+        }
+    </tbody>
+</table>
