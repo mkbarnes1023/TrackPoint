@@ -20,7 +20,14 @@ namespace TrackPoint.Controllers
             var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
             if (asset == null)
             {
-                return NotFound();
+                TempData["Failure"] = $"Error: Asset not found.";
+                return RedirectToAction("AllocateDemo");
+            }
+
+            if (IssuedTo == null)
+            {
+                TempData["Failure"] = $"Error: Invalid user.";
+                return RedirectToAction("AllocateDemo");
             }
 
             // Store previous issued to and transfer date
@@ -44,8 +51,10 @@ namespace TrackPoint.Controllers
             // Prevent duplicate form submissions on page refresh
             if (ModelState.IsValid)
             {
-                return RedirectToAction("AssetBrowser", "Asset"); // TODO: Give a success message on redirect
+                TempData["Success"] = $"Asset {AssetTag} successfully allocated to {IssuedTo}!";
+                return RedirectToAction("AssetBrowser", "Asset");
             }
+            
             return View(); // TODO: This leads to nowhere, redirect back to form with error
         }
     }

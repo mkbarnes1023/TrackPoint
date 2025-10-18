@@ -3,6 +3,14 @@
 *@
 @model IEnumerable<TrackPoint.Models.Asset>
 @{
+    var msg = TempData["Success"] as string;
+
+    if (!string.IsNullOrEmpty(msg))
+    {
+        <div class="alert alert-success" role="alert">
+            @msg
+        </div>
+    }
 }
 
 <h1>Browse Available Assets</h1>

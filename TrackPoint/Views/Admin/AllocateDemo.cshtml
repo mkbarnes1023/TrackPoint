@@ -2,6 +2,13 @@
     This view is a demonstration for the asset allocation feature for adminstrators. It will be integrated into the admin dashboard in the future.
 *@
 @{
+    var msg = TempData["Failure"] as string;
+    if (!string.IsNullOrEmpty(msg))
+    {
+        <div class="alert alert-danger" role="alert">
+            @msg
+        </div>
+    }
 }
 
 <h1>Allocate Asset</h1>

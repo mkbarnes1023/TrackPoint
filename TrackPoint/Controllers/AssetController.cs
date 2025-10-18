@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Cryptography.Xml;
 using TrackPoint.Models;
 
 namespace TrackPoint.Controllers
@@ -14,8 +16,10 @@ namespace TrackPoint.Controllers
 		}
 
         /**
-         * Return the view for the Transfer Log with the sample data sorted by TransferDate descending as the model
+         * Return the view for the Transfer Log with the sample data sorted by TransferDate descending as the 
          */
+        // TODO: This is not a real transfer log since it's just sorting the assets by transfer date, it does not give a detailed history.
+        // Create a transfer log model in the future to properly track asset transfers.
         public IActionResult TransferLog()
         {
             var sorted = Asset.SampleAssets.OrderByDescending(a => a.TransferDate).ToList();
