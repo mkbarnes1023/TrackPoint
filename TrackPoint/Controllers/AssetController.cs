@@ -29,7 +29,7 @@ namespace TrackPoint.Controllers
         public IActionResult AuditTrail(string AssetTag)
         {
             var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
-            if (asset == null) // What if asset is null? We should check that first to prevent errors on line 32.
+            if (asset == null) // TODO: What if asset is null? Check that first to prevent errors on line 32.
             {
                 return NotFound();
             }

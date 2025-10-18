@@ -1,0 +1,22 @@
+﻿@*
+    This view is a demonstration for the asset allocation feature for adminstrators. It will be integrated into the admin dashboard in the future.
+*@
+@{
+}
+
+<h1>Allocate Asset</h1>
+<p>Please enter the tag and new borrower for the asset you want to reassign.</p>
+
+<form asp-controller="Admin" asp-action="Allocate">
+   <div class="form-group">
+        <label for="AssetTag">Asset Tag:</label>
+        <input type="text" id="AssetTag" name="AssetTag" class="form-control" />
+    </div>
+    <br/>
+    <div class="form-group">
+        <label for="IssuedTo">Allocate To:</label>
+        <input type="text" id="IssuedTo" name="IssuedTo" class="form-control" />
+    </div>
+    <br/>
+    <button type="submit" class="btn btn-primary">Allocate Asset</button>
+</form>
