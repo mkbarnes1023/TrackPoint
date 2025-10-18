@@ -17,6 +17,7 @@
             <th>Issued To</th>
             <th>Status</th>
             <th>Notes</th>
+            <th>Audit Trail</th>
             <th>Actions</th>
 		</tr>
     </thead>
@@ -54,6 +55,7 @@
                     <td>@asset.Status</td>
 				}
                 <td>@asset.Notes</td>
+                <td><a asp-controller="Asset" asp-action="AuditTrail" asp-route-assetTag="@asset.AssetTag" class="btn btn-primary">View Audit Trail</a></td>
                 <td>
                     <!-- 
                         Disable the button for unavailable assets.

@@ -21,5 +21,19 @@ namespace TrackPoint.Controllers
             var sorted = Asset.SampleAssets.OrderByDescending(a => a.TransferDate).ToList();
             return View(sorted);
         }
+
+        /**
+         * Redirects to the Audit Trail view using the selected asset. In the future, this will be 
+         * replaced with a more compact menu instead of a separate page just to view it.
+         */
+        public IActionResult AuditTrail(string AssetTag)
+        {
+            var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
+            if (asset == null) // What if asset is null? We should check that first to prevent errors on line 32.
+            {
+                return NotFound();
+            }
+            return View(asset);
+        }
     }
 }

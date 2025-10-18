@@ -1,0 +1,28 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model TrackPoint.Models.Asset
+@{
+}
+
+<h1>Audit Trail for Asset: @Model.AssetTag</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Issued To</th>
+            <th>Transfer Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.AuditTrail != null)
+        {
+            @foreach (var entry in Model.AuditTrail)
+            {
+                <tr>
+                    <td>@entry.IssuedTo</td>
+                    <td>@entry.TransferDate.ToString("g")</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
