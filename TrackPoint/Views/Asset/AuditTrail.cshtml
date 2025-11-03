@@ -1,0 +1,46 @@
+﻿@*
+    This view displays a simple audit trail for the asset selected from the asset browser.
+*@
+@model TrackPoint.Models.Asset
+@{
+}
+
+
+<h1>Audit Trail for Asset: @Model.AssetTag</h1>
+<p>Note: The bolded entry represents the current borrower.</p>
+
+@if (Model.AuditTrail != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Issued To</th>
+                <th>Transfer Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var entry in Model.AuditTrail)
+            {
+                <tr>
+                    <td>@entry.IssuedTo</td>
+                    <td>@entry.TransferDate.ToString("g")</td>
+                </tr>
+            }
+            <tr>
+                @if (Model.IssuedTo == null)
+                {
+                    <td><strong>Unallocated</strong></td>
+                }
+                else
+                {
+                    <td><strong>@Model.IssuedTo</strong></td>
+                }
+                <td>@Model.TransferDate.ToString("g")</td>
+            </tr>
+        </tbody>
+    </table>
+}
+else
+{
+    <p>This asset has no audit history.</p>
+}
