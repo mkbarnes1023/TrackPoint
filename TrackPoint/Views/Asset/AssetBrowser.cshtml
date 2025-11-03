@@ -3,10 +3,18 @@
 *@
 @model IEnumerable<TrackPoint.Models.Asset>
 @{
+    var msg = TempData["Success"] as string;
+
+    if (!string.IsNullOrEmpty(msg))
+    {
+        <div class="alert alert-success" role="alert">
+            @msg
+        </div>
+    }
 }
 
 <h1>Browse Available Assets</h1>
-<table class="table">
+<table id="Assets" class="table">
     <thead>
         <tr>
             <th>Asset Tag</th>
@@ -17,6 +25,7 @@
             <th>Issued To</th>
             <th>Status</th>
             <th>Notes</th>
+            <th>Audit Trail</th>
             <th>Actions</th>
 		</tr>
     </thead>
@@ -54,6 +63,7 @@
                     <td>@asset.Status</td>
 				}
                 <td>@asset.Notes</td>
+                <td><a asp-controller="Asset" asp-action="AuditTrail" asp-route-assetTag="@asset.AssetTag" class="btn btn-primary">View Audit Trail</a></td>
                 <td>
                     <!-- 
                         Disable the button for unavailable assets.
@@ -72,3 +82,11 @@
 		}
     </tbody>
 </table>
+
+<!--Datatabless implementation-->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script>
+	var table = $('#Assets').DataTable();
+</script>
