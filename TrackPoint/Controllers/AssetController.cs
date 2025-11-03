@@ -7,7 +7,7 @@ namespace TrackPoint.Controllers
 {
 	public class AssetController : Controller
 	{
-      /**
+      /*
        *  Return the view for the Asset Browser with the sample data as the model
        */
       public IActionResult AssetBrowser()
@@ -15,7 +15,7 @@ namespace TrackPoint.Controllers
         return View(Asset.SampleAssets);
       }
 
-      /**
+      /*
        *  Return the view for the Location Add Form
        */
       public IActionResult LocationAdd()
@@ -23,7 +23,7 @@ namespace TrackPoint.Controllers
         return View();
       }
 
-      /**
+      /*
        *  Add the new location to the database and redirect to the index
        */
       public IActionResult NewLocation(Location l)
@@ -34,6 +34,49 @@ namespace TrackPoint.Controllers
         Console.WriteLine($"New Locatoin Added: {l.Name}, {l.Abbreviation}");
         return View("../Home/Index");
       }
+		/*
+		 *  Return the view for the Category Add Form
+		 */
+		public IActionResult CategoryAdd()
+    {
+      return View();
+    }
+    
+    /*
+		 *  Return the view for the Asset Add Form
+		 */
+		public IActionResult AssetAdd()
+		{
+			return View();
+		}
+
+		/*
+		 *  Add the new category to the database and redirect to the index
+		 */
+		public IActionResult NewCategory(Categroy c)
+		{
+			// Add the new Category to database and redirect the user to the AssetBrowser
+
+			// Log the category to the console for debugging purposes
+			Console.WriteLine($"New Category Added: {c.Name}, {c.Abbreviation}");
+			return View("../Home/Index");
+    }
+     
+    /* 
+		 *  Add the new asset to the database and redirect to the Asset Browser
+		 */
+		public IActionResult NewAsset(Asset a)
+		{
+			// Assign the Asset a asset tag based on the Category's abbreviation and a unique number
+			a.AssetTag = "Something";
+
+			// Add the new Asset to database and redirect the user to the AssetBrowser
+			Asset.SampleAssets = Asset.SampleAssets.Append(a);
+
+			// Log the asset to the console for debugging purposes
+			Console.WriteLine($"New Asset Added: {a.AssetTag}, {a.Make}, {a.Model}, {a.Category}, {a.Location}, {a.IssuedTo}, {a.Status}, {a.Notes}");
+			return View("AssetBrowser", Asset.SampleAssets);
+		}
     
         /**
          * Return the view for the Transfer Log with the sample data sorted by TransferDate descending as the 
