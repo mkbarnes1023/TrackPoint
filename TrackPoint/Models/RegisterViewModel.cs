@@ -5,23 +5,15 @@ namespace TrackPoint.Models
     public class RegisterViewModel
     {
         [Required]
-        [Display(Name = "Username")]
         public string Username { get; set; } = string.Empty;
 
-        [Required]
-        [EmailAddress]
-        [Display(Name = "Email")]
+        [Required, EmailAddress]
         public string Email { get; set; } = string.Empty;
 
-        [Required]
-        [DataType(DataType.Password)]
-        [Display(Name = "Password")]
+        [Required, DataType(DataType.Password)]
         public string Password { get; set; } = string.Empty;
 
-        [Required]
-        [DataType(DataType.Password)]
-        [Display(Name = "Confirm Password")]
-        [Compare("Password", ErrorMessage = "Passwords do not match.")]
+        [Required, DataType(DataType.Password), Compare(nameof(Password))]
         public string ConfirmPassword { get; set; } = string.Empty;
     }
 }
