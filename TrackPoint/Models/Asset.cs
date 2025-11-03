@@ -41,11 +41,16 @@ namespace TrackPoint.Models
 			Returned
 		}
 		public AssetStatus Status { get; set; }
-        public DateTime TransferDate { get; set; } // Date the asset was last transfered, added by Matthew
-        public string? Notes { get; set; }
+		public string? Notes { get; set; }
+		public DateTime TransferDate { get; set; } // Date the asset was last transfered, added by Matthew
+		public virtual ICollection<AuditTrail> AuditTrail { get; set; } = new List<AuditTrail>(); // Allows for navigation through the asset's Audit Trail
 
-		// Constructor for the purpose of creating sample data
-		public Asset(string assetTag, string? make, string? model, string? category, string? location, string? issuedTo, AssetStatus status, DateTime transferDate, string? notes)
+		public Asset()
+		{
+
+		}
+        // Constructor for the purpose of creating sample data
+        public Asset(string assetTag, string? make, string? model, string? category, string? location, string? issuedTo, AssetStatus status, DateTime transferDate, string? notes)
 		{
 			AssetTag = assetTag;
 			Make = make;
