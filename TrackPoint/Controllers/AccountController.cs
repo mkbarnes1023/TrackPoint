@@ -18,14 +18,14 @@ namespace TrackPoint.Controllers
                 return View(model);
 
             // Placeholder for authentication logic
-            if (model.Username == "admin" && model.Password == "password")
-            {
+            //if (model.Username == "admin" && model.Password == "password")
+            //{
                 // TODO: Set authentication cookie/session
                 return RedirectToAction("Index", "Home");
-            }
+            //}
 
-            ModelState.AddModelError("", "Invalid login attempt.");
-            return View(model);
+            //ModelState.AddModelError("", "Invalid login attempt.");
+            //return View(model);
         }
 
         [HttpGet]
