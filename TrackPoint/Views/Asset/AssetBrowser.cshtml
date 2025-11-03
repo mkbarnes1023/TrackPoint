@@ -6,7 +6,7 @@
 }
 
 <h1>Browse Available Assets</h1>
-<table class="table">
+<table id="Assets" class="table">
     <thead>
         <tr>
             <th>Asset Tag</th>
@@ -72,3 +72,11 @@
 		}
     </tbody>
 </table>
+
+<!--Datatabless implementation-->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script>
+	var table = $('#Assets').DataTable();
+</script>
