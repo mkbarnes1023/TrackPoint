@@ -19,6 +19,14 @@ namespace TrackPoint.Controllers
 		 *  Return the view for the Category Add Form
 		 */
 		public IActionResult CategoryAdd()
+    {
+      return View();
+    }
+    
+    /*
+		 *  Return the view for the Asset Add Form
+		 */
+		public IActionResult AssetAdd()
 		{
 			return View();
 		}
@@ -33,6 +41,22 @@ namespace TrackPoint.Controllers
 			// Log the category to the console for debugging purposes
 			Console.WriteLine($"New Category Added: {c.Name}, {c.Abbreviation}");
 			return View("../Home/Index");
+    }
+     
+    /* 
+		 *  Add the new asset to the database and redirect to the Asset Browser
+		 */
+		public IActionResult NewAsset(Asset a)
+		{
+			// Assign the Asset a asset tag based on the Category's abbreviation and a unique number
+			a.AssetTag = "Something";
+
+			// Add the new Asset to database and redirect the user to the AssetBrowser
+			Asset.SampleAssets = Asset.SampleAssets.Append(a);
+
+			// Log the asset to the console for debugging purposes
+			Console.WriteLine($"New Asset Added: {a.AssetTag}, {a.Make}, {a.Model}, {a.Category}, {a.Location}, {a.IssuedTo}, {a.Status}, {a.Notes}");
+			return View("AssetBrowser", Asset.SampleAssets);
 		}
     
         /**
