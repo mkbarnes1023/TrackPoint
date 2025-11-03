@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TrackPoint.Models;
 
@@ -16,6 +17,7 @@ namespace TrackPoint.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login(string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -23,6 +25,7 @@ namespace TrackPoint.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
         {
@@ -45,12 +48,14 @@ namespace TrackPoint.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Register()
         {
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
@@ -66,7 +71,6 @@ namespace TrackPoint.Controllers
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
-                // Do not auto sign-in. Redirect user to Login page.
                 TempData["RegistrationSuccess"] = "Your account has been created. Please log in.";
                 return RedirectToAction(nameof(Login));
             }
@@ -86,19 +90,20 @@ namespace TrackPoint.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult ForgotPassword()
         {
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public IActionResult ForgotPassword(ForgotPasswordViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
-            // For demo: no email sending. Identity tokens can be used here later.
             ViewBag.Message = "If an account with that email exists, a password reset link has been sent.";
             return View();
         }
