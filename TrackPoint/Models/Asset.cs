@@ -42,11 +42,10 @@ namespace TrackPoint.Models
 		}
 		public AssetStatus Status { get; set; }
 		public string? Notes { get; set; }
-    public DateTime TransferDate { get; set; } // Date the asset was last transfered, added by Matthew
-    public string? Notes { get; set; }
-    public virtual ICollection<AuditTrail> AuditTrail { get; set; } = new List<AuditTrail>(); // Allows for navigation through the asset's Audit Trail
+		public DateTime TransferDate { get; set; } // Date the asset was last transfered, added by Matthew
+		public virtual ICollection<AuditTrail> AuditTrail { get; set; } = new List<AuditTrail>(); // Allows for navigation through the asset's Audit Trail
 
-    public Asset()
+		public Asset()
 		{
 
 		}
