@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+Point/Views/Shared/_Layout.cshtml
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -27,12 +28,14 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+                        @* Removed the Login link *@
                     </ul>
 
+                    @* Show Logout on top-right only when authenticated and NOT on the Login page *@
                     @{
-                        var isLoginPage =
-                            string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Account", StringComparison.OrdinalIgnoreCase)
-                            && string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Login", StringComparison.OrdinalIgnoreCase);
+                        var isLoginPage = string.Equals(
+                            ViewContext.RouteData.Values["controller"]?.ToString(), "Account", System.StringComparison.OrdinalIgnoreCase)
+                            && string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Login", System.StringComparison.OrdinalIgnoreCase);
                     }
 
                     @if (User.Identity?.IsAuthenticated == true && !isLoginPage)
