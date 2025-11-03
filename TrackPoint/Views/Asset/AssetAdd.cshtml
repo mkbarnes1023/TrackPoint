@@ -1,0 +1,73 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model TrackPoint.Models.Asset;
+@{
+}
+<h1>Register an Asset</h1>
+<form>
+	<input type="hidden" asp-for="AssetTag">
+	<div>
+		<label asp-for="Make">Make</label>
+		<input type="test" asp-for="Make">
+	</div>
+
+	<div>
+		<label asp-for="Model">Model</label>
+		<input type="text" asp-for="Model">
+	</div>
+
+	<div>
+		<label asp-for="Category">Category</label>
+		<select asp-for="Category">
+			<!--Options will be automatically populated by catagories in the database-->
+			<option value="">Select a Category</option>
+			<option value="Laptop">Laptop</option>
+			<option value="Desktop">Desktop</option>
+			<option value="Tablet">Tablet</option>
+			<option value="Monitor">Monitor</option>
+			<option value="Peripheral">Peripheral</option>
+			<option value="Other">Other</option>
+		</select>
+	</div>
+
+	<div>
+		<label asp-for="Category">Category</label>
+		<select asp-for="Location">
+			<!--Options will be automatically populated by locations in the database-->
+			<option value="">Select a Location</option>
+			<option value="Main Office">Main Office</option>
+			<option value="Branch Office">Branch Office</option>
+			<option value="Mobile Unit 1">Mobile Unit 1</option>
+			<option value="Mobile Unit 2">Mobile Unit 2</option>
+		</select>
+	</div>
+
+	<div>
+		<label asp-for="IssuedTo">Issued To</label>
+		<input type="text" asp-for="IssuedTo">
+	</div>
+
+	<div>
+		<select asp-for="Status">
+			<!--Some of these options may be omitted, as it doesnt really make sense to register a new asset as "Lost"-->
+			<option value="">Select Status</option>
+			<option value="InUse">In Use</option>
+			<option value="InStorage">In Storage</option>
+			<option value="UnderMaintenance">Under Maintenance</option>
+			<option value="Retired">Retired</option>
+			<option value="PendingDeployment">Pending Deployment</option>
+			<option value="Lost">Lost</option>
+			<option value="Transfered">Transfered</option>
+			<option value="NeedsReplacement">Needs Replacement</option>
+			<option value="OnHold">On Hold</option>
+			<option value="Returned">Returned</option>
+		</select>
+	</div>
+
+	<div>
+		<textarea asp-for="Notes" placeholder="Additional notes about the asset"></textarea>
+	</div>
+
+	<input type="submit" value="Submit" asp-action="NewAsset">
+</form>

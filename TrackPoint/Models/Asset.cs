@@ -43,6 +43,10 @@ namespace TrackPoint.Models
 		}
 		public AssetStatus Status { get; set; }
 		public string? Notes { get; set; }
+		public Asset()
+		{
+
+		}
 
 		// Constructor for the purpose of creating sample data
 		public Asset(string assetTag, string? make, string? model, string? category, string? location, string? issuedTo, AssetStatus status, string? notes)
