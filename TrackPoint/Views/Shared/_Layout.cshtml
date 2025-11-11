@@ -13,51 +13,21 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                @{
-                    var isLoginPage = string.Equals(
-                        ViewContext.RouteData.Values["controller"]?.ToString(), "Account", StringComparison.OrdinalIgnoreCase)
-                        && string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Login", StringComparison.OrdinalIgnoreCase);
-                    var isAuthenticated = User.Identity?.IsAuthenticated == true;
-                }
-
-                @if (isAuthenticated)
-                {
-                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">TrackPoint</a>
-                }
-                else
-                {
-                    <span class="navbar-brand">TrackPoint</span>
-                }
-
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">TrackPoint</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    @if (isAuthenticated)
-                    {
-                        <ul class="navbar-nav me-auto">
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                            </li>
-                        </ul>
-
-                        <ul class="navbar-nav ms-auto">
-                            <li class="nav-item d-flex align-items-center me-2">
-                                <span class="navbar-text text-muted">Hello, @User.Identity?.Name</span>
-                            </li>
-                            <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">Logout</button>
-                                </form>
-                            </li>
-                        </ul>
-                    }
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </nav>
