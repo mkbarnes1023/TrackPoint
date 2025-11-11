@@ -8,5 +8,10 @@ namespace TrackPoint.Controllers
         {
             return View();
         }
+
+        public IActionResult adminDashboard()
+        {
+            return View();
+        }
     }
 }
