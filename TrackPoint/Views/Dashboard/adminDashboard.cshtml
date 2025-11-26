@@ -1,0 +1,294 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+<h2 class="mb-3">Admin Dashboard</h2>
+<a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary">Personal Dashboard</a>
+
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm custom-select">
+            <h6>Assets by Category</h6>
+            <canvas id="manufacturer"></canvas>
+        </div>
+        <div class="col-sm custom-select">
+            <h6>Available Assets</h6>
+            <canvas id="avail"></canvas>
+        </div>
+        <div class="col-sm custom-select">
+            <h6>Assets by Status</h6>
+            <canvas id="status"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <select id="searchColumn">
+        <option value="__all__">All</option>
+        <option value="0">Asset Tag</option>
+        <option value="1">Make</option>
+        <option value="2">Model</option>
+        <option value="3">Category</option>
+        <option value="4">Location</option>
+        <option value="5">Issued To</option>
+        <option value="6">Status</option>
+        <option value="7">Notes</option>
+    </select>
+    <div id="customSearchContainer"></div>
+    <div>
+        Toggle column:
+        <a href="#" class="toggle-vis" data-column="0">Asset Tag</a> -
+        <a href="#" class="toggle-vis" data-column="1">Make</a> -
+        <a href="#" class="toggle-vis" data-column="2">Model</a> -
+        <a href="#" class="toggle-vis" data-column="3">Category</a> -
+        <a href="#" class="toggle-vis" data-column="4">Location</a> -
+        <a href="#" class="toggle-vis" data-column="5">Issued To</a> -
+        <a href="#" class="toggle-vis" data-column="6">Status</a> -
+        <a href="#" class="toggle-vis" data-column="7">Notes</a>
+    </div>
+
+    <table id="adminTable" class="table table-bordered " style="width:100%">
+        <thead>
+            <tr>
+                <th>Asset Tag</th>
+                <th>Make</th>
+                <th>Model</th>
+                <th>Category</th>
+                <th>Location</th>
+                <th>Issued To</th>
+                <th>Status</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>LSNF-001</td><td>Dell</td><td>Latitude 7420</td><td>Tech</td><td>HQ Closet</td><td>Emily</td><td>InUse</td><td>Assigned</td></tr>
+            <tr><td>LSNF-002</td><td>HP</td><td>ProBook</td><td>Tech</td><td>HQ Closet</td><td>—</td><td>InStorage</td><td>Spare</td></tr>
+            <tr><td>LSNF-003</td><td>Epson</td><td>EX5280</td><td>Tech</td><td>Room 101</td><td>Alex</td><td>UnderMaintenance</td><td>Bulb</td></tr>
+            <tr><td>LSNF-001</td><td>Dell</td><td>Latitude 7420</td><td>Tech</td><td>HQ Closet</td><td>Emily</td><td>InUse</td><td>Assigned</td></tr>
+            <tr><td>LSNF-002</td><td>HP</td><td>ProBook</td><td>Tech</td><td>HQ Closet</td><td>—</td><td>InStorage</td><td>Spare</td></tr>
+            <tr><td>LSNF-003</td><td>Epson</td><td>EX5280</td><td>Tech</td><td>Room 101</td><td>Alex</td><td>UnderMaintenance</td><td>Bulb</td></tr>
+            <tr><td>LSNF-004</td><td>Lenovo</td><td>ThinkPad X13</td><td>Tech</td><td>Field Office</td><td>Sarah</td><td>CheckedOut</td><td>Used for outreach event</td></tr>
+            <tr><td>LSNF-005</td><td>Canon</td><td>Pixma G3270</td><td>Tech</td><td>HQ Supply Room</td><td>—</td><td>InStorage</td><td>Spare printer</td></tr>
+            <tr><td>LSNF-006</td><td>Microsoft</td><td>Surface Pro 7</td><td>Tech</td><td>HQ Desk 4</td><td>Michael</td><td>CheckedOut</td><td>Used for client presentation</td></tr>
+            <tr><td>LSNF-007</td><td>Samsung</td><td>Galaxy Tab A7</td><td>Tech</td><td>Outreach Van</td><td>Jasmine</td><td>InUse</td><td>Deployed for field survey</td></tr>
+            <tr><td>LSNF-008</td><td>Apple</td><td>MacBook Air M1</td><td>Tech</td><td>HQ Closet</td><td>—</td><td>PendingDeployment</td><td>New hire device</td></tr>
+            <tr><td>LSNF-009</td><td>LG</td><td>Projector MiniBeam</td><td>Tech</td><td>Room 202</td><td>Jessica</td><td>CheckedOut</td><td>Training session</td></tr>
+            <tr><td>LSNF-010</td><td>Amazon</td><td>Echo Dot</td><td>Non-Tech</td><td>Conference Room</td><td>—</td><td>InUse</td><td>Office automation</td></tr>
+            <tr><td>LSNF-011</td><td>Brother</td><td>HL-L2350DW</td><td>Tech</td><td>HQ Printing Station</td><td>—</td><td>InUse</td><td>Main printer</td></tr>
+            <tr><td>LSNF-012</td><td>Generic</td><td>Extension Cord</td><td>Non-Tech</td><td>Kit A</td><td>—</td><td>InStorage</td><td>Used for outreach setups</td></tr>
+            <tr><td>LSNF-013</td><td>HP</td><td>EliteBook 840</td><td>Tech</td><td>Kit B</td><td>Anthony</td><td>CheckedOut</td><td>Field reporting</td></tr>
+            <tr><td>LSNF-014</td><td>Canon</td><td>EOS Rebel T7</td><td>Tech</td><td>HQ Media Closet</td><td>—</td><td>InStorage</td><td>Photo documentation</td></tr>
+            <tr><td>LSNF-015</td><td>Logitech</td><td>C920</td><td>Tech</td><td>HQ Closet</td><td>—</td><td>Retired</td><td>Outdated equipment</td></tr>
+        </tbody>
+    </table>
+</div>
+
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Keep chart instances so we can destroy/recreate on re-renders
+    let statusChart = null;
+    let availChart = null;
+
+    $(function () {
+      const table = $('#adminTable').DataTable({
+        pageLength: 25,
+        ordering: true,
+        searching: true,
+        stateSave: true,
+        lengthChange: false,
+        initComplete: function () {
+          const api = this.api();
+          const tableId = api.table().node().id;
+          const $filter = $('#' + tableId + '_filter'); // DataTables adds this
+
+          // removes search filter
+          $filter.find('label').contents().filter(function () {
+            return this.nodeType === 3; // text nodes
+          }).remove();
+
+          // moving search bar
+          $filter.appendTo('#customSearchContainer');
+
+          // Now that the table is fully initialised, create charts
+          createStatusChart();
+          createCheckedOutChart();
+          createCategoryChart();
+        }
+      });  
+
+      // Column visibility toggles
+      document.querySelectorAll('a.toggle-vis').forEach((el) => {
+        el.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            let columnIdx = e.target.getAttribute('data-column');
+            let column = table.column(columnIdx);
+
+            // Toggle the visibility
+            column.visible(!column.visible());
+        });
+      });
+    });
+
+    function createStatusChart() {
+        const dt = $('#adminTable').DataTable();
+        const statusData = dt.column(6).data().toArray();
+
+        // Count occurrences of each status
+        const statusCounts = {};
+        statusData.forEach(status => {
+            // Normalize whitespace and treat empty/em-dash as explicit label if needed
+            const key = (status || '').toString().trim();
+            statusCounts[key] = (statusCounts[key] || 0) + 1;
+        });
+
+        const labels = Object.keys(statusCounts);
+        const values = Object.values(statusCounts);
+
+        // Generate a palette (repeat if necessary)
+        const baseColors = [
+            'rgba(54,162,235,0.8)',
+            'rgba(255,99,132,0.8)',
+            'rgba(255,205,86,0.8)',
+            'rgba(75,192,192,0.8)',
+            'rgba(153,102,255,0.8)',
+            'rgba(201,203,207,0.8)'
+        ];
+        const borderColors = baseColors.map(c => c.replace('0.8', '1'));
+        const backgroundColors = labels.map((_, i) => baseColors[i % baseColors.length]);
+
+        // Get 2D context and destroy prior chart if present
+        const ctx = document.getElementById('status').getContext('2d');
+        if (statusChart) {
+            statusChart.destroy();
+        }
+
+        statusChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    borderWidth: 1,
+                    backgroundColor: backgroundColors,
+                    borderColor: borderColors
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: { enabled: true }
+                }
+            }
+        });
+    }
+
+    function createCheckedOutChart() {
+        const dt = $('#adminTable').DataTable();
+        const issuedToData = dt.column(5).data().toArray();
+
+        let occupied = 0;
+        let available = 0;
+
+        issuedToData.forEach((val) => {
+            const s = (val || '').toString().trim();
+            // treat empty string or single em-dash (—) as available
+            if (s === '' || s === '—' || s === '-') {
+                available++;
+            } else {
+                occupied++;
+            }
+        });
+
+        const values = [available, occupied];
+        const labels = ['Available', 'Occupied'];
+        const backgroundColors = ['rgba(75,192,192,0.8)', 'rgba(255,159,64,0.8)'];
+        const borderColors = ['rgba(75,192,192,1)', 'rgba(255,159,64,1)'];
+
+        const ctx = document.getElementById('avail').getContext('2d');
+        if (availChart) {
+            availChart.destroy();
+        }
+
+        availChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: backgroundColors,
+                    borderColor: borderColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    }
+
+    function createCategoryChart() {
+        const dt = $('#adminTable').DataTable();
+        const categoryData = dt.column(3).data().toArray();
+
+        // Count occurrences of each category
+        const categoryCounts = {};
+        categoryData.forEach(category => {
+            categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+        });
+
+        const labels = Object.keys(categoryCounts);
+        const values = Object.values(categoryCounts);
+
+
+        const ctx = document.getElementById('manufacturer');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+
+                    data: values,
+                    borderWidth: 2,
+                    backgroundColor: 'rgba(54,162,235,0.5)',
+                    borderColor: 'rgba(54,162,235,1)'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+
+        });
+    }
+        function applyScopedSearch() {
+      const q = $('#tableSearch').val() || '';
+      const scope = $('#searchColumn').val();
+
+      // Clear any previous searches so they don’t stack.
+      dt.search('');
+      dt.columns().search('');
+
+      if (scope === '__all__') {
+        dt.search(q).draw();                 // global search (all columns)
+      } else {
+        dt.column(parseInt(scope, 10))       // one column by index
+          .search(q)
+          .draw();
+      }
+    }
+</script>
+
+

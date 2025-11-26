@@ -4,39 +4,35 @@ using TrackPoint.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// MVC
-builder.Services.AddControllersWithViews();
-
-// EF Core (SQLite)
+// EF Core (SQL Server)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Identity
+// ASP.NET Core Identity (with default UI)
 builder.Services
-    .AddIdentity<IdentityUser, IdentityRole>(options =>
+    .AddDefaultIdentity<IdentityUser>(options =>
     {
-        options.Password.RequireDigit = false;
+        options.SignIn.RequireConfirmedAccount = false;
+        options.Password.RequiredLength = 6;
+        options.Password.RequireNonAlphanumeric = false;
         options.Password.RequireUppercase = false;
         options.Password.RequireLowercase = false;
-        options.Password.RequireNonAlphanumeric = false;
-        options.Password.RequiredLength = 6;
-        options.User.RequireUniqueEmail = true;
+        options.Password.RequireDigit = false;
     })
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
+    .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// Cookies
-builder.Services.ConfigureApplicationCookie(options =>
+// Cookie paths
+builder.Services.ConfigureApplicationCookie(o =>
 {
-    options.LoginPath = "/Account/Login";
-    options.AccessDeniedPath = "/Account/Login";
+    o.LoginPath = "/Identity/Account/Login";
+    o.AccessDeniedPath = "/Identity/Account/AccessDenied";
 });
 
-// Placeholder: add Microsoft identity (OIDC) later here.
+builder.Services.AddRazorPages();
+builder.Services.AddControllersWithViews(); // needed for /Home/Index
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -44,16 +40,32 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapStaticAssets();
+// Root: if signed in -> Home; else -> Login with returnUrl targeting Home
+app.MapGet("/", ctx =>
+{
+    if (ctx.User?.Identity?.IsAuthenticated == true)
+    {
+        ctx.Response.Redirect("/Home/Index");
+    }
+    else
+    {
+        var returnUrl = Uri.EscapeDataString("/Home/Index");
+        ctx.Response.Redirect($"/Identity/Account/Login?returnUrl={returnUrl}");
+    }
+    return Task.CompletedTask;
+});
 
+// MVC (Home/Index etc.)
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Account}/{action=Login}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Identity UI (Razor Pages)
+app.MapRazorPages();
 
 app.Run();
