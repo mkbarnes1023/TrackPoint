@@ -1,0 +1,44 @@
+﻿@*
+    This view is used when selecting an individual Asset to view its details.
+*@
+@model TrackPoint.Models.Asset;
+@{
+}
+
+@*
+    TODO: Add error checking for if an asset is not passed to this view, and also check if we even have permissions to view the asset.
+    Currently, we can access any asset through the ?assetTag= URL parameter. This could become a security concern depending on the asset.
+    TODO: Reorganize to reflect the wireframe for this and add buttons (Borrow, Audit Trail, Report, Generate Barcode)
+*@
+
+@if (Model.AssetTag != null)
+{
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <img src="https://placehold.co/600x400/000000/FFFFFF.png"/>
+                <p>Asset Barcode</p>
+            </div>
+            <div class="col">
+                <h1>@Model.Make @Model.Model</h1>
+                <hr class="border-4"/>
+                <p><b>Asset Tag:</b> @Model.AssetTag</p>
+                <p><b>Status:</b> @Model.Status</p>
+                <p><b>Location:</b> @Model.Location</p>
+                <p><b>Make:</b> @Model.Make</p>
+                <p><b>Model:</b> @Model.Model</p>
+                <p><b>Category:</b> @Model.Category</p>
+                <p><b>Issued To:</b> @Model.IssuedTo</p>
+                <p><b>Notes:</b> @Model.Notes</p>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <p>No asset detected!</p>
+}
+
+@*
+    Todo: Back button here
+*@

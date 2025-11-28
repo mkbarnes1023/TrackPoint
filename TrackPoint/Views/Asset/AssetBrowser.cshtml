@@ -33,7 +33,7 @@
         @foreach (var asset in Model)
         {
             <tr>
-                <td>@asset.AssetTag</td>
+                <td><a asp-controller="Asset" asp-action="AssetView" asp-route-assetTag="@asset.AssetTag">@asset.AssetTag</a></td>
                 <td>@asset.Make</td>
                 <td>@asset.Model</td>
                 <td>@asset.Category</td>
