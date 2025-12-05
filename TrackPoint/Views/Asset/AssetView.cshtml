@@ -23,11 +23,12 @@
                 <img src="https://placehold.co/600x400/000000/FFFFFF.png"/>
                 @* <p>Asset Barcode</p> *@
                 <div class="d-flex justify-content-center mt-3">
-
                     @if (Model.Status == Asset.AssetStatus.InStorage || Model.Status == Asset.AssetStatus.Transfered)
                     {
-                        <button type="button" class="btn btn-success btn-lg mx-2">Borrow</button>
-                    } else { <button type="button" class="btn btn-secondary btn-lg mx-2" style="color:#ffffff75">Borrow</button>}
+                        <button type="button" class="btn btn-success btn-lg mx-2">
+                            <a asp-controller="Asset" asp-action="checkOut" asp-route-assetTag="@Model.AssetTag" style="color: white;text-decoration: none;">Borrow</a>
+                        </button>
+                    } else { <button type="button" class="btn btn-secondary btn-lg mx-2" title="Cannot borrow" style="color:#ffffff75">Borrow</button>}
                     <button type="button" class="btn btn-primary btn-lg">
                         <a asp-controller="Asset" asp-action="AuditTrail" asp-route-assetTag="@Model.AssetTag" style="color:white;text-decoration: none;">View Audit Trail</a>
                     </button>
