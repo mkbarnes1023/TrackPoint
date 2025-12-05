@@ -3,9 +3,9 @@
 namespace TrackPoint.Models
 {
 	/**
-	 * This class represents a catagory of assets
+	 * This class represents a category of assets
 	 */ 
-	public class Categroy
+	public class Category
 	{
 		[Key]
 		public int CategoryId { get; set; }

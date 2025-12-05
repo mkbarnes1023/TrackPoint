@@ -23,19 +23,27 @@
     </div>
 </div>
 
-<div class="container mt-4">
-    <select id="searchColumn">
-        <option value="__all__">All</option>
-        <option value="0">Asset Tag</option>
-        <option value="1">Make</option>
-        <option value="2">Model</option>
-        <option value="3">Category</option>
-        <option value="4">Location</option>
-        <option value="5">Issued To</option>
-        <option value="6">Status</option>
-        <option value="7">Notes</option>
-    </select>
-    <div id="customSearchContainer"></div>
+<div class="container">
+    <div class="row">
+        <div class="col-sm">
+            <select id="searchColumn">
+                <option value="__all__">All</option>
+                <option value="0">Asset Tag</option>
+                <option value="1">Make</option>
+                <option value="2">Model</option>
+                <option value="3">Category</option>
+                <option value="4">Location</option>
+                <option value="5">Issued To</option>
+                <option value="6">Status</option>
+                <option value="7">Notes</option>
+            </select>
+        </div>
+        <div class="col-sm">
+            <div id="customSearchContainer"></div>
+        </div>
+    </div>
+</div>
+    
     <div>
         Toggle column:
         <a href="#" class="toggle-vis" data-column="0">Asset Tag</a> -
@@ -47,6 +55,8 @@
         <a href="#" class="toggle-vis" data-column="6">Status</a> -
         <a href="#" class="toggle-vis" data-column="7">Notes</a>
     </div>
+
+    <div id="exportButtons" class="mb-2"></div>
 
     <table id="adminTable" class="table table-bordered " style="width:100%">
         <thead>
@@ -86,14 +96,28 @@
 
 
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" />
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+
+<!-- Buttons extension dependencies -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+<!-- DataTables Buttons -->
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
     // Keep chart instances so we can destroy/recreate on re-renders
     let statusChart = null;
     let availChart = null;
+    let categoryChart = null;
 
     $(function () {
       const table = $('#adminTable').DataTable({
@@ -102,25 +126,53 @@
         searching: true,
         stateSave: true,
         lengthChange: false,
+        dom: 'Bfrtip',
+        buttons: [
+            { extend: 'copy', exportOptions: { columns: ':visible' } },
+            { extend: 'csv',  exportOptions: { columns: ':visible' } },
+            { extend: 'excel', exportOptions: { columns: ':visible' } },
+            { extend: 'pdf', exportOptions: { columns: ':visible' } },
+            { extend: 'print', exportOptions: { columns: ':visible' } },
+            { extend: 'colvis' }
+        ],
         initComplete: function () {
           const api = this.api();
           const tableId = api.table().node().id;
           const $filter = $('#' + tableId + '_filter'); // DataTables adds this
 
-          // removes search filter
+          // removes search filter label text but keeps input
           $filter.find('label').contents().filter(function () {
             return this.nodeType === 3; // text nodes
           }).remove();
 
-          // moving search bar
+          // move search box into custom container
           $filter.appendTo('#customSearchContainer');
 
-          // Now that the table is fully initialised, create charts
-          createStatusChart();
-          createCheckedOutChart();
-          createCategoryChart();
+          // put Buttons UI into our export container
+          api.buttons().container().appendTo('#exportButtons');
+
+          // ensure the input has a predictable id and no duplicate handlers
+          const $input = $filter.find('input');
+          $input.attr('id', 'tableSearch');
+          $input.off('input.dt_custom'); // remove any previously attached namespaced handlers
+          $input.on('input.dt_custom', function () {
+              applyScopedSearch(); // uses the table instance by selector
+          });
+
+          // when search column changes, re-run the scoped search
+          $('#searchColumn').off('change.dt_custom').on('change.dt_custom', function () {
+              applyScopedSearch();
+          });
+
+          // initial charts
+          safeCreateAllCharts();
+
+          // recreate charts every time the table redraws (filters, paging, colvis)
+          api.on('draw', function () {
+              safeCreateAllCharts();
+          });
         }
-      });  
+      });
 
       // Column visibility toggles
       document.querySelectorAll('a.toggle-vis').forEach((el) => {
@@ -136,6 +188,22 @@
       });
     });
 
+    // Helper to check Chart availability and create all charts safely
+    function safeCreateAllCharts() {
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js not loaded');
+            return;
+        }
+
+        try {
+            createStatusChart();
+            createCheckedOutChart();
+            createCategoryChart();
+        } catch (ex) {
+            console.error('Error creating charts', ex);
+        }
+    }
+
     function createStatusChart() {
         const dt = $('#adminTable').DataTable();
         const statusData = dt.column(6).data().toArray();
@@ -143,15 +211,14 @@
         // Count occurrences of each status
         const statusCounts = {};
         statusData.forEach(status => {
-            // Normalize whitespace and treat empty/em-dash as explicit label if needed
             const key = (status || '').toString().trim();
             statusCounts[key] = (statusCounts[key] || 0) + 1;
         });
 
         const labels = Object.keys(statusCounts);
         const values = Object.values(statusCounts);
+        if (!labels.length) return;
 
-        // Generate a palette (repeat if necessary)
         const baseColors = [
             'rgba(54,162,235,0.8)',
             'rgba(255,99,132,0.8)',
@@ -160,34 +227,22 @@
             'rgba(153,102,255,0.8)',
             'rgba(201,203,207,0.8)'
         ];
-        const borderColors = baseColors.map(c => c.replace('0.8', '1'));
         const backgroundColors = labels.map((_, i) => baseColors[i % baseColors.length]);
+        const borderColors = backgroundColors.map(c => c.replace('0.8', '1'));
 
-        // Get 2D context and destroy prior chart if present
-        const ctx = document.getElementById('status').getContext('2d');
-        if (statusChart) {
-            statusChart.destroy();
-        }
+        const canvas = document.getElementById('status');
+        if (!canvas) { console.error('#status canvas not found'); return; }
+        const ctx = canvas.getContext && canvas.getContext('2d');
+        if (!ctx) { console.error('2D context for #status not available'); return; }
 
+        if (statusChart) statusChart.destroy();
         statusChart = new Chart(ctx, {
             type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: values,
-                    borderWidth: 1,
-                    backgroundColor: backgroundColors,
-                    borderColor: borderColors
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'bottom' },
-                    tooltip: { enabled: true }
-                }
-            }
+            data: { labels, datasets: [{ data: values, backgroundColor, borderColor: borderColors, borderWidth: 1 }] },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' }, tooltip: { enabled: true } } }
         });
+
+        function backgroundColor(_, i) { return backgroundColors[i]; } // helper used above in minified toolchains
     }
 
     function createCheckedOutChart() {
@@ -199,7 +254,6 @@
 
         issuedToData.forEach((val) => {
             const s = (val || '').toString().trim();
-            // treat empty string or single em-dash (—) as available
             if (s === '' || s === '—' || s === '-') {
                 available++;
             } else {
@@ -212,28 +266,16 @@
         const backgroundColors = ['rgba(75,192,192,0.8)', 'rgba(255,159,64,0.8)'];
         const borderColors = ['rgba(75,192,192,1)', 'rgba(255,159,64,1)'];
 
-        const ctx = document.getElementById('avail').getContext('2d');
-        if (availChart) {
-            availChart.destroy();
-        }
+        const canvas = document.getElementById('avail');
+        if (!canvas) { console.error('#avail canvas not found'); return; }
+        const ctx = canvas.getContext && canvas.getContext('2d');
+        if (!ctx) { console.error('2D context for #avail not available'); return; }
 
+        if (availChart) availChart.destroy();
         availChart = new Chart(ctx, {
             type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: values,
-                    backgroundColor: backgroundColors,
-                    borderColor: borderColors,
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'bottom' }
-                }
-            }
+            data: { labels, datasets: [{ data: values, backgroundColor: backgroundColors, borderColor: borderColors, borderWidth: 1 }] },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
         });
     }
 
@@ -244,40 +286,42 @@
         // Count occurrences of each category
         const categoryCounts = {};
         categoryData.forEach(category => {
-            categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+            const key = (category || '').toString().trim();
+            categoryCounts[key] = (categoryCounts[key] || 0) + 1;
         });
 
         const labels = Object.keys(categoryCounts);
         const values = Object.values(categoryCounts);
+        if (!labels.length) return;
 
+        const baseColors = [
+            'rgba(54,162,235,0.8)',
+            'rgba(255,99,132,0.8)',
+            'rgba(255,205,86,0.8)'
+        ];
+        const backgroundColors = labels.map((_, i) => baseColors[i % baseColors.length]);
+        const borderColors = backgroundColors.map(c => c.replace('0.8', '1'));
 
-        const ctx = document.getElementById('manufacturer');
-        new Chart(ctx, {
+        const canvas = document.getElementById('manufacturer');
+        if (!canvas) { console.error('#manufacturer canvas not found'); return; }
+        const ctx = canvas.getContext && canvas.getContext('2d');
+        if (!ctx) { console.error('2D context for #manufacturer not available'); return; }
+
+        if (categoryChart) categoryChart.destroy();
+        categoryChart = new Chart(ctx, {
             type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-
-                    data: values,
-                    borderWidth: 2,
-                    backgroundColor: 'rgba(54,162,235,0.5)',
-                    borderColor: 'rgba(54,162,235,1)'
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'bottom' }
-                }
-            }
-
+            data: { labels, datasets: [{ label: 'Count', data: values, backgroundColor: backgroundColors, borderColor: borderColors, borderWidth: 1 }] },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
         });
     }
-        function applyScopedSearch() {
+
+    // scoped search implementation that always reads the current table instance
+    function applyScopedSearch() { 
+      const dt = $('#adminTable').DataTable();
       const q = $('#tableSearch').val() || '';
       const scope = $('#searchColumn').val();
 
-      // Clear any previous searches so they don’t stack.
+      // Clear any previous searches so they don't stack
       dt.search('');
       dt.columns().search('');
 
