@@ -6,14 +6,14 @@
 {
     <ul class="navbar-nav ms-auto align-items-center">
         <li class="nav-item me-2">
-            <span class="navbar-text">Welcome @User.Identity?.Name</span>
+            <span class="navbar-text text-light">Welcome @User.Identity?.Name</span>
         </li>
         <li class="nav-item">
             <form asp-area="Identity"
                   asp-page="/Account/Logout"
                   asp-route-returnUrl="/"
                   method="post" class="d-inline">
-                <button type="submit" class="btn btn-outline-secondary btn-sm">Logout</button>
+                <button type="submit" class="btn btn-outline-secondary btn-sm text-light">Logout</button>
             </form>
         </li>
     </ul>

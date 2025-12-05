@@ -11,9 +11,9 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark border-bottom box-shadow mb-3 lsnfHeader">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">TrackPoint</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"><img class="img-fluid" style="height: 2em !important;" src="https://www.lsnf.org/wp-content/themes/LSNFtheme/assets/images/Logo.png" /></a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
                         aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -22,10 +22,13 @@
                 <div id="mainNav" class="navbar-collapse collapse d-sm-inline-flex">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-light" asp-area="" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-light" asp-area="" asp-controller="Asset" asp-action="AssetBrowser">Browse</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="/">Settings</a>
                         </li>
                     </ul>
 
