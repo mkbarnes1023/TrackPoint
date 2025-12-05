@@ -4,32 +4,34 @@ using TrackPoint.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// EF Core (SQL Server)
+// DB context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// ASP.NET Core Identity (with default UI)
-builder.Services
-    .AddDefaultIdentity<IdentityUser>(options =>
-    {
-        options.SignIn.RequireConfirmedAccount = false;
-        options.Password.RequiredLength = 6;
-        options.Password.RequireNonAlphanumeric = false;
-        options.Password.RequireUppercase = false;
-        options.Password.RequireLowercase = false;
-        options.Password.RequireDigit = false;
-    })
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+// Removed SMTP email sender configuration
 
-// Cookie paths
-builder.Services.ConfigureApplicationCookie(o =>
+// Identity
+builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {
-    o.LoginPath = "/Identity/Account/Login";
-    o.AccessDeniedPath = "/Identity/Account/AccessDenied";
-});
+    // Consider requiring confirmed account to force email verification flows
+    options.SignIn.RequireConfirmedAccount = false;
 
+    // Optional: make reset tokens valid for a reasonable time
+    // Reset to defaults
+})
+.AddDefaultUI()
+.AddEntityFrameworkStores<ApplicationDbContext>();
+
+// MVC + Razor Pages
+builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-builder.Services.AddControllersWithViews(); // needed for /Home/Index
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    options.ReturnUrlParameter = "returnUrl";
+});
 
 var app = builder.Build();
 
@@ -41,31 +43,28 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Root: if signed in -> Home; else -> Login with returnUrl targeting Home
-app.MapGet("/", ctx =>
+app.MapGet("/", async context =>
 {
-    if (ctx.User?.Identity?.IsAuthenticated == true)
+    if (context.User?.Identity?.IsAuthenticated == true)
     {
-        ctx.Response.Redirect("/Home/Index");
+        context.Response.Redirect("/Home/Index");
     }
     else
     {
-        var returnUrl = Uri.EscapeDataString("/Home/Index");
-        ctx.Response.Redirect($"/Identity/Account/Login?returnUrl={returnUrl}");
+        context.Response.Redirect("/Identity/Account/Login?returnUrl=/");
     }
-    return Task.CompletedTask;
+    await Task.CompletedTask;
 });
 
-// MVC (Home/Index etc.)
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
-// Identity UI (Razor Pages)
 app.MapRazorPages();
 
 app.Run();
