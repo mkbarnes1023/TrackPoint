@@ -45,7 +45,7 @@ namespace TrackPoint.Controllers
                 AssetTag = asset.AssetTag,
                 IssuedTo = previousIssuedTo,
                 TransferDate = previousTransferDate,
-                Asset = asset
+                //Asset = asset
             });
             
             // Prevent duplicate form submissions on page refresh

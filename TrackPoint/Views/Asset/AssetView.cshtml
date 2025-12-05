@@ -1,0 +1,60 @@
+﻿@*
+    This view is used when selecting an individual Asset to view its details.
+*@
+@model TrackPoint.Models.Asset;
+@{
+}
+
+@*
+    TODO: Add error checking for if an asset is not passed to this view, and also check if we even have permissions to view the asset.
+    Currently, we can access any asset through the ?assetTag= URL parameter. This could become a security concern depending on the asset.
+    TODO: Replace the <a> tag for buttons so that clicking on the button itself will actually redirect, instead of only the text
+*@
+
+@if (Model.AssetTag != null)
+{
+    <div class="container">
+        <div class="d-flex justify-content-end mb-3">
+            <button type="button" class="btn btn-warning p-2 mx-2">Report</button>
+            <button type="button" class="btn btn-secondary p-2">Generate Barcode</button>
+        </div>
+        <div class="row">
+            <div class="col">
+                <img src="https://placehold.co/600x400/000000/FFFFFF.png"/>
+                @* <p>Asset Barcode</p> *@
+                <div class="d-flex justify-content-center mt-3">
+
+                    @if (Model.Status == Asset.AssetStatus.InStorage || Model.Status == Asset.AssetStatus.Transfered)
+                    {
+                        <button type="button" class="btn btn-success btn-lg mx-2">Borrow</button>
+                    } else { <button type="button" class="btn btn-secondary btn-lg mx-2" style="color:#ffffff75">Borrow</button>}
+                    <button type="button" class="btn btn-primary btn-lg">
+                        <a asp-controller="Asset" asp-action="AuditTrail" asp-route-assetTag="@Model.AssetTag" style="color:white;text-decoration: none;">View Audit Trail</a>
+                    </button>
+                </div>
+            </div>
+            <div class="col">
+                <h1 class="text-center">@Model.Make @Model.Model</h1>
+                <hr class="border-4"/>
+                <div class="fs-5">
+                    <p><b>Asset Tag:</b> @Model.AssetTag</p>
+                    <p><b>Status:</b> @Model.Status</p>
+                    <p><b>Location:</b> @Model.Location</p>
+                    <p><b>Make:</b> @Model.Make</p>
+                    <p><b>Model:</b> @Model.Model</p>
+                    <p><b>Category:</b> @Model.Category</p>
+                    <p><b>Issued To:</b> @if(Model.IssuedTo == null) { <span>Unissued</span> } else { @Model.IssuedTo }</p>
+                    <p><b>Notes:</b> @Model.Notes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <p>No asset detected!</p>
+}
+
+@*
+    Todo: Back button here
+*@

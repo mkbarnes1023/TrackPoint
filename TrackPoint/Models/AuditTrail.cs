@@ -7,6 +7,6 @@
         public string AssetTag { get; set; } = string.Empty;
         public string IssuedTo { get; set; } = string.Empty;
         public DateTime TransferDate { get; set; }
-        public virtual Asset Asset { get; set; } = null!;
+        //public virtual Asset Asset { get; set; } = null!;
     }
 }

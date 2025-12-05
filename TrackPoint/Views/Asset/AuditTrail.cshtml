@@ -5,12 +5,11 @@
 @{
 }
 
-
-<h1>Audit Trail for Asset: @Model.AssetTag</h1>
-<p>Note: The bolded entry represents the current borrower.</p>
-
 @if (Model.AuditTrail != null)
 {
+    <h1>Audit Trail for Asset: @Model.Make @Model.Model [@Model.AssetTag]</h1>
+    <p>Note: The bolded entry represents the current borrower.</p>
+
     <table class="table">
         <thead>
             <tr>
