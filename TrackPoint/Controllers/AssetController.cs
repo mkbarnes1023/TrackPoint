@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.NetworkInformation;
 using System.Security.Cryptography.Xml;
 using TrackPoint.Models;
 
@@ -112,6 +114,43 @@ namespace TrackPoint.Controllers
             }
 
             return View(asset);
+        }
+
+        public IActionResult checkOut(string AssetTag)
+        {
+            var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
+            if (asset == null)
+            {
+                TempData["Failure"] = $"Error: Asset not found.";
+                return RedirectToAction("AllocateDemo");
+            }
+
+            // Store previous issued to and transfer date
+            string previousIssuedTo = asset.IssuedTo ?? "Unassigned";
+            DateTime previousTransferDate = asset.TransferDate;
+
+            // Update asset information
+            asset.IssuedTo = @User.Identity?.Name;
+            asset.TransferDate = DateTime.Now;
+            asset.Status = Asset.AssetStatus.InUse;
+
+            // Update the asset's audit trail
+            asset.AuditTrail.Add(new AuditTrail
+            {
+                AssetTag = asset.AssetTag,
+                IssuedTo = previousIssuedTo,
+                TransferDate = previousTransferDate,
+                //Asset = asset
+            });
+            
+            // Prevent duplicate form submissions on page refresh
+            if (ModelState.IsValid)
+            {
+                TempData["Success"] = $"Asset {AssetTag} successfully allocated to {asset.IssuedTo}!";
+                return RedirectToAction("AssetBrowser", "Asset");
+            }
+            
+            return View(); // TODO: This leads to nowhere, redirect back to form with error
         }
     }
 }

@@ -71,7 +71,7 @@
                     -->
                     @if (asset.Status == Asset.AssetStatus.InStorage || asset.Status == Asset.AssetStatus.Transfered)
                     {
-                        <a class="btn btn-sm btn-success">Borrow</a>
+                        <a asp-controller="Asset" asp-action="checkOut" asp-route-assetTag="@asset.AssetTag" class="btn btn-sm btn-success" style="color: white;text-decoration: none;">Borrow</a>
                     }
                     else
                     {
