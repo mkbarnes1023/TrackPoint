@@ -53,7 +53,7 @@ namespace TrackPoint.Controllers
 		/*
 		 *  Add the new category to the database and redirect to the index
 		 */
-		public IActionResult NewCategory(Categroy c)
+		public IActionResult NewCategory(Category c)
 		{
 			// Add the new Category to database and redirect the user to the AssetBrowser
 
