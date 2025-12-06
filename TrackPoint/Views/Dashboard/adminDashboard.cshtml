@@ -1,32 +1,46 @@
 ﻿@{
     ViewData["Title"] = "Dashboard";
 }
-<h2 class="mb-3">Admin Dashboard</h2>
-<a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary">Personal Dashboard</a>
+@* <h2 class="mb-3">Admin Dashboard</h2> *@
+<a asp-controller="Dashboard" asp-action="Index" class="btn btn-light btn-sm btn-outline-dark">Personal Dashboard</a>
+<a asp-controller="Dashboard" asp-action="adminDashboard" class="btn btn-primary btn-sm btn-outline-light">Admin View</a>
 
 
 
-<div class="container">
-    <div class="row">
-        <div class="col-sm custom-select">
-            <h6>Assets by Category</h6>
-            <canvas id="manufacturer"></canvas>
+<div class="container" style="padding: 18px;">
+    <div class="row g-4">
+
+        <div class="col-md-4">
+            <div class="custom-background"
+                 style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                <h6>Total Assets</h6>
+                <canvas id="location"></canvas>
+            </div>
         </div>
-        <div class="col-sm custom-select">
-            <h6>Available Assets</h6>
-            <canvas id="avail"></canvas>
+
+        <div class="col-md-4">
+            <div class="custom-background"
+                 style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                <h6>Assets by Status</h6>
+                <canvas id="status"></canvas>
+            </div>
         </div>
-        <div class="col-sm custom-select">
-            <h6>Assets by Status</h6>
-            <canvas id="status"></canvas>
+
+        <div class="col-md-4">
+            <div class="custom-background"
+                 style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                <h6>Assets by Make</h6>
+                <canvas id="make"></canvas>
+            </div>
         </div>
+
     </div>
 </div>
 
 <div class="container">
-    <div class="row">
-        <div class="col-sm">
-            <select id="searchColumn">
+    <div class="row align-items-center g-2">
+        <div class="col-auto">
+            <select id="searchColumn" class="form-select">
                 <option value="__all__">All</option>
                 <option value="0">Asset Tag</option>
                 <option value="1">Make</option>
@@ -38,23 +52,77 @@
                 <option value="7">Notes</option>
             </select>
         </div>
+
         <div class="col-sm">
             <div id="customSearchContainer"></div>
         </div>
     </div>
 </div>
     
-    <div>
-        Toggle column:
-        <a href="#" class="toggle-vis" data-column="0">Asset Tag</a> -
-        <a href="#" class="toggle-vis" data-column="1">Make</a> -
-        <a href="#" class="toggle-vis" data-column="2">Model</a> -
-        <a href="#" class="toggle-vis" data-column="3">Category</a> -
-        <a href="#" class="toggle-vis" data-column="4">Location</a> -
-        <a href="#" class="toggle-vis" data-column="5">Issued To</a> -
-        <a href="#" class="toggle-vis" data-column="6">Status</a> -
-        <a href="#" class="toggle-vis" data-column="7">Notes</a>
-    </div>
+<div class="dropdown mb-3">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="columnToggleDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        Toggle Columns
+    </button>
+    <ul class="dropdown-menu p-3" aria-labelledby="columnToggleDropdown" style="min-width: 200px;">
+
+        <li>
+            <label class="dropdown-item">
+                <input type="checkbox" class="toggle-vis" data-column="0" checked>
+                Asset Tag
+            </label>
+        </li>
+
+        <li>
+            <label class="dropdown-item">
+                <input type="checkbox" class="toggle-vis" data-column="1" checked>
+                Make
+            </label>
+        </li>
+
+        <li>
+            <label class="dropdown-item">
+                <input type="checkbox" class="toggle-vis" data-column="2" checked>
+                Model
+            </label>
+        </li>
+
+        <li>
+            <label class="dropdown-item">
+                <input type="checkbox" class="toggle-vis" data-column="3" checked>
+                Category
+            </label>
+        </li>
+
+        <li>
+            <label class="dropdown-item">
+                <input type="checkbox" class="toggle-vis" data-column="4" checked>
+                Location
+            </label>
+        </li>
+
+        <li>
+            <label class="dropdown-item">
+                <input type="checkbox" class="toggle-vis" data-column="5" checked>
+                Issued To
+            </label>
+        </li>
+
+        <li>
+            <label class="dropdown-item">
+                <input type="checkbox" class="toggle-vis" data-column="6" checked>
+                Status
+            </label>
+        </li>
+
+        <li>
+            <label class="dropdown-item">
+                <input type="checkbox" class="toggle-vis" data-column="7" checked>
+                Notes
+            </label>
+        </li>
+
+    </ul>
+</div>
 
     <div id="exportButtons" class="mb-2"></div>
 
@@ -92,7 +160,7 @@
             <tr><td>LSNF-015</td><td>Logitech</td><td>C920</td><td>Tech</td><td>HQ Closet</td><td>—</td><td>Retired</td><td>Outdated equipment</td></tr>
         </tbody>
     </table>
-</div>
+
 
 
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
@@ -101,93 +169,81 @@
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 
 <!-- Buttons extension dependencies -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
 <!-- DataTables Buttons -->
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-        $(function () {
-        const table = $('#adminTable').DataTable({
-            pageLength: 25,
-            ordering: true,
-            searching: true,
-            stateSave: true,
-            lengthChange: false,
-            dom: 'Bfrtip',
-            buttons: ['copy', 'csv', 'excel', 'pdf', 'print', 'colvis'],
+    // Keep chart instances so we can destroy/recreate on re-renders
+    $(function () {
+      const table = $('#adminTable').DataTable({
+        pageLength: 25,
+        ordering: true,
+        searching: true,
+        stateSave: true,
+        lengthChange: false,
+        initComplete: function () {
+          const api = this.api();
+          const tableId = api.table().node().id;
+          const $filter = $('#' + tableId + '_filter'); // DataTables adds this
 
-            initComplete: function () {
-                const api = this.api();
-                const tableId = api.table().node().id;
-                const $filter = $('#' + tableId + '_filter');
+          // removes search filter label text but keeps input
+          $filter.find('label').contents().filter(function () {
+            return this.nodeType === 3; // text nodes
+          }).remove();
 
-                // Remove default "Search:" text node
-                $filter.find('label').contents().filter(function () {
-                    return this.nodeType === 3;
-                }).remove();
+          $filter.find('input').addClass('form-control me-2');
 
-                // Move the DataTable search bar into your custom container
-                $filter.appendTo('#customSearchContainer');
+          // move search box into custom container
+          $filter.appendTo('#customSearchContainer');
+          }
+          });
 
-                // Scoped search setup
-                const $input = $filter.find('input');
-                $input
-                    .attr('id', 'tableSearch')
-                    .off('input.dt_custom')
-                    .on('input.dt_custom', applyScopedSearch);
+          // Column visibility toggles
+            document.querySelectorAll('input.toggle-vis').forEach((checkbox) => {
+            checkbox.addEventListener('change', function (e) {
+            let columnIdx = e.target.getAttribute('data-column');
+            let column = table.column(columnIdx);
 
-                $('#searchColumn')
-                    .off('change.dt_custom')
-                    .on('change.dt_custom', applyScopedSearch);
-            }
+            // Set visibility based on checkbox (checked = visible)
+            column.visible(e.target.checked);
+        });   
+      });
+            createStatusChart();
+            createMakeChart();
+            createCategoryChart();
         });
 
-        // Column visibility toggles
-        document.querySelectorAll('a.toggle-vis').forEach((el) => {
-            el.addEventListener('click', function (e) {
-                e.preventDefault();
-                const columnIdx = e.target.getAttribute('data-column');
-                const column = table.column(columnIdx);
 
-                column.visible(!column.visible());
-            });
-        });
-
-        // Chart calls — same placement as working dashboard
-        createStatusChart();
-        createCheckedOutChart();
-        createCategoryChart();
-    });
-
-        function createStatusChart() {
+    function createStatusChart() {
         const dt = $('#adminTable').DataTable();
         const statusData = dt.column(6).data().toArray();
 
+        // Count occurrences of each category
         const statusCounts = {};
-        statusData.forEach(s => {
-            const key = (s || "").trim();
-            statusCounts[key] = (statusCounts[key] || 0) + 1;
+        statusData.forEach(status => {
+            statusCounts[status] = (statusCounts[status] || 0) + 1;
         });
 
         const labels = Object.keys(statusCounts);
         const values = Object.values(statusCounts);
 
-        const ctx = document.getElementById('status');
+        console.log(labels, values);
 
+        const ctx = document.getElementById('status');
         new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Assets by Status',
+                    label: 'Assets by status',
                     data: values,
                     borderWidth: 2,
                     backgroundColor: 'rgba(54,162,235,0.5)',
@@ -198,109 +254,101 @@
                 indexAxis: 'y',
                 responsive: true,
                 scales: {
-                    y: { beginAtZero: true }
+                    y: {
+                        beginAtZero: true
+                    }
                 },
                 plugins: { legend: { display: false } }
             }
         });
     }
-        function createCheckedOutChart() {
+
+    function createMakeChart() {
         const dt = $('#adminTable').DataTable();
-        const col = dt.column(5).data().toArray();
+        const makeData = dt.column(1).data().toArray();
 
-        let available = 0;
-        let occupied = 0;
-
-        col.forEach(v => {
-            const s = (v || "").trim();
-            if (!s || s === "—" || s === "-") available++;
-            else occupied++;
+        // Count occurrences of each make
+        const makeCounts = {};
+        makeData.forEach(make => {
+            makeCounts[make] = (makeCounts[make] || 0) + 1;
         });
 
-        const labels = ["Available", "Occupied"];
-        const values = [available, occupied];
+        const labels = Object.keys(makeCounts);
+        const values = Object.values(makeCounts);
 
-        const ctx = document.getElementById('avail');
+        console.log(labels, values);
 
+        const ctx = document.getElementById('make');
         new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Availability',
+                    label: 'Assets by Make',
                     data: values,
-                    borderWidth: 2,
-                    backgroundColor: 'rgba(255,205,86,0.5)',
-                    borderColor: 'rgba(255,205,86,1)'
+                    backgroundColor: 'rgba(54,162,235,0.5)',
+                    borderColor: 'rgba(54,162,235,1)'
                 }]
             },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                scales: {
-                    y: { beginAtZero: true }
-                },
-                plugins: { legend: { display: false } }
-            }
+                options: {
+      indexAxis: 'y',
+      responsive: true,
+
+      scales: {
+        y: {
+          ticks: { autoSkip: false }, // show every label
+          offset: true
+        },
+        x: {
+          beginAtZero: true
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
         });
     }
 
-        function createCategoryChart() {
+    function createCategoryChart() {
         const dt = $('#adminTable').DataTable();
-        const col = dt.column(3).data().toArray();
+        const categoryData = dt.column(3).data().toArray();
 
-        const counts = {};
-        col.forEach(c => {
-            const key = (c || "").trim();
-            counts[key] = (counts[key] || 0) + 1;
+        // Count occurrences of each category
+        const categoryCounts = {};
+        categoryData.forEach(category => {
+            categoryCounts[category] = (categoryCounts[category] || 0) + 1;
         });
 
-        const labels = Object.keys(counts);
-        const values = Object.values(counts);
+        const labels = Object.keys(categoryCounts);
+        const values = Object.values(categoryCounts);
 
-        const ctx = document.getElementById('manufacturer');
 
+        const ctx = document.getElementById('location');
         new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Assets by Category',
+
                     data: values,
                     borderWidth: 2,
-                    backgroundColor: 'rgba(153,102,255,0.5)',
-                    borderColor: 'rgba(153,102,255,1)'
+                    backgroundColor: 'rgba(54,162,235,0.5)',
+                    borderColor: 'rgba(54,162,235,1)'
                 }]
             },
             options: {
-                indexAxis: 'y',
+                plugins: { legend: { display: false } },
                 responsive: true,
                 scales: {
-                    y: { beginAtZero: true }
-                },
-                plugins: { legend: { display: false } }
-            }
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+
+                }
+
         });
     }
 
-    // scoped search implementation that always reads the current table instance
-    function applyScopedSearch() { 
-      const dt = $('#adminTable').DataTable();
-      const q = $('#tableSearch').val() || '';
-      const scope = $('#searchColumn').val();
-
-      // Clear any previous searches so they don't stack
-      dt.search('');
-      dt.columns().search('');
-
-      if (scope === '__all__') {
-        dt.search(q).draw();                 // global search (all columns)
-      } else {
-        dt.column(parseInt(scope, 10))       // one column by index
-          .search(q)
-          .draw();
-      }
-    }
 </script>
 
 

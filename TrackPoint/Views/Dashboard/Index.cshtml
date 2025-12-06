@@ -4,66 +4,135 @@
 
 <style>
     .custom-background {
-        background-color: #f8f8f8;
-    }
-    .custom-select{
-        background-color:#ffffff;
-    
-    }
+        border: 1px;
 
-    .col-sm custom-select {
-        width: 600px; 
-        overflow-x: auto; 
+   
     }
+   
 </style>
 <div class="container mt-4 custom-background">
 
-    <h2 class="mb-3">Personal Dashboard</h2> 
-    <a asp-controller="Dashboard" asp-action="adminDashboard" class="btn btn-primary">Admin View</a>
+    @* <h2 class="mb-3">Personal Dashboard</h2>  *@
+    <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary btn-sm btn-outline-light">Personal Dashboard</a>
+    <a asp-controller="Dashboard" asp-action="adminDashboard" class="btn btn-light btn-outline-dark btn-sm">Admin View</a>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-sm custom-select">
-                <h6>Total Assets</h6>
-                <canvas id="location"></canvas>
+    <div class="container" style="padding: 18px">
+        <div class="row g-4">
+
+            <div class="col-md-4" >
+                <div style="border: 1px solid #D3D3D3;border-radius:10px; padding:10px;">
+                    <h6>Assets by Location</h6>
+                    <canvas id="location"></canvas>
+                </div>
             </div>
-            <div class="col-sm custom-select">
-                <h6>Assets by Status</h6>
-                <canvas id="status"></canvas>
+
+            <div class="col-md-4">
+                <div style="border: 1px solid #D3D3D3;border-radius:10px; padding:10px">
+                    <h6>Assets by Status</h6>
+                    <canvas id="status"></canvas>
+                </div>
             </div>
-            <div class="col-sm custom-select">
-                <h6>Assets by Make</h6>
-                <canvas id="make"></canvas>
+
+            <div class="col-md-4">
+                <div style="border: 1px solid #D3D3D3;border-radius:10px; padding:10px">
+                    <h6>Assets by Make</h6>
+                    <canvas id="make"></canvas>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="container mt-4">
-            <select id="searchColumn">
-                <option value="__all__">All</option>
-                <option value="0">Asset Tag</option>
-                <option value="1">Make</option>
-                <option value="2">Model</option>
-                <option value="3">Category</option>
-                <option value="4">Location</option>
-                <option value="5">Issued To</option>
-                <option value="6">Status</option>
-                <option value="7">Notes</option>
-            </select>
-        
-        <div id="customSearchContainer"></div>
-        <div>
-            Toggle column:
-            <a href="#" class="toggle-vis" data-column="0">Asset Tag</a> -
-            <a href="#" class="toggle-vis" data-column="1">Make</a> -
-            <a href="#" class="toggle-vis" data-column="2">Model</a> -
-            <a href="#" class="toggle-vis" data-column="3">Category</a> -
-            <a href="#" class="toggle-vis" data-column="4">Location</a> -
-            <a href="#" class="toggle-vis" data-column="5">Issued To</a> -
-            <a href="#" class="toggle-vis" data-column="6">Status</a> -
-            <a href="#" class="toggle-vis" data-column="7">Notes</a>
+    <div class="container">
+        <div class="row align-items-center g-2">
+            <div class="col-auto">
+                <select id="searchColumn" class="form-select">
+                    <option value="__all__">All</option>
+                    <option value="0">Asset Tag</option>
+                    <option value="1">Make</option>
+                    <option value="2">Model</option>
+                    <option value="3">Category</option>
+                    <option value="4">Location</option>
+                    <option value="5">Issued To</option>
+                    <option value="6">Status</option>
+                    <option value="7">Notes</option>
+                </select>
+            </div>
+
+            <div class="col-sm">
+                <div id="customSearchContainer">
+                </div>
+            </div>
         </div>
-        <table id="assetTable" class="table table-bordered" style="width:100%">
+    </div>
+
+    <div class="dropdown mb-3">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="columnToggleDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            Toggle Columns
+        </button>
+        <ul class="dropdown-menu p-3" aria-labelledby="columnToggleDropdown" style="min-width: 200px" data-bs-auto-close="false">
+
+            <li>
+                <label class="dropdown-item">
+                    <input type="checkbox" class="toggle-vis" data-column="0" checked>
+                    Asset Tag
+                </label>
+            </li>
+
+            <li>
+                <label class="dropdown-item">
+                    <input type="checkbox" class="toggle-vis" data-column="1" checked>
+                    Make
+                </label>
+            </li>
+
+            <li>
+                <label class="dropdown-item">
+                    <input type="checkbox" class="toggle-vis" data-column="2" checked>
+                    Model
+                </label>
+            </li>
+
+            <li>
+                <label class="dropdown-item">
+                    <input type="checkbox" class="toggle-vis" data-column="3" checked>
+                    Category
+                </label>
+            </li>
+
+            <li>
+                <label class="dropdown-item">
+                    <input type="checkbox" class="toggle-vis" data-column="4" checked>
+                    Location
+                </label>
+            </li>
+
+            <li>
+                <label class="dropdown-item">
+                    <input type="checkbox" class="toggle-vis" data-column="5" checked>
+                    Issued To
+                </label>
+            </li>
+
+            <li>
+                <label class="dropdown-item">
+                    <input type="checkbox" class="toggle-vis" data-column="6" checked>
+                    Status
+                </label>
+            </li>
+
+            <li>
+                <label class="dropdown-item">
+                    <input type="checkbox" class="toggle-vis" data-column="7" checked>
+                    Notes
+                </label>
+            </li>
+
+        </ul>
+    </div>
+
+
+
+        <table id="assetTable" class="table" style="width:100%">
             <thead>
                 <tr>
                     <th>Asset Tag</th>
@@ -129,28 +198,23 @@
             return this.nodeType === 3; // text nodes
           }).remove();
 
+          $filter.find('input').addClass('form-control me-2');
+
           // moves search bar to my own custom box
-          $filter.appendTo('#customSearchContainer');
-
-         
-
+          $filter.appendTo('#customSearchContainer')
         }
       });
 
-         //This is my filtering
-        document.querySelectorAll('a.toggle-vis').forEach((el) => {
-        el.addEventListener('click', function (e) {
-            e.preventDefault();
-
+            // Column toggle using checkboxes
+            document.querySelectorAll('input.toggle-vis').forEach((checkbox) => {
+            checkbox.addEventListener('change', function (e) {
             let columnIdx = e.target.getAttribute('data-column');
             let column = table.column(columnIdx);
 
-            // Toggle the visibility
-            column.visible(!column.visible());
+            // Set visibility based on checkbox (checked = visible)
+            column.visible(e.target.checked);
         });
     });
-
-
         // Create the category chart
         createCategoryChart();
         createStatusChart();
@@ -324,7 +388,5 @@
     }
 </script>
 
-<script>
-    
-</script>
+
 
