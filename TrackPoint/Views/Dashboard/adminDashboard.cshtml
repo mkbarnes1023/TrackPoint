@@ -1,11 +1,15 @@
 ﻿@{
     ViewData["Title"] = "Dashboard";
 }
-@* <h2 class="mb-3">Admin Dashboard</h2> *@
 <a asp-controller="Dashboard" asp-action="Index" class="btn btn-light btn-sm btn-outline-dark">Personal Dashboard</a>
 <a asp-controller="Dashboard" asp-action="adminDashboard" class="btn btn-primary btn-sm btn-outline-light">Admin View</a>
 
-
+<style>
+    canvas {
+        width: 180px !important;
+        height: 180px !important;
+    }
+</style>
 
 <div class="container" style="padding: 18px;">
     <div class="row g-4">
@@ -181,7 +185,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // Keep chart instances so we can destroy/recreate on re-renders
     $(function () {
       const table = $('#adminTable').DataTable({
         pageLength: 25,
@@ -192,7 +195,7 @@
         initComplete: function () {
           const api = this.api();
           const tableId = api.table().node().id;
-          const $filter = $('#' + tableId + '_filter'); // DataTables adds this
+          const $filter = $('#' + tableId + '_filter'); 
 
           // removes search filter label text but keeps input
           $filter.find('label').contents().filter(function () {
@@ -216,11 +219,53 @@
             column.visible(e.target.checked);
         });   
       });
+            createLocationChart();
             createStatusChart();
             createMakeChart();
-            createCategoryChart();
+        });
+    function createLocationChart() {
+        const dt = $('#adminTable').DataTable();
+        const locationData = dt.column(4).data().toArray();
+
+        // Count occurrences of each location
+        const locationCounts = {};
+        locationData.forEach(location => {
+            locationCounts[location] = (locationCounts[location] || 0) + 1;
         });
 
+        const labels = Object.keys(locationCounts);
+        const values = Object.values(locationCounts);
+
+        console.log(labels, values);
+
+        const ctx = document.getElementById('location');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Assets by Location',
+                    data: values,
+                    borderWidth: 0,
+                    backgroundColor: 'rgba(54,162,235,0.5)',
+                    borderColor: 'rgba(54,162,235,1)'
+                }]
+            },
+            options: {
+                    plugins: {
+                        legend: {
+                        display: false, // or false if you want no legend
+                    }
+                },
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    }
+                }
+        });
+    }
+
+   
 
     function createStatusChart() {
         const dt = $('#adminTable').DataTable();
@@ -239,115 +284,74 @@
 
         const ctx = document.getElementById('status');
         new Chart(ctx, {
-            type: 'bar',
+            type: 'doughnut',
             data: {
                 labels: labels,
                 datasets: [{
                     label: 'Assets by status',
                     data: values,
-                    borderWidth: 2,
+                    borderWidth: 0,
                     backgroundColor: 'rgba(54,162,235,0.5)',
                     borderColor: 'rgba(54,162,235,1)'
                 }]
             },
             options: {
-                indexAxis: 'y',
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
+                    plugins: {
+                        legend: {
+                        display: false, // or false if you want no legend
                     }
                 },
-                plugins: { legend: { display: false } }
-            }
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    }
+                }
         });
     }
 
     function createMakeChart() {
         const dt = $('#adminTable').DataTable();
-        const makeData = dt.column(1).data().toArray();
+        const statusData = dt.column(1).data().toArray();
 
-        // Count occurrences of each make
-        const makeCounts = {};
-        makeData.forEach(make => {
-            makeCounts[make] = (makeCounts[make] || 0) + 1;
+        // Count occurrences of each category
+        const statusCounts = {};
+        statusData.forEach(status => {
+            statusCounts[status] = (statusCounts[status] || 0) + 1;
         });
 
-        const labels = Object.keys(makeCounts);
-        const values = Object.values(makeCounts);
+        const labels = Object.keys(statusCounts);
+        const values = Object.values(statusCounts);
 
         console.log(labels, values);
 
         const ctx = document.getElementById('make');
         new Chart(ctx, {
-            type: 'bar',
+            type: 'doughnut',
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Assets by Make',
+                    label: 'Assets by status',
                     data: values,
+                    borderWidth: 0,
                     backgroundColor: 'rgba(54,162,235,0.5)',
                     borderColor: 'rgba(54,162,235,1)'
                 }]
             },
                 options: {
-      indexAxis: 'y',
-      responsive: true,
-
-      scales: {
-        y: {
-          ticks: { autoSkip: false }, // show every label
-          offset: true
-        },
-        x: {
-          beginAtZero: true
-        }
-      },
-      plugins: { legend: { display: false } }
-    }
-        });
-    }
-
-    function createCategoryChart() {
-        const dt = $('#adminTable').DataTable();
-        const categoryData = dt.column(3).data().toArray();
-
-        // Count occurrences of each category
-        const categoryCounts = {};
-        categoryData.forEach(category => {
-            categoryCounts[category] = (categoryCounts[category] || 0) + 1;
-        });
-
-        const labels = Object.keys(categoryCounts);
-        const values = Object.values(categoryCounts);
-
-
-        const ctx = document.getElementById('location');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-
-                    data: values,
-                    borderWidth: 2,
-                    backgroundColor: 'rgba(54,162,235,0.5)',
-                    borderColor: 'rgba(54,162,235,1)'
-                }]
-            },
-            options: {
-                plugins: { legend: { display: false } },
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
+                    plugins: {
+                        legend: {
+                        display: false, // or false if you want no legend
+                    }
+                },
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
                     }
                 }
-
-                }
-
         });
     }
+    
+   
 
 </script>
 

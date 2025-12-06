@@ -3,12 +3,10 @@
 }
 
 <style>
-    .custom-background {
-        border: 1px;
-
-   
+    canvas {
+        width: 180px !important;
+        height: 180px !important;
     }
-   
 </style>
 <div class="container mt-4 custom-background">
 
@@ -215,140 +213,13 @@
             column.visible(e.target.checked);
         });
     });
-        // Create the category chart
-        createCategoryChart();
+        // create charts
+        createLocationChart();
         createStatusChart();
         createMakeChart();
-        createLocationChart();
+        
     });
-
-    function createCategoryChart() {
-        const dt = $('#assetTable').DataTable(); 
-        const categoryData = dt.column(3).data().toArray();
-
-        // Count occurrences of each category
-        const categoryCounts = {};
-        categoryData.forEach(category => {
-            categoryCounts[category] = (categoryCounts[category] || 0) + 1;
-        });
-
-        const labels = Object.keys(categoryCounts);
-        const values = Object.values(categoryCounts);
-
-
-        const ctx = document.getElementById('category');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                  
-                    data: values,
-                    borderWidth: 2,
-                    backgroundColor: 'rgba(54,162,235,0.5)',
-                    borderColor: 'rgba(54,162,235,1)'
-                }]
-            },
-            options: {
-                plugins: { legend: { display: false } },
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-               
-                }
-            
-        });
-    }
-
-     function createStatusChart() {
-        const dt = $('#assetTable').DataTable();
-        const statusData = dt.column(6).data().toArray();
-
-        // Count occurrences of each category
-        const statusCounts = {};
-        statusData.forEach(status => {
-            statusCounts[status] = (statusCounts[status] || 0) + 1;
-        });
-
-        const labels = Object.keys(statusCounts);
-        const values = Object.values(statusCounts);
-
-        console.log(labels, values);
-
-        const ctx = document.getElementById('status');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Assets by status',
-                    data: values,
-                    borderWidth: 2,
-                    backgroundColor: 'rgba(54,162,235,0.5)',
-                    borderColor: 'rgba(54,162,235,1)'
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
-        function createMakeChart() {
-        const dt = $('#assetTable').DataTable();
-        const makeData = dt.column(1).data().toArray();
-
-        // Count occurrences of each make
-        const makeCounts = {};
-        makeData.forEach(make => {
-            makeCounts[make] = (makeCounts[make] || 0) + 1;
-        });
-
-        const labels = Object.keys(makeCounts);
-        const values = Object.values(makeCounts);
-
-        console.log(labels, values);
-
-        const ctx = document.getElementById('make');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Assets by Make',
-                    data: values,
-                    backgroundColor: 'rgba(54,162,235,0.5)',
-                    borderColor: 'rgba(54,162,235,1)'
-                }]
-            },
-                options: {
-      indexAxis: 'y',
-      responsive: true,
-    
-      scales: {
-        y: {
-          ticks: { autoSkip: false }, // show every label
-          offset: true
-        },
-        x: {
-          beginAtZero: true
-        }
-      },
-      plugins: { legend: { display: false } }
-    }
-        });
-    }
-
-        function createLocationChart() {
+    function createLocationChart() {
         const dt = $('#assetTable').DataTable();
         const locationData = dt.column(4).data().toArray();
 
@@ -365,25 +236,117 @@
 
         const ctx = document.getElementById('location');
         new Chart(ctx, {
-            type: 'bar',
+            type: 'doughnut',
             data: {
                 labels: labels,
                 datasets: [{
                     label: 'Assets by Location',
                     data: values,
-                    borderWidth: 2,
+                    borderWidth: 0,
                     backgroundColor: 'rgba(54,162,235,0.5)',
                     borderColor: 'rgba(54,162,235,1)'
                 }]
             },
             options: {
-                indexAxis: 'y',
-                responsive: true,
-                scales: {
-                    y: { beginAtZero: true }
+                    plugins: {
+                        legend: {
+                        display: false, 
+                    }
                 },
-                plugins: { legend: { display: false } }
-            }
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    }
+                }
+        });
+    }
+
+     function createStatusChart() {
+        const dt = $('#assetTable').DataTable();
+        const statusData = dt.column(6).data().toArray();
+
+        // assets available vs assets not available
+            const statusCounts = {
+                Available: 0,
+                Unavailable: 0
+            };
+
+            statusData.forEach(status => {
+                if (status === "InStorage") {
+                    statusCounts.Available++;
+                } else {
+                    statusCounts.Unavailable++;
+                }
+            });
+
+            const labels = Object.keys(statusCounts);
+            const values = Object.values(statusCounts);
+
+            const ctx = document.getElementById('status');
+            new Chart(ctx, {
+                type: 'doughnut',
+                    data: {
+                        labels: labels,
+                    datasets: [{
+                    label: 'Assets by status',
+                    data: values,
+                    borderWidth: 0,
+                    backgroundColor: 'rgba(54,162,235,0.5)',
+                    borderColor: 'rgba(54,162,235,1)'
+                }]
+            },
+            options: {
+                    plugins: {
+                        legend: {
+                        display: false, 
+                    }
+                },
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    }
+                }
+        });
+    }
+     function createMakeChart() {
+        const dt = $('#assetTable').DataTable();
+        const makeData = dt.column(1).data().toArray();
+
+        // Count occurrences of each make
+        const makeCounts = {};
+        makeData.forEach(make => {
+            makeCounts[make] = (makeCounts[make] || 0) + 1;
+        });
+
+        const labels = Object.keys(makeCounts);
+        const values = Object.values(makeCounts);
+
+        console.log(labels, values);
+
+        const ctx = document.getElementById('make');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Assets by Make',
+                    data: values,
+                    borderWidth: 0,
+                    backgroundColor: 'rgba(54,162,235,0.5)',
+                    borderColor: 'rgba(54,162,235,1)'
+                }]
+            },
+             options: {
+                    plugins: {
+                        legend: {
+                        display: false, 
+                    }
+                },
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    }
+                }
         });
     }
 </script>
