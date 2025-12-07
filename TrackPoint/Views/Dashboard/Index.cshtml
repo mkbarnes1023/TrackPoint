@@ -168,7 +168,7 @@
 
 
     
-</div>
+
 
 <!-- DataTables + jQuery (CDN) -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
@@ -178,46 +178,81 @@
 
 <!--This is the Datatables asset table-->
 <script>
-        
-    $(function () {
-      const table = $('#assetTable').DataTable({
-        pageLength: 25,
-        ordering: true,
-        searching: true,   
-        stateSave: true,
-        lengthChange: false,
-        initComplete: function () {
-          const api = this.api();
-          const tableId = api.table().node().id;        
-          const $filter = $('#' + tableId + '_filter'); // the generated filter wrapper
+     $(function () {
 
-          // Dettaches my existing search bar from the datatable
-          $filter.find('label').contents().filter(function () {
-            return this.nodeType === 3; // text nodes
-          }).remove();
+        const table = $('#assetTable').DataTable({
+            pageLength: 25,
+            ordering: true,
+            searching: true,
+            stateSave: true,
+            lengthChange: false,
 
-          $filter.find('input').addClass('form-control me-2');
+            initComplete: function () {
+                const api = this.api();
+                const tableId = api.table().node().id;
+                const $filter = $('#' + tableId + '_filter'); // DataTables search wrapper
 
-          // moves search bar to my own custom box
-          $filter.appendTo('#customSearchContainer')
-        }
-      });
+                // Remove text label from original search bar
+                $filter.find('label').contents().filter(function () {
+                    return this.nodeType === 3;
+                }).remove();
 
-            // Column toggle using checkboxes
-            document.querySelectorAll('input.toggle-vis').forEach((checkbox) => {
+                // Style search input
+                $filter.find('input').addClass('form-control me-2');
+
+                // Move search bar to custom container
+                $filter.appendTo('#customSearchContainer');
+
+                const searchInput = $filter.find('input');
+
+                // When dropdown changes
+                $('#searchColumn').on('change', function () {
+                    const column = $(this).val();
+                    const text = searchInput.val();
+
+                    if (column === "__all__") {
+                        table.columns().search("");     // clear previous column searches
+                        table.search(text).draw();      // global search
+                    } else {
+                        table.search("");               // clear global search
+                        table.columns().search("");     // clear all column searches
+                        table.column(column).search(text).draw(); // column search
+                    }
+                });
+
+                // When typing in the search box
+                searchInput.on('keyup', function () {
+                    const text = this.value;
+                    const column = $('#searchColumn').val();
+
+                    if (column === "__all__") {
+                        table.columns().search("");
+                        table.search(text).draw();
+                    } else {
+                        table.search("");
+                        table.columns().search("");
+                        table.column(column).search(text).draw();
+                    }
+                });
+
+            } // end initComplete
+        }); // end DataTable init
+
+
+        document.querySelectorAll('input.toggle-vis').forEach((checkbox) => {
             checkbox.addEventListener('change', function (e) {
-            let columnIdx = e.target.getAttribute('data-column');
-            let column = table.column(columnIdx);
-
-            // Set visibility based on checkbox (checked = visible)
-            column.visible(e.target.checked);
+                const colIndex = e.target.getAttribute('data-column');
+                const column = table.column(colIndex);
+                column.visible(e.target.checked);
+            });
         });
-    });
+
+
         // create charts
         createLocationChart();
         createStatusChart();
         createMakeChart();
-        
+
     });
     function createLocationChart() {
         const dt = $('#assetTable').DataTable();
