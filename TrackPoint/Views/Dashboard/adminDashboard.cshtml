@@ -9,6 +9,55 @@
         width: 180px !important;
         height: 180px !important;
     }
+
+    .table-div {
+        border: 1px solid #D3D3D3;
+        border-radius: 10px;
+    }
+
+    .badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #fff;
+        display: inline-block;
+    }
+
+    /* Red - InUse */
+    .badge-red {
+        background-color: #FF2B2B;
+        color: white;
+    }
+
+    /* Orange - Retired */
+    .badge-orange {
+        background-color: #FF6D1A;
+        color: white;
+    }
+
+    /* Green - InStorage */
+    .badge-green {
+        background-color: #00C964;
+        color: white;
+    }
+
+    /* Blue -CheckedOut */
+    .badge-blue {
+        background-color: #009EFF;
+        color: white; /* readable on yellow */
+    }
+
+    /* Orange - UnderMaintenance */
+    .badge-yellow {
+        background-color: #FFD300;
+        color: black;
+    }
+
+    .badge-grey {
+        background-color: gray;
+        color: black;
+    }
 </style>
 
 <div class="container" style="padding: 18px;">
@@ -41,6 +90,7 @@
     </div>
 </div>
 
+@* custom search container *@
 <div class="container">
     <div class="row align-items-center g-2">
         <div class="col-auto">
@@ -63,6 +113,7 @@
     </div>
 </div>
     
+@* Column visibility dropdown *@
 <div class="dropdown mb-3">
     <button class="btn btn-secondary dropdown-toggle" type="button" id="columnToggleDropdown" data-bs-toggle="dropdown" aria-expanded="false">
         Toggle Columns
@@ -128,9 +179,14 @@
     </ul>
 </div>
 
-    <div id="exportButtons" class="mb-2"></div>
+    <div id="customButtonsContainer">
+        <button id="exportCopy" class="btn btn-primary btn-sm">Copy</button>
+        <button id="exportCSV" class="btn btn-success btn-sm">CSV</button>
+        <button id="exportExcel" class="btn btn-warning btn-sm">Excel</button>
+    </div>
 
-    <table id="adminTable" class="table table-bordered " style="width:100%">
+<div class="table-div">
+    <table id="adminTable" class="table table-borderless " style="width:100%">
         <thead>
             <tr>
                 <th>Asset Tag</th>
@@ -164,86 +220,119 @@
             <tr><td>LSNF-015</td><td>Logitech</td><td>C920</td><td>Tech</td><td>HQ Closet</td><td>—</td><td>Retired</td><td>Outdated equipment</td></tr>
         </tbody>
     </table>
+</div>
 
 
-
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
-<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" />
+<!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- DataTables core -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 
-<!-- Buttons extension dependencies -->
+<!-- Buttons CSS & JS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
 
-<!-- DataTables Buttons -->
+<!-- Excel/PDF dependencies -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-
+<!-- Chart.js (optional for charts) -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
     $(function () {
 
         const table = $('#adminTable').DataTable({
-            pageLength: 25,
-            ordering: true,
-            searching: true,
-            stateSave: true,
-            lengthChange: false,
+        pageLength: 25,
+        ordering: true,
+        searching: true,
+        stateSave: true,
+        lengthChange: false,
 
-            initComplete: function () {
-                const api = this.api();
-                const tableId = api.table().node().id;
-                const $filter = $('#' + tableId + '_filter'); // DataTables search wrapper
+        dom: 'Bfrtip',
+        buttons: ['copy', 'csv', 'excel', 'pdf', 'print'],
 
-                // Remove text label from original search bar
-                $filter.find('label').contents().filter(function () {
-                    return this.nodeType === 3;
-                }).remove();
+        columnDefs: [
+            {
+                targets: 6,
+                render: function (data) {
 
-                // Style search input
-                $filter.find('input').addClass('form-control me-2');
+                // Normalize text
+                const clean = (data || "").toString().trim().toLowerCase();
 
-                // Move search bar to custom container
-                $filter.appendTo('#customSearchContainer');
+                // Map normalized values → color classes
+                const map = {
+                "inuse": "red",              // #009EFF
+                "instorage": "green",         // #00C964
+                "undermaintenance": "yellow", // #FF6D1A
+                "pendingdeployment": "orange",// #FFD300
+                "checkedout": "blue",
+                "retired": "grey"
+        };
 
-                const searchInput = $filter.find('input');
+        // Pick color class
+        const slug = map[clean] || "blue";  // fallback
 
-                // When dropdown changes
-                $('#searchColumn').on('change', function () {
-                    const column = $(this).val();
-                    const text = searchInput.val();
+        // Return badge HTML
+        return `<span class="badge badge-${slug}">${data}</span>`;
+    }
+            }
+        ],
 
-                    if (column === "__all__") {
-                        table.columns().search("");     // clear previous column searches
-                        table.search(text).draw();      // global search
-                    } else {
-                        table.search("");               // clear global search
-                        table.columns().search("");     // clear all column searches
-                        table.column(column).search(text).draw(); // column search
-                    }
-                });
+        initComplete: function () {
+            const api = this.api();
+            const tableId = api.table().node().id;
+            const $filter = $('#' + tableId + '_filter');
 
-                // When typing in the search box
-                searchInput.on('keyup', function () {
-                    const text = this.value;
-                    const column = $('#searchColumn').val();
+            // Remove default label text
+            $filter.find('label').contents().filter(function () {
+                return this.nodeType === 3;
+            }).remove();
 
-                    if (column === "__all__") {
-                        table.columns().search("");
-                        table.search(text).draw();
-                    } else {
-                        table.search("");
-                        table.columns().search("");
-                        table.column(column).search(text).draw();
-                    }
-                });
+            // Style search input
+            $filter.find('input').addClass('form-control me-2');
 
-            } // end initComplete
-        }); // end DataTable init
+            // Move search bar into custom container
+            $filter.appendTo('#customSearchContainer');
+
+            const searchInput = $filter.find('input');
+
+            // Dropdown selects column
+            $('#searchColumn').on('change', function () {
+                const column = $(this).val();
+                const text = searchInput.val();
+
+                if (column === "__all__") {
+                    table.columns().search("");
+                    table.search(text).draw();
+                } else {
+                    table.search("");
+                    table.columns().search("");
+                    table.column(column).search(text).draw();
+                }
+            });
+
+            // Typing behavior
+            searchInput.on('keyup', function () {
+                const text = this.value;
+                const column = $('#searchColumn').val();
+
+                if (column === "__all__") {
+                    table.columns().search("");
+                    table.search(text).draw();
+                } else {
+                    table.search("");
+                    table.columns().search("");
+                    table.column(column).search(text).draw();
+                }
+            });
+        }
+    });
 
 
         document.querySelectorAll('input.toggle-vis').forEach((checkbox) => {
@@ -266,13 +355,21 @@
         const locationData = dt.column(4).data().toArray();
 
         // Count occurrences of each location
-        const locationCounts = {};
+            const locationCounts = {};
+
+        // Count occurrences
         locationData.forEach(location => {
-            locationCounts[location] = (locationCounts[location] || 0) + 1;
+        locationCounts[location] = (locationCounts[location] || 0) + 1;
         });
 
-        const labels = Object.keys(locationCounts);
-        const values = Object.values(locationCounts);
+        // Convert to array, sort, keep top 5
+        const top5 = Object.entries(locationCounts)
+            .sort((a, b) => b[1] - a[1])   // highest first
+            .slice(0, 5);                  // only 5 items
+
+        // Back into labels + values
+        const labels = top5.map(item => item[0]);
+        const values = top5.map(item => item[1]);
 
         console.log(labels, values);
 
@@ -285,8 +382,13 @@
                     label: 'Assets by Location',
                     data: values,
                     borderWidth: 0,
-                    backgroundColor: 'rgba(54,162,235,0.5)',
-                    borderColor: 'rgba(54,162,235,1)'
+                    backgroundColor: [
+                    '#00D084', // vibrant emerald green
+                    '#FF3B30', // vibrant red
+                    '#007BFF', // vibrant royal blue
+                    '#FFC300', // vibrant yellow
+                    '#9B59B6'  // vibrant purple
+    ],
                 }]
             },
             options: {
@@ -309,16 +411,22 @@
         const dt = $('#adminTable').DataTable();
         const statusData = dt.column(6).data().toArray();
 
-        // Count occurrences of each category
-        const statusCounts = {};
-        statusData.forEach(status => {
-            statusCounts[status] = (statusCounts[status] || 0) + 1;
-        });
+     // Count occurrences
+    const statusCounts = {};
+    statusData.forEach(status => {
+        statusCounts[status] = (statusCounts[status] || 0) + 1;
+    });
 
-        const labels = Object.keys(statusCounts);
-        const values = Object.values(statusCounts);
+    // Sort by highest count & keep only top 5
+    const top5 = Object.entries(statusCounts)
+        .sort((a, b) => b[1] - a[1])   // highest first
+        .slice(0, 5);                  // keep only 5
 
-        console.log(labels, values);
+    // Convert back to labels + values
+    const labels = top5.map(item => item[0]);
+    const values = top5.map(item => item[1]);
+
+    console.log(labels, values);
 
         const ctx = document.getElementById('status');
         new Chart(ctx, {
@@ -329,8 +437,14 @@
                     label: 'Assets by status',
                     data: values,
                     borderWidth: 0,
-                    backgroundColor: 'rgba(54,162,235,0.5)',
-                    borderColor: 'rgba(54,162,235,1)'
+                    backgroundColor: [
+                  '#00C964', // vibrant green (Available)
+                  '#FF2B2B', // vibrant red (Unavailable)
+                  '#009EFF', // vibrant blue
+                  '#FFD300', // vibrant yellow
+                  '#FF6D1A'  // vibrant orange
+    ],
+                    
                 }]
             },
             options: {
@@ -351,14 +465,19 @@
         const dt = $('#adminTable').DataTable();
         const statusData = dt.column(1).data().toArray();
 
-        // Count occurrences of each category
         const statusCounts = {};
         statusData.forEach(status => {
-            statusCounts[status] = (statusCounts[status] || 0) + 1;
-        });
+        statusCounts[status] = (statusCounts[status] || 0) + 1;
+    });
 
-        const labels = Object.keys(statusCounts);
-        const values = Object.values(statusCounts);
+    // Sort by count (descending) and keep top 5
+    const top5 = Object.entries(statusCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+
+    // Convert back to labels + values
+    const labels = top5.map(item => item[0]);
+    const values = top5.map(item => item[1]);
 
         console.log(labels, values);
 
@@ -371,8 +490,14 @@
                     label: 'Assets by status',
                     data: values,
                     borderWidth: 0,
-                    backgroundColor: 'rgba(54,162,235,0.5)',
-                    borderColor: 'rgba(54,162,235,1)'
+                        backgroundColor: [
+                        '#00B894', // vibrant teal
+                        '#0984E3', // vibrant blue
+                        '#FDCA40', // vibrant yellow
+                        '#FF6B35', // vibrant orange
+                        '#EA2027'  // vibrant red
+                        ]
+                   
                 }]
             },
                 options: {
@@ -388,9 +513,6 @@
                 }
         });
     }
-    
-   
-
 </script>
 
 

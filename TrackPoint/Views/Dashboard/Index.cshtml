@@ -7,6 +7,55 @@
         width: 180px !important;
         height: 180px !important;
     }
+
+    .table-div {
+        border: 1px solid #D3D3D3;
+        border-radius: 10px;
+    }
+
+    .badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #fff;
+        display: inline-block;
+    }
+
+    /* Red - InUse */
+    .badge-red {
+        background-color: #FF2B2B;
+        color: white;
+    }
+
+    /* Orange - Retired */
+    .badge-orange {
+        background-color: #FF6D1A;
+        color: white;
+    }
+
+    /* Green - InStorage */
+    .badge-green {
+        background-color: #00C964;
+        color: white;
+    }
+
+    /* Blue -CheckedOut */
+    .badge-blue {
+        background-color: #009EFF;
+        color: white; /* readable on yellow */
+    }
+
+    /* Orange - UnderMaintenance */
+    .badge-yellow {
+        background-color: #FFD300;
+        color: black;
+    }
+
+    .badge-grey {
+        background-color: gray;
+        color: black;
+    }
 </style>
 <div class="container mt-4 custom-background">
 
@@ -129,8 +178,8 @@
     </div>
 
 
-
-        <table id="assetTable" class="table" style="width:100%">
+        <div class="table-div">
+        <table id="assetTable" class="table table-borderless" style="width:100%">
             <thead>
                 <tr>
                     <th>Asset Tag</th>
@@ -186,6 +235,32 @@
             searching: true,
             stateSave: true,
             lengthChange: false,
+                    columnDefs: [
+                    {
+                        targets: 6,
+                        render: function (data) {
+
+                        // Normalize text
+                        const clean = (data || "").toString().trim().toLowerCase();
+
+                        // Map normalized values → color classes
+                        const map = {
+                        "inuse": "red",              // #009EFF
+                        "instorage": "green",         // #00C964
+                        "undermaintenance": "yellow", // #FF6D1A
+                        "pendingdeployment": "orange",// #FFD300
+                        "checkedout": "blue",
+                        "retired": "grey"
+                };
+
+                // Pick color class
+                const slug = map[clean] || "blue";  // fallback
+
+                // Return badge HTML
+                return `<span class="badge badge-${slug}">${data}</span>`;
+            }
+                    }
+                ],
 
             initComplete: function () {
                 const api = this.api();
@@ -258,14 +333,22 @@
         const dt = $('#assetTable').DataTable();
         const locationData = dt.column(4).data().toArray();
 
-        // Count occurrences of each location
+           // Count occurrences of each location
         const locationCounts = {};
         locationData.forEach(location => {
-            locationCounts[location] = (locationCounts[location] || 0) + 1;
-        });
+        locationCounts[location] = (locationCounts[location] || 0) + 1;
+    });
 
-        const labels = Object.keys(locationCounts);
-        const values = Object.values(locationCounts);
+    // Sort by count descending and keep top 5
+    const top5 = Object.entries(locationCounts)
+        .sort((a, b) => b[1] - a[1]) // highest first
+        .slice(0, 5);                 // only top 5
+
+    // Convert back to labels and values
+    const labels = top5.map(item => item[0]);
+    const values = top5.map(item => item[1]);
+
+    console.log(labels, values);
 
         console.log(labels, values);
 
@@ -278,8 +361,14 @@
                     label: 'Assets by Location',
                     data: values,
                     borderWidth: 0,
-                    backgroundColor: 'rgba(54,162,235,0.5)',
-                    borderColor: 'rgba(54,162,235,1)'
+                    backgroundColor: [
+                     '#FFD700',  // vibrant yellow/gold
+                    '#FF9500', // vibrant orange
+                    '#34C759', // vibrant green
+                    '#0A84FF', // vibrant blue
+                    '#AF52DE'  // vibrant purple
+]                   
+            
                 }]
             },
             options: {
@@ -326,8 +415,14 @@
                     label: 'Assets by status',
                     data: values,
                     borderWidth: 0,
-                    backgroundColor: 'rgba(54,162,235,0.5)',
-                    borderColor: 'rgba(54,162,235,1)'
+                    backgroundColor: [
+                    '#00C964', // vibrant green (Available)
+                    '#FF2B2B', // vibrant red (Unavailable)
+                    '#009EFF', // vibrant blue
+                    '#FFD300', // vibrant yellow
+                    '#FF6D1A'  // vibrant orange],
+                    ],
+                  
                 }]
             },
             options: {
@@ -347,14 +442,22 @@
         const dt = $('#assetTable').DataTable();
         const makeData = dt.column(1).data().toArray();
 
-        // Count occurrences of each make
-        const makeCounts = {};
-        makeData.forEach(make => {
-            makeCounts[make] = (makeCounts[make] || 0) + 1;
-        });
+    // Count occurrences of each make
+    const makeCounts = {};
+    makeData.forEach(make => {
+        makeCounts[make] = (makeCounts[make] || 0) + 1;
+    });
 
-        const labels = Object.keys(makeCounts);
-        const values = Object.values(makeCounts);
+    // Sort by count descending and keep top 5
+    const top5 = Object.entries(makeCounts)
+        .sort((a, b) => b[1] - a[1]) // highest first
+        .slice(0, 5);                 // only top 5
+
+    // Convert back to labels and values
+    const labels = top5.map(item => item[0]);
+    const values = top5.map(item => item[1]);
+
+    console.log(labels, values);
 
         console.log(labels, values);
 
@@ -367,8 +470,13 @@
                     label: 'Assets by Make',
                     data: values,
                     borderWidth: 0,
-                    backgroundColor: 'rgba(54,162,235,0.5)',
-                    borderColor: 'rgba(54,162,235,1)'
+                    backgroundColor: [
+                    '#00C964', // vibrant green
+                    '#007BFF', // vibrant blue
+                    '#FFD300', // vibrant yellow
+                    '#FF2B2B', // vibrant red
+                    '#9B59B6'  // vibrant purple
+                ],
                 }]
             },
              options: {
