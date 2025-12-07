@@ -3,67 +3,183 @@
 }
 
 <style>
-    .custom-background {
-        background-color: #f8f8f8;
-    }
-    .custom-select{
-        background-color:#ffffff;
-    
+    canvas {
+        width: 180px !important;
+        height: 180px !important;
     }
 
-    .col-sm custom-select {
-        width: 600px; 
-        overflow-x: auto; 
+    .table-div {
+        border: 1px solid #D3D3D3;
+        border-radius: 10px;
+    }
+
+    .badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #fff;
+        display: inline-block;
+    }
+
+    /* Red - InUse */
+    .badge-red {
+        background-color: #FF2B2B;
+        color: white;
+    }
+
+    /* Orange - Retired */
+    .badge-orange {
+        background-color: #FF6D1A;
+        color: white;
+    }
+
+    /* Green - InStorage */
+    .badge-green {
+        background-color: #00C964;
+        color: white;
+    }
+
+    /* Blue -CheckedOut */
+    .badge-blue {
+        background-color: #009EFF;
+        color: white; /* readable on yellow */
+    }
+
+    /* Orange - UnderMaintenance */
+    .badge-yellow {
+        background-color: #FFD300;
+        color: black;
+    }
+
+    .badge-grey {
+        background-color: gray;
+        color: black;
     }
 </style>
 <div class="container mt-4 custom-background">
 
-    <h2 class="mb-3">Personal Dashboard</h2> 
-    <a asp-controller="Dashboard" asp-action="adminDashboard" class="btn btn-primary">Admin View</a>
+    @* <h2 class="mb-3">Personal Dashboard</h2>  *@
+    <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary btn-sm btn-outline-light">Personal Dashboard</a>
+    <a asp-controller="Dashboard" asp-action="adminDashboard" class="btn btn-light btn-outline-dark btn-sm">Admin View</a>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-sm custom-select">
-                <h6>Total Assets</h6>
-                <canvas id="location"></canvas>
+    <div class="container" style="padding: 18px">
+        <div class="row g-4">
+
+            <div class="col-md-4" >
+                <div style="border: 1px solid #D3D3D3;border-radius:10px; padding:10px;">
+                    <h6>Assets by Location</h6>
+                    <canvas id="location"></canvas>
+                </div>
             </div>
-            <div class="col-sm custom-select">
-                <h6>Assets by Status</h6>
-                <canvas id="status"></canvas>
+
+            <div class="col-md-4">
+                <div style="border: 1px solid #D3D3D3;border-radius:10px; padding:10px">
+                    <h6>Assets by Status</h6>
+                    <canvas id="status"></canvas>
+                </div>
             </div>
-            <div class="col-sm custom-select">
-                <h6>Assets by Make</h6>
-                <canvas id="make"></canvas>
+
+            <div class="col-md-4">
+                <div style="border: 1px solid #D3D3D3;border-radius:10px; padding:10px">
+                    <h6>Assets by Make</h6>
+                    <canvas id="make"></canvas>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="container mt-4">
-            <select id="searchColumn">
-                <option value="__all__">All</option>
-                <option value="0">Asset Tag</option>
-                <option value="1">Make</option>
-                <option value="2">Model</option>
-                <option value="3">Category</option>
-                <option value="4">Location</option>
-                <option value="5">Issued To</option>
-                <option value="6">Status</option>
-                <option value="7">Notes</option>
-            </select>
-        
-        <div id="customSearchContainer"></div>
-        <div>
-            Toggle column:
-            <a href="#" class="toggle-vis" data-column="0">Asset Tag</a> -
-            <a href="#" class="toggle-vis" data-column="1">Make</a> -
-            <a href="#" class="toggle-vis" data-column="2">Model</a> -
-            <a href="#" class="toggle-vis" data-column="3">Category</a> -
-            <a href="#" class="toggle-vis" data-column="4">Location</a> -
-            <a href="#" class="toggle-vis" data-column="5">Issued To</a> -
-            <a href="#" class="toggle-vis" data-column="6">Status</a> -
-            <a href="#" class="toggle-vis" data-column="7">Notes</a>
+    <div class="container">
+        <div class="row align-items-center g-2">
+            <div class="col-auto">
+                <select id="searchColumn" class="form-select">
+                    <option value="__all__">All</option>
+                    <option value="0">Asset Tag</option>
+                    <option value="1">Make</option>
+                    <option value="2">Model</option>
+                    <option value="3">Category</option>
+                    <option value="4">Location</option>
+                    <option value="5">Issued To</option>
+                    <option value="6">Status</option>
+                    <option value="7">Notes</option>
+                </select>
+            </div>
+
+            <div class="col-sm">
+                <div id="customSearchContainer">
+                </div>
+            </div>
         </div>
-        <table id="assetTable" class="table table-bordered" style="width:100%">
+    </div>
+
+    <div class="dropdown mb-3">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="columnToggleDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            Toggle Columns
+        </button>
+        <ul class="dropdown-menu p-3" aria-labelledby="columnToggleDropdown" style="min-width: 200px" data-bs-auto-close="false">
+
+            <li>
+                <label class="dropdown-item">
+                    <input type="checkbox" class="toggle-vis" data-column="0" checked>
+                    Asset Tag
+                </label>
+            </li>
+
+            <li>
+                <label class="dropdown-item">
+                    <input type="checkbox" class="toggle-vis" data-column="1" checked>
+                    Make
+                </label>
+            </li>
+
+            <li>
+                <label class="dropdown-item">
+                    <input type="checkbox" class="toggle-vis" data-column="2" checked>
+                    Model
+                </label>
+            </li>
+
+            <li>
+                <label class="dropdown-item">
+                    <input type="checkbox" class="toggle-vis" data-column="3" checked>
+                    Category
+                </label>
+            </li>
+
+            <li>
+                <label class="dropdown-item">
+                    <input type="checkbox" class="toggle-vis" data-column="4" checked>
+                    Location
+                </label>
+            </li>
+
+            <li>
+                <label class="dropdown-item">
+                    <input type="checkbox" class="toggle-vis" data-column="5" checked>
+                    Issued To
+                </label>
+            </li>
+
+            <li>
+                <label class="dropdown-item">
+                    <input type="checkbox" class="toggle-vis" data-column="6" checked>
+                    Status
+                </label>
+            </li>
+
+            <li>
+                <label class="dropdown-item">
+                    <input type="checkbox" class="toggle-vis" data-column="7" checked>
+                    Notes
+                </label>
+            </li>
+
+        </ul>
+    </div>
+
+
+        <div class="table-div">
+        <table id="assetTable" class="table table-borderless" style="width:100%">
             <thead>
                 <tr>
                     <th>Asset Tag</th>
@@ -101,7 +217,7 @@
 
 
     
-</div>
+
 
 <!-- DataTables + jQuery (CDN) -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
@@ -111,91 +227,161 @@
 
 <!--This is the Datatables asset table-->
 <script>
-        
-    $(function () {
-      const table = $('#assetTable').DataTable({
-        pageLength: 25,
-        ordering: true,
-        searching: true,   
-        stateSave: true,
-        lengthChange: false,
-        initComplete: function () {
-          const api = this.api();
-          const tableId = api.table().node().id;        
-          const $filter = $('#' + tableId + '_filter'); // the generated filter wrapper
+     $(function () {
 
-          // Dettaches my existing search bar from the datatable
-          $filter.find('label').contents().filter(function () {
-            return this.nodeType === 3; // text nodes
-          }).remove();
+        const table = $('#assetTable').DataTable({
+            pageLength: 25,
+            ordering: true,
+            searching: true,
+            stateSave: true,
+            lengthChange: false,
+                    columnDefs: [
+                    {
+                        targets: 6,
+                        render: function (data) {
 
-          // moves search bar to my own custom box
-          $filter.appendTo('#customSearchContainer');
+                        // Normalize text
+                        const clean = (data || "").toString().trim().toLowerCase();
 
-         
+                        // Map normalized values → color classes
+                        const map = {
+                        "inuse": "red",              // #009EFF
+                        "instorage": "green",         // #00C964
+                        "undermaintenance": "yellow", // #FF6D1A
+                        "pendingdeployment": "orange",// #FFD300
+                        "checkedout": "blue",
+                        "retired": "grey"
+                };
 
-        }
-      });
+                // Pick color class
+                const slug = map[clean] || "blue";  // fallback
 
-         //This is my filtering
-        document.querySelectorAll('a.toggle-vis').forEach((el) => {
-        el.addEventListener('click', function (e) {
-            e.preventDefault();
+                // Return badge HTML
+                return `<span class="badge badge-${slug}">${data}</span>`;
+            }
+                    }
+                ],
 
-            let columnIdx = e.target.getAttribute('data-column');
-            let column = table.column(columnIdx);
+            initComplete: function () {
+                const api = this.api();
+                const tableId = api.table().node().id;
+                const $filter = $('#' + tableId + '_filter'); // DataTables search wrapper
 
-            // Toggle the visibility
-            column.visible(!column.visible());
+                // Remove text label from original search bar
+                $filter.find('label').contents().filter(function () {
+                    return this.nodeType === 3;
+                }).remove();
+
+                // Style search input
+                $filter.find('input').addClass('form-control me-2');
+
+                // Move search bar to custom container
+                $filter.appendTo('#customSearchContainer');
+
+                const searchInput = $filter.find('input');
+
+                // When dropdown changes
+                $('#searchColumn').on('change', function () {
+                    const column = $(this).val();
+                    const text = searchInput.val();
+
+                    if (column === "__all__") {
+                        table.columns().search("");     // clear previous column searches
+                        table.search(text).draw();      // global search
+                    } else {
+                        table.search("");               // clear global search
+                        table.columns().search("");     // clear all column searches
+                        table.column(column).search(text).draw(); // column search
+                    }
+                });
+
+                // When typing in the search box
+                searchInput.on('keyup', function () {
+                    const text = this.value;
+                    const column = $('#searchColumn').val();
+
+                    if (column === "__all__") {
+                        table.columns().search("");
+                        table.search(text).draw();
+                    } else {
+                        table.search("");
+                        table.columns().search("");
+                        table.column(column).search(text).draw();
+                    }
+                });
+
+            } // end initComplete
+        }); // end DataTable init
+
+
+        document.querySelectorAll('input.toggle-vis').forEach((checkbox) => {
+            checkbox.addEventListener('change', function (e) {
+                const colIndex = e.target.getAttribute('data-column');
+                const column = table.column(colIndex);
+                column.visible(e.target.checked);
+            });
         });
-    });
 
 
-        // Create the category chart
-        createCategoryChart();
+        // create charts
+        createLocationChart();
         createStatusChart();
         createMakeChart();
-        createLocationChart();
+
+    });
+    function createLocationChart() {
+        const dt = $('#assetTable').DataTable();
+        const locationData = dt.column(4).data().toArray();
+
+           // Count occurrences of each location
+        const locationCounts = {};
+        locationData.forEach(location => {
+        locationCounts[location] = (locationCounts[location] || 0) + 1;
     });
 
-    function createCategoryChart() {
-        const dt = $('#assetTable').DataTable(); 
-        const categoryData = dt.column(3).data().toArray();
+    // Sort by count descending and keep top 5
+    const top5 = Object.entries(locationCounts)
+        .sort((a, b) => b[1] - a[1]) // highest first
+        .slice(0, 5);                 // only top 5
 
-        // Count occurrences of each category
-        const categoryCounts = {};
-        categoryData.forEach(category => {
-            categoryCounts[category] = (categoryCounts[category] || 0) + 1;
-        });
+    // Convert back to labels and values
+    const labels = top5.map(item => item[0]);
+    const values = top5.map(item => item[1]);
 
-        const labels = Object.keys(categoryCounts);
-        const values = Object.values(categoryCounts);
+    console.log(labels, values);
 
+        console.log(labels, values);
 
-        const ctx = document.getElementById('category');
+        const ctx = document.getElementById('location');
         new Chart(ctx, {
-            type: 'bar',
+            type: 'doughnut',
             data: {
                 labels: labels,
                 datasets: [{
-                  
+                    label: 'Assets by Location',
                     data: values,
-                    borderWidth: 2,
-                    backgroundColor: 'rgba(54,162,235,0.5)',
-                    borderColor: 'rgba(54,162,235,1)'
+                    borderWidth: 0,
+                    backgroundColor: [
+                     '#FFD700',  // vibrant yellow/gold
+                    '#FF9500', // vibrant orange
+                    '#34C759', // vibrant green
+                    '#0A84FF', // vibrant blue
+                    '#AF52DE'  // vibrant purple
+]                   
+            
                 }]
             },
             options: {
-                plugins: { legend: { display: false } },
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
+                    plugins: {
+                        legend: {
+                        display: false, 
+                    }
+                },
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
                     }
                 }
-               
-                }
-            
         });
     }
 
@@ -203,128 +389,110 @@
         const dt = $('#assetTable').DataTable();
         const statusData = dt.column(6).data().toArray();
 
-        // Count occurrences of each category
-        const statusCounts = {};
-        statusData.forEach(status => {
-            statusCounts[status] = (statusCounts[status] || 0) + 1;
-        });
+        // assets available vs assets not available
+            const statusCounts = {
+                Available: 0,
+                Unavailable: 0
+            };
 
-        const labels = Object.keys(statusCounts);
-        const values = Object.values(statusCounts);
+            statusData.forEach(status => {
+                if (status === "InStorage") {
+                    statusCounts.Available++;
+                } else {
+                    statusCounts.Unavailable++;
+                }
+            });
 
-        console.log(labels, values);
+            const labels = Object.keys(statusCounts);
+            const values = Object.values(statusCounts);
 
-        const ctx = document.getElementById('status');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
+            const ctx = document.getElementById('status');
+            new Chart(ctx, {
+                type: 'doughnut',
+                    data: {
+                        labels: labels,
+                    datasets: [{
                     label: 'Assets by status',
                     data: values,
-                    borderWidth: 2,
-                    backgroundColor: 'rgba(54,162,235,0.5)',
-                    borderColor: 'rgba(54,162,235,1)'
+                    borderWidth: 0,
+                    backgroundColor: [
+                    '#00C964', // vibrant green (Available)
+                    '#FF2B2B', // vibrant red (Unavailable)
+                    '#009EFF', // vibrant blue
+                    '#FFD300', // vibrant yellow
+                    '#FF6D1A'  // vibrant orange],
+                    ],
+                  
                 }]
             },
             options: {
-                indexAxis: 'y',
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
+                    plugins: {
+                        legend: {
+                        display: false, 
                     }
                 },
-                plugins: { legend: { display: false } }
-            }
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    }
+                }
         });
     }
-        function createMakeChart() {
+     function createMakeChart() {
         const dt = $('#assetTable').DataTable();
         const makeData = dt.column(1).data().toArray();
 
-        // Count occurrences of each make
-        const makeCounts = {};
-        makeData.forEach(make => {
-            makeCounts[make] = (makeCounts[make] || 0) + 1;
-        });
+    // Count occurrences of each make
+    const makeCounts = {};
+    makeData.forEach(make => {
+        makeCounts[make] = (makeCounts[make] || 0) + 1;
+    });
 
-        const labels = Object.keys(makeCounts);
-        const values = Object.values(makeCounts);
+    // Sort by count descending and keep top 5
+    const top5 = Object.entries(makeCounts)
+        .sort((a, b) => b[1] - a[1]) // highest first
+        .slice(0, 5);                 // only top 5
+
+    // Convert back to labels and values
+    const labels = top5.map(item => item[0]);
+    const values = top5.map(item => item[1]);
+
+    console.log(labels, values);
 
         console.log(labels, values);
 
         const ctx = document.getElementById('make');
         new Chart(ctx, {
-            type: 'bar',
+            type: 'doughnut',
             data: {
                 labels: labels,
                 datasets: [{
                     label: 'Assets by Make',
                     data: values,
-                    backgroundColor: 'rgba(54,162,235,0.5)',
-                    borderColor: 'rgba(54,162,235,1)'
+                    borderWidth: 0,
+                    backgroundColor: [
+                    '#00C964', // vibrant green
+                    '#007BFF', // vibrant blue
+                    '#FFD300', // vibrant yellow
+                    '#FF2B2B', // vibrant red
+                    '#9B59B6'  // vibrant purple
+                ],
                 }]
             },
-                options: {
-      indexAxis: 'y',
-      responsive: true,
-    
-      scales: {
-        y: {
-          ticks: { autoSkip: false }, // show every label
-          offset: true
-        },
-        x: {
-          beginAtZero: true
-        }
-      },
-      plugins: { legend: { display: false } }
-    }
-        });
-    }
-
-        function createLocationChart() {
-        const dt = $('#assetTable').DataTable();
-        const locationData = dt.column(4).data().toArray();
-
-        // Count occurrences of each location
-        const locationCounts = {};
-        locationData.forEach(location => {
-            locationCounts[location] = (locationCounts[location] || 0) + 1;
-        });
-
-        const labels = Object.keys(locationCounts);
-        const values = Object.values(locationCounts);
-
-        console.log(labels, values);
-
-        const ctx = document.getElementById('location');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Assets by Location',
-                    data: values,
-                    borderWidth: 2,
-                    backgroundColor: 'rgba(54,162,235,0.5)',
-                    borderColor: 'rgba(54,162,235,1)'
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                scales: {
-                    y: { beginAtZero: true }
+             options: {
+                    plugins: {
+                        legend: {
+                        display: false, 
+                    }
                 },
-                plugins: { legend: { display: false } }
-            }
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    }
+                }
         });
     }
 </script>
 
-<script>
-    
-</script>
+
 
