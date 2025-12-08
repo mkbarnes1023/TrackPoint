@@ -37,7 +37,7 @@ namespace TrackPoint.Controllers
             // Update asset information
             asset.IssuedTo = IssuedTo;
             asset.TransferDate = DateTime.Now;
-            asset.Status = Asset.AssetStatus.InUse;
+            asset.Status = Enums.AssetStatus.InUse;
 
             // Update the asset's audit trail
             asset.AuditTrail.Add(new AuditTrail

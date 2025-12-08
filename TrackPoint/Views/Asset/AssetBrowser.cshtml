@@ -46,15 +46,15 @@
                      - Green: Available to borrow
                      - Grey: No longer in circulation
                 -->
-                @if (asset.Status == Asset.AssetStatus.InUse || asset.Status == Asset.AssetStatus.UnderMaintenance)
+                @if (asset.Status == Enums.AssetStatus.InUse || asset.Status == Enums.AssetStatus.UnderMaintenance)
                 {
                     <td style="color:red">@asset.Status</td>
                 }
-                else if (asset.Status == Asset.AssetStatus.InStorage || asset.Status == Asset.AssetStatus.Transfered)
+                else if (asset.Status == Enums.AssetStatus.InStorage || asset.Status == Enums.AssetStatus.Transfered)
                 {
                     <td style="color:green">@asset.Status</td>
                 }
-                else if(asset.Status == Asset.AssetStatus.Retired || asset.Status == Asset.AssetStatus.Lost)
+                else if (asset.Status == Enums.AssetStatus.Retired || asset.Status == Enums.AssetStatus.Lost)
                 {
                     <td style="color:grey">@asset.Status</td>
                 }
@@ -69,7 +69,7 @@
                         Disable the button for unavailable assets.
                         asp-action will be added in future iterations.
                     -->
-                    @if (asset.Status == Asset.AssetStatus.InStorage || asset.Status == Asset.AssetStatus.Transfered)
+                    @if (asset.Status == Enums.AssetStatus.InStorage || asset.Status == Enums.AssetStatus.Transfered)
                     {
                         <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal">
                             Borrow
@@ -105,9 +105,16 @@
                         <a class="btn btn-sm btn-outline-success disabled" aria-disabled="true">Borrow</a>
                     }
                     <a class="btn btn-sm btn-warning" asp-controller="Asset" asp-action="AssetEdit" asp-route-assetTag="@asset.AssetTag">Edit</a>
-                </td>
+                		<a class="btn btn-sm btn-danger" asp-controller="Asset" asp-action="DeleteAsset" asp-route-assetTag="@asset.AssetTag">Delete</a>
+							</td>
             </tr>
 		}
     </tbody>
 </table>
-
+<!--Datatabless implementation-->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script>
+    var table = $('#asset').DataTable();
+</script>

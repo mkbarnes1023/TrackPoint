@@ -9,33 +9,33 @@ namespace TrackPoint.Controllers
 {
 	public class AssetController : Controller
 	{
-      /*
-       *  Return the view for the Asset Browser with the sample data as the model
-       */
-      public IActionResult AssetBrowser()
-      {
-        return View(Asset.SampleAssets);
-      }
+        /*
+         *  Return the view for the Asset Browser with the sample data as the model
+         */
+        public IActionResult AssetBrowser()
+        {
+            return View(Asset.SampleAssets);
+        }
 
-      /*
-       *  Return the view for the Location Add Form
-       */
-      public IActionResult LocationAdd()
-      {
-        return View();
-      }
+        /*
+         *  Return the view for the Location Add Form
+         */
+        public IActionResult LocationAdd()
+        {
+            return View();
+        }
 
-      /*
-       *  Add the new location to the database and redirect to the index
-       */
-      public IActionResult NewLocation(Location l)
-      {
-        // Add the new Location to database and redirect the user to the index
+        /*
+         *  Add the new location to the database and redirect to the index
+         */
+        public IActionResult NewLocation(Location l)
+        {
+            // Add the new Location to database and redirect the user to the index
 
-        // Log the Location to the console for debugging purposes
-        Console.WriteLine($"New Locatoin Added: {l.Name}, {l.Abbreviation}");
-        return View("../Home/Index");
-      }
+            // Log the Location to the console for debugging purposes
+            Console.WriteLine($"New Locatoin Added: {l.Name}, {l.Abbreviation}");
+            return View("../Home/Index");
+        }
 		/*
 		 *  Return the view for the Category Add Form
 		 */
@@ -52,12 +52,12 @@ namespace TrackPoint.Controllers
 			return View();
 		}
 
-		/*
-		 *  Add the new category to the database and redirect to the index
-		 */
-		public IActionResult NewCategory(Category c)
-		{
-			// Add the new Category to database and redirect the user to the AssetBrowser
+	    /*
+	    *  Add the new category to the database and redirect to the index
+	    */
+	    public IActionResult NewCategory(Category c)
+	    {
+		    // Add the new Category to database and redirect the user to the AssetBrowser
 
 			// Log the category to the console for debugging purposes
 			Console.WriteLine($"New Category Added: {c.Name}, {c.Abbreviation}");
@@ -80,6 +80,29 @@ namespace TrackPoint.Controllers
 			return View("AssetBrowser", Asset.SampleAssets);
 		}
 
+		/**
+         * Delete the asset from the database and redirect to the Asset Browser
+         * 
+         * We may want to make it clear that this function is for when a mistake was made,
+         * rather than for when they are done with an asset. Assets they are finished with should
+         * have their status changed to "Retired", to preserve their history in the logs.
+         */
+		public IActionResult DeleteAsset(string AssetTag)
+		{
+            // TODO: Replace with database functions
+			// Convert IEnumerable to List
+			List<Asset> assets = Asset.SampleAssets.ToList();
+            // Remove the asset with the given asset tag
+            assets.Remove(assets.FirstOrDefault(a => a.AssetTag == AssetTag));
+			// Convert the asset List back to a IEnumerable and reassign it to Sample Assets
+			Asset.SampleAssets = assets;
+
+            // TODO: Delete any other data that references this asset to prevent any null reference problems
+
+			// Log updated asset
+			Console.WriteLine($"Asset Deleted: {AssetTag}");
+			return View("AssetBrowser", Asset.SampleAssets);
+		}
         /**
          * Return the view for editing assets with the selected asset passed as the model
          */
@@ -167,7 +190,7 @@ namespace TrackPoint.Controllers
             // Update asset information
             asset.IssuedTo = @User.Identity?.Name;
             asset.TransferDate = DateTime.Now;
-            asset.Status = Asset.AssetStatus.InUse;
+            asset.Status = Enums.AssetStatus.InUse;
 
             // Update the asset's audit trail
             asset.AuditTrail.Add(new AuditTrail
