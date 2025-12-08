@@ -24,7 +24,7 @@
                 @* <p>Asset Barcode</p> *@
                 <div class="d-flex justify-content-center mt-3">
 
-                    @if (Model.Status == Asset.AssetStatus.InStorage || Model.Status == Asset.AssetStatus.Transfered)
+                    @if (Model.Status == Enums.AssetStatus.InStorage || Model.Status == Enums.AssetStatus.Transfered)
                     {
                         <button type="button" class="btn btn-success btn-lg mx-2">Borrow</button>
                     } else { <button type="button" class="btn btn-secondary btn-lg mx-2" style="color:#ffffff75">Borrow</button>}
