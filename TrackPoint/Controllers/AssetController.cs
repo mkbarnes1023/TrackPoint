@@ -89,32 +89,32 @@ namespace TrackPoint.Controllers
          */
 		public IActionResult DeleteAsset(string AssetTag)
 		{
-       // TODO: Replace with database functions
+            // TODO: Replace with database functions
 			// Convert IEnumerable to List
 			List<Asset> assets = Asset.SampleAssets.ToList();
-      // Remove the asset with the given asset tag
-      assets.Remove(assets.FirstOrDefault(a => a.AssetTag == AssetTag));
+            // Remove the asset with the given asset tag
+            assets.Remove(assets.FirstOrDefault(a => a.AssetTag == AssetTag));
 			// Convert the asset List back to a IEnumerable and reassign it to Sample Assets
 			Asset.SampleAssets = assets;
 
-      // TODO: Delete any other data that references this asset to prevent any null reference problems
+            // TODO: Delete any other data that references this asset to prevent any null reference problems
 
 			// Log updated asset
 			Console.WriteLine($"Asset Deleted: {AssetTag}");
-      return View(asset);
-    }
+			return View("AssetBrowser", Asset.SampleAssets);
+		}
         /**
          * Return the view for editing assets with the selected asset passed as the model
          */
-    public IActionResult AssetEdit(string AssetTag)
-    {
+        public IActionResult AssetEdit(string AssetTag)
+        {
 			var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
 			if (asset == null)
 			{
 				return NotFound();
 			}
 			return View(asset);
-    }
+        }
 
 		/**
          * Return the view for editing assets with the selected asset passed as the model
@@ -190,7 +190,7 @@ namespace TrackPoint.Controllers
             // Update asset information
             asset.IssuedTo = @User.Identity?.Name;
             asset.TransferDate = DateTime.Now;
-            asset.Status = Asset.AssetStatus.InUse;
+            asset.Status = Enums.AssetStatus.InUse;
 
             // Update the asset's audit trail
             asset.AuditTrail.Add(new AuditTrail
