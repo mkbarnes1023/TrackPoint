@@ -13,5 +13,9 @@ namespace TrackPoint.Controllers
         {
             return View();
         }
+        public IActionResult reportBuilding()
+        {
+            return View();
+        }
     }
 }

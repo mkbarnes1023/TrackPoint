@@ -112,7 +112,7 @@
         </div>
     </div>
 </div>
-    
+
 @* Column visibility dropdown *@
 <div class="dropdown mb-3">
     <button class="btn btn-secondary dropdown-toggle" type="button" id="columnToggleDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -179,11 +179,11 @@
     </ul>
 </div>
 
-    <div id="customButtonsContainer">
-        <button id="exportCopy" class="btn btn-primary btn-sm">Copy</button>
-        <button id="exportCSV" class="btn btn-success btn-sm">CSV</button>
-        <button id="exportExcel" class="btn btn-warning btn-sm">Excel</button>
-    </div>
+<div id="customButtonsContainer" class="mb-3">
+    <button id="exportCopy" class="btn btn-primary btn-sm">Copy</button>
+    <button id="exportCSV" class="btn btn-success btn-sm">CSV</button>
+    <button id="exportExcel" class="btn btn-warning btn-sm">Excel</button>
+</div>
 
 <div class="table-div">
     <table id="adminTable" class="table table-borderless " style="width:100%">
@@ -222,119 +222,156 @@
     </table>
 </div>
 
-
+<!-- === IMPORTANT: single, compatible set of CDN includes === -->
 <!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-<!-- DataTables core -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+<!-- DataTables (stable 1.13.8) -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 
-<!-- Buttons CSS & JS -->
-<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+<!-- Buttons (compatible 2.4.1) -->
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" />
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
 
-<!-- Excel/PDF dependencies -->
+<!-- Export dependencies -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
-<!-- Chart.js (optional for charts) -->
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+    // Ensure no duplicate DataTables / Buttons libraries are loaded.
+    // If you previously had other versions included elsewhere remove them.
+
+    let table;
+
     $(function () {
+        table = $('#adminTable').DataTable({
+            pageLength: 25,
+            ordering: true,
+            searching: true,
+            stateSave: true,
+            lengthChange: false,
 
-        const table = $('#adminTable').DataTable({
-        pageLength: 25,
-        ordering: true,
-        searching: true,
-        stateSave: true,
-        lengthChange: false,
+            // register Buttons so the Buttons API exists; exportOptions restrict to visible columns and applied search
+            dom: 'Bfrtip',
+            buttons: [
+                { extend: 'copy', className: 'buttons-copy', exportOptions: { columns: ':visible', modifier: { search: 'applied' } } },
+                { extend: 'csv', className: 'buttons-csv', exportOptions: { columns: ':visible', modifier: { search: 'applied' } } },
+                { extend: 'excel', className: 'buttons-excel', exportOptions: { columns: ':visible', modifier: { search: 'applied' } } },
+                { extend: 'pdf', className: 'buttons-pdf', exportOptions: { columns: ':visible', modifier: { search: 'applied' } } },
+                { extend: 'print', className: 'buttons-print', exportOptions: { columns: ':visible', modifier: { search: 'applied' } } },
+                { extend: 'colvis', className: 'buttons-colvis' }
+            ],
 
-        dom: 'Bfrtip',
-        buttons: ['copy', 'csv', 'excel', 'pdf', 'print'],
+            columnDefs: [
+                {
+                    targets: 6,
+                    render: function (data) {
+                        const clean = (data || "").toString().trim().toLowerCase();
 
-        columnDefs: [
-            {
-                targets: 6,
-                render: function (data) {
+                        const map = {
+                            "inuse": "red",
+                            "instorage": "green",
+                            "undermaintenance": "yellow",
+                            "pendingdeployment": "orange",
+                            "checkedout": "blue",
+                            "retired": "grey"
+                        };
 
-                // Normalize text
-                const clean = (data || "").toString().trim().toLowerCase();
+                        const slug = map[clean] || "blue";
+                        return `<span class="badge badge-${slug}">${data}</span>`;
+                    }
+                }
+            ],
 
-                // Map normalized values → color classes
-                const map = {
-                "inuse": "red",              // #009EFF
-                "instorage": "green",         // #00C964
-                "undermaintenance": "yellow", // #FF6D1A
-                "pendingdeployment": "orange",// #FFD300
-                "checkedout": "blue",
-                "retired": "grey"
-        };
+            initComplete: function () {
+                const api = this.api();
+                const tableId = api.table().node().id;
+                const $filter = $('#' + tableId + '_filter');
 
-        // Pick color class
-        const slug = map[clean] || "blue";  // fallback
+                // move search into custom container
+                $filter.find('label').contents().filter(function () { return this.nodeType === 3; }).remove();
+                $filter.find('input').addClass('form-control me-2');
+                $filter.appendTo('#customSearchContainer');
 
-        // Return badge HTML
-        return `<span class="badge badge-${slug}">${data}</span>`;
-    }
+                const searchInput = $filter.find('input');
+
+                $('#searchColumn').on('change', function () {
+                    const column = $(this).val();
+                    const text = searchInput.val();
+
+                    if (column === "__all__") {
+                        api.columns().search("");
+                        api.search(text).draw();
+                    } else {
+                        api.search("");
+                        api.columns().search("");
+                        api.column(column).search(text).draw();
+                    }
+                });
+
+                searchInput.on('keyup', function () {
+                    const text = this.value;
+                    const column = $('#searchColumn').val();
+
+                    if (column === "__all__") {
+                        api.columns().search("");
+                        api.search(text).draw();
+                    } else {
+                        api.search("");
+                        api.columns().search("");
+                        api.column(column).search(text).draw();
+                    }
+                });
+
+                // Hide default Buttons UI (we use custom UI)
+                if (typeof api.buttons === 'function') {
+                    api.buttons().container().addClass('d-none');
+                } else {
+                    console.warn('Buttons API not available — check that DataTables Buttons JS is loaded and not duplicated.');
+                }
+
+                // Wire custom buttons to the Buttons API (safe checks)
+                $('#exportCopy').off('click').on('click', function (e) {
+                    e.preventDefault();
+                    try {
+                        if (api.button('.buttons-copy').any()) api.button('.buttons-copy').trigger();
+                        else api.button(0).trigger();
+                    } catch (err) {
+                        console.error('Copy export failed', err);
+                    }
+                });
+
+                $('#exportCSV').off('click').on('click', function (e) {
+                    e.preventDefault();
+                    try {
+                        if (api.button('.buttons-csv').any()) api.button('.buttons-csv').trigger();
+                        else api.button(1).trigger();
+                    } catch (err) {
+                        console.error('CSV export failed', err);
+                    }
+                });
+
+                $('#exportExcel').off('click').on('click', function (e) {
+                    e.preventDefault();
+                    try {
+                        if (api.button('.buttons-excel').any()) api.button('.buttons-excel').trigger();
+                        else api.button(2).trigger();
+                    } catch (err) {
+                        console.error('Excel export failed', err);
+                    }
+                });
             }
-        ],
+        });
 
-        initComplete: function () {
-            const api = this.api();
-            const tableId = api.table().node().id;
-            const $filter = $('#' + tableId + '_filter');
-
-            // Remove default label text
-            $filter.find('label').contents().filter(function () {
-                return this.nodeType === 3;
-            }).remove();
-
-            // Style search input
-            $filter.find('input').addClass('form-control me-2');
-
-            // Move search bar into custom container
-            $filter.appendTo('#customSearchContainer');
-
-            const searchInput = $filter.find('input');
-
-            // Dropdown selects column
-            $('#searchColumn').on('change', function () {
-                const column = $(this).val();
-                const text = searchInput.val();
-
-                if (column === "__all__") {
-                    table.columns().search("");
-                    table.search(text).draw();
-                } else {
-                    table.search("");
-                    table.columns().search("");
-                    table.column(column).search(text).draw();
-                }
-            });
-
-            // Typing behavior
-            searchInput.on('keyup', function () {
-                const text = this.value;
-                const column = $('#searchColumn').val();
-
-                if (column === "__all__") {
-                    table.columns().search("");
-                    table.search(text).draw();
-                } else {
-                    table.search("");
-                    table.columns().search("");
-                    table.column(column).search(text).draw();
-                }
-            });
-        }
-    });
-
-
+        // Column visibility checkboxes
         document.querySelectorAll('input.toggle-vis').forEach((checkbox) => {
             checkbox.addEventListener('change', function (e) {
                 const colIndex = e.target.getAttribute('data-column');
@@ -343,176 +380,45 @@
             });
         });
 
-
         // create charts
         createLocationChart();
         createStatusChart();
         createMakeChart();
-
     });
+
+    // chart functions unchanged
     function createLocationChart() {
         const dt = $('#adminTable').DataTable();
         const locationData = dt.column(4).data().toArray();
-
-        // Count occurrences of each location
-            const locationCounts = {};
-
-        // Count occurrences
+        const locationCounts = {};
         locationData.forEach(location => {
-        locationCounts[location] = (locationCounts[location] || 0) + 1;
+            locationCounts[location] = (locationCounts[location] || 0) + 1;
         });
-
-        // Convert to array, sort, keep top 5
-        const top5 = Object.entries(locationCounts)
-            .sort((a, b) => b[1] - a[1])   // highest first
-            .slice(0, 5);                  // only 5 items
-
-        // Back into labels + values
-        const labels = top5.map(item => item[0]);
-        const values = top5.map(item => item[1]);
-
-        console.log(labels, values);
-
+        const top5 = Object.entries(locationCounts).sort((a,b) => b[1]-a[1]).slice(0,5);
+        const labels = top5.map(i=>i[0]), values = top5.map(i=>i[1]);
         const ctx = document.getElementById('location');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Assets by Location',
-                    data: values,
-                    borderWidth: 0,
-                    backgroundColor: [
-                    '#00D084', // vibrant emerald green
-                    '#FF3B30', // vibrant red
-                    '#007BFF', // vibrant royal blue
-                    '#FFC300', // vibrant yellow
-                    '#9B59B6'  // vibrant purple
-    ],
-                }]
-            },
-            options: {
-                    plugins: {
-                        legend: {
-                        display: false, // or false if you want no legend
-                    }
-                },
-                    scales: {
-                        x: { display: false },
-                        y: { display: false }
-                    }
-                }
-        });
+        new Chart(ctx, { type:'doughnut', data:{ labels, datasets:[{ data:values, backgroundColor:['#00D084','#FF3B30','#007BFF','#FFC300','#9B59B6'] }] }, options:{ plugins:{ legend:{ display:false } }, scales:{ x:{display:false}, y:{display:false} } } });
     }
-
-   
 
     function createStatusChart() {
         const dt = $('#adminTable').DataTable();
         const statusData = dt.column(6).data().toArray();
-
-     // Count occurrences
-    const statusCounts = {};
-    statusData.forEach(status => {
-        statusCounts[status] = (statusCounts[status] || 0) + 1;
-    });
-
-    // Sort by highest count & keep only top 5
-    const top5 = Object.entries(statusCounts)
-        .sort((a, b) => b[1] - a[1])   // highest first
-        .slice(0, 5);                  // keep only 5
-
-    // Convert back to labels + values
-    const labels = top5.map(item => item[0]);
-    const values = top5.map(item => item[1]);
-
-    console.log(labels, values);
-
+        const statusCounts = {};
+        statusData.forEach(status => { statusCounts[status] = (statusCounts[status] || 0) + 1; });
+        const top5 = Object.entries(statusCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        const labels = top5.map(i=>i[0]), values = top5.map(i=>i[1]);
         const ctx = document.getElementById('status');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Assets by status',
-                    data: values,
-                    borderWidth: 0,
-                    backgroundColor: [
-                  '#00C964', // vibrant green (Available)
-                  '#FF2B2B', // vibrant red (Unavailable)
-                  '#009EFF', // vibrant blue
-                  '#FFD300', // vibrant yellow
-                  '#FF6D1A'  // vibrant orange
-    ],
-                    
-                }]
-            },
-            options: {
-                    plugins: {
-                        legend: {
-                        display: false, // or false if you want no legend
-                    }
-                },
-                    scales: {
-                        x: { display: false },
-                        y: { display: false }
-                    }
-                }
-        });
+        new Chart(ctx, { type:'doughnut', data:{ labels, datasets:[{ data:values, backgroundColor:['#00C964','#FF2B2B','#009EFF','#FFD300','#FF6D1A'] }] }, options:{ plugins:{ legend:{ display:false } }, scales:{ x:{display:false}, y:{display:false} } } });
     }
 
     function createMakeChart() {
         const dt = $('#adminTable').DataTable();
-        const statusData = dt.column(1).data().toArray();
-
-        const statusCounts = {};
-        statusData.forEach(status => {
-        statusCounts[status] = (statusCounts[status] || 0) + 1;
-    });
-
-    // Sort by count (descending) and keep top 5
-    const top5 = Object.entries(statusCounts)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5);
-
-    // Convert back to labels + values
-    const labels = top5.map(item => item[0]);
-    const values = top5.map(item => item[1]);
-
-        console.log(labels, values);
-
+        const makeData = dt.column(1).data().toArray();
+        const makeCounts = {};
+        makeData.forEach(m => { makeCounts[m] = (makeCounts[m] || 0) + 1; });
+        const top5 = Object.entries(makeCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        const labels = top5.map(i=>i[0]), values = top5.map(i=>i[1]);
         const ctx = document.getElementById('make');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Assets by status',
-                    data: values,
-                    borderWidth: 0,
-                        backgroundColor: [
-                        '#00B894', // vibrant teal
-                        '#0984E3', // vibrant blue
-                        '#FDCA40', // vibrant yellow
-                        '#FF6B35', // vibrant orange
-                        '#EA2027'  // vibrant red
-                        ]
-                   
-                }]
-            },
-                options: {
-                    plugins: {
-                        legend: {
-                        display: false, // or false if you want no legend
-                    }
-                },
-                    scales: {
-                        x: { display: false },
-                        y: { display: false }
-                    }
-                }
-        });
+        new Chart(ctx, { type:'doughnut', data:{ labels, datasets:[{ data:values, backgroundColor:['#00B894','#0984E3','#FDCA40','#FF6B35','#EA2027'] }] }, options:{ plugins:{ legend:{ display:false } }, scales:{ x:{display:false}, y:{display:false} } } });
     }
 </script>
-
-
