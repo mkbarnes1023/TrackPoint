@@ -26,21 +26,7 @@ namespace TrackPoint.Models
 		public string? Location { get; set; }
 		// IssuedTo will be made a foreign key later, so information about the user can be accessed from the asset
 		public string? IssuedTo { get; set; }
-		// Statuses pulled from Excel sheet provided by LSNF
-		public enum AssetStatus
-		{
-			InUse,
-			InStorage,
-			UnderMaintenance,
-			Retired,
-			PendingDeployment,
-			Lost,
-			Transfered,
-			NeedsReplacement,
-			OnHold,
-			Returned
-		}
-		public AssetStatus Status { get; set; }
+		public Enums.AssetStatus Status { get; set; }
 		public string? Notes { get; set; }
 		public DateTime TransferDate { get; set; } // Date the asset was last transfered, added by Matthew
 		public virtual ICollection<AuditTrail> AuditTrail { get; set; } = new List<AuditTrail>(); // Allows for navigation through the asset's Audit Trail
