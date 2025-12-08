@@ -1,32 +1,100 @@
 ﻿@{
     ViewData["Title"] = "Dashboard";
 }
-<h2 class="mb-3">Admin Dashboard</h2>
-<a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary">Personal Dashboard</a>
+<a asp-controller="Dashboard" asp-action="Index" class="btn btn-light btn-sm btn-outline-dark">Personal Dashboard</a>
+<a asp-controller="Dashboard" asp-action="adminDashboard" class="btn btn-primary btn-sm btn-outline-light">Admin View</a>
 
+<style>
+    canvas {
+        width: 180px !important;
+        height: 180px !important;
+    }
 
+    .table-div {
+        border: 1px solid #D3D3D3;
+        border-radius: 10px;
+    }
 
-<div class="container">
-    <div class="row">
-        <div class="col-sm custom-select">
-            <h6>Assets by Category</h6>
-            <canvas id="manufacturer"></canvas>
+    .badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #fff;
+        display: inline-block;
+    }
+
+    /* Red - InUse */
+    .badge-red {
+        background-color: #FF2B2B;
+        color: white;
+    }
+
+    /* Orange - Retired */
+    .badge-orange {
+        background-color: #FF6D1A;
+        color: white;
+    }
+
+    /* Green - InStorage */
+    .badge-green {
+        background-color: #00C964;
+        color: white;
+    }
+
+    /* Blue -CheckedOut */
+    .badge-blue {
+        background-color: #009EFF;
+        color: white; /* readable on yellow */
+    }
+
+    /* Orange - UnderMaintenance */
+    .badge-yellow {
+        background-color: #FFD300;
+        color: black;
+    }
+
+    .badge-grey {
+        background-color: gray;
+        color: black;
+    }
+</style>
+
+<div class="container" style="padding: 18px;">
+    <div class="row g-4">
+
+        <div class="col-md-4">
+            <div class="custom-background"
+                 style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                <h6>Total Assets</h6>
+                <canvas id="location"></canvas>
+            </div>
         </div>
-        <div class="col-sm custom-select">
-            <h6>Available Assets</h6>
-            <canvas id="avail"></canvas>
+
+        <div class="col-md-4">
+            <div class="custom-background"
+                 style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                <h6>Assets by Status</h6>
+                <canvas id="status"></canvas>
+            </div>
         </div>
-        <div class="col-sm custom-select">
-            <h6>Assets by Status</h6>
-            <canvas id="status"></canvas>
+
+        <div class="col-md-4">
+            <div class="custom-background"
+                 style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                <h6>Assets by Make</h6>
+                <canvas id="make"></canvas>
+            </div>
         </div>
+
     </div>
 </div>
 
+@* custom search container *@
 <div class="container">
-    <div class="row">
-        <div class="col-sm">
-            <select id="searchColumn">
+    <div class="row align-items-center g-2">
+        <div class="col-auto">
+            <select id="searchColumn" class="form-select">
                 <option value="__all__">All</option>
                 <option value="0">Asset Tag</option>
                 <option value="1">Make</option>
@@ -38,27 +106,87 @@
                 <option value="7">Notes</option>
             </select>
         </div>
+
         <div class="col-sm">
             <div id="customSearchContainer"></div>
         </div>
     </div>
 </div>
     
-    <div>
-        Toggle column:
-        <a href="#" class="toggle-vis" data-column="0">Asset Tag</a> -
-        <a href="#" class="toggle-vis" data-column="1">Make</a> -
-        <a href="#" class="toggle-vis" data-column="2">Model</a> -
-        <a href="#" class="toggle-vis" data-column="3">Category</a> -
-        <a href="#" class="toggle-vis" data-column="4">Location</a> -
-        <a href="#" class="toggle-vis" data-column="5">Issued To</a> -
-        <a href="#" class="toggle-vis" data-column="6">Status</a> -
-        <a href="#" class="toggle-vis" data-column="7">Notes</a>
+@* Column visibility dropdown *@
+<div class="dropdown mb-3">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="columnToggleDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        Toggle Columns
+    </button>
+    <ul class="dropdown-menu p-3" aria-labelledby="columnToggleDropdown" style="min-width: 200px;">
+
+        <li>
+            <label class="dropdown-item">
+                <input type="checkbox" class="toggle-vis" data-column="0" checked>
+                Asset Tag
+            </label>
+        </li>
+
+        <li>
+            <label class="dropdown-item">
+                <input type="checkbox" class="toggle-vis" data-column="1" checked>
+                Make
+            </label>
+        </li>
+
+        <li>
+            <label class="dropdown-item">
+                <input type="checkbox" class="toggle-vis" data-column="2" checked>
+                Model
+            </label>
+        </li>
+
+        <li>
+            <label class="dropdown-item">
+                <input type="checkbox" class="toggle-vis" data-column="3" checked>
+                Category
+            </label>
+        </li>
+
+        <li>
+            <label class="dropdown-item">
+                <input type="checkbox" class="toggle-vis" data-column="4" checked>
+                Location
+            </label>
+        </li>
+
+        <li>
+            <label class="dropdown-item">
+                <input type="checkbox" class="toggle-vis" data-column="5" checked>
+                Issued To
+            </label>
+        </li>
+
+        <li>
+            <label class="dropdown-item">
+                <input type="checkbox" class="toggle-vis" data-column="6" checked>
+                Status
+            </label>
+        </li>
+
+        <li>
+            <label class="dropdown-item">
+                <input type="checkbox" class="toggle-vis" data-column="7" checked>
+                Notes
+            </label>
+        </li>
+
+    </ul>
+</div>
+
+    <div id="customButtonsContainer">
+        <button id="exportCopy" class="btn btn-primary btn-sm">Copy</button>
+        <button id="exportCSV" class="btn btn-success btn-sm">CSV</button>
+        <button id="exportExcel" class="btn btn-warning btn-sm">Excel</button>
     </div>
 
-    <div id="exportButtons" class="mb-2"></div>
-
-    <table id="adminTable" class="table table-bordered " style="width:100%">
+<div class="table-div">
+    <table id="adminTable" class="table table-borderless " style="width:100%">
         <thead>
             <tr>
                 <th>Asset Tag</th>
@@ -95,211 +223,295 @@
 </div>
 
 
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
-<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" />
+<!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- DataTables core -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 
-<!-- Buttons extension dependencies -->
+<!-- Buttons CSS & JS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+<!-- Excel/PDF dependencies -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
-<!-- DataTables Buttons -->
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
-
+<!-- Chart.js (optional for charts) -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-        $(function () {
+    $(function () {
+
         const table = $('#adminTable').DataTable({
-            pageLength: 25,
-            ordering: true,
-            searching: true,
-            stateSave: true,
-            lengthChange: false,
-            dom: 'Bfrtip',
-            buttons: ['copy', 'csv', 'excel', 'pdf', 'print', 'colvis'],
+        pageLength: 25,
+        ordering: true,
+        searching: true,
+        stateSave: true,
+        lengthChange: false,
 
-            initComplete: function () {
-                const api = this.api();
-                const tableId = api.table().node().id;
-                const $filter = $('#' + tableId + '_filter');
+        dom: 'Bfrtip',
+        buttons: ['copy', 'csv', 'excel', 'pdf', 'print'],
 
-                // Remove default "Search:" text node
-                $filter.find('label').contents().filter(function () {
-                    return this.nodeType === 3;
-                }).remove();
+        columnDefs: [
+            {
+                targets: 6,
+                render: function (data) {
 
-                // Move the DataTable search bar into your custom container
-                $filter.appendTo('#customSearchContainer');
+                // Normalize text
+                const clean = (data || "").toString().trim().toLowerCase();
 
-                // Scoped search setup
-                const $input = $filter.find('input');
-                $input
-                    .attr('id', 'tableSearch')
-                    .off('input.dt_custom')
-                    .on('input.dt_custom', applyScopedSearch);
+                // Map normalized values → color classes
+                const map = {
+                "inuse": "red",              // #009EFF
+                "instorage": "green",         // #00C964
+                "undermaintenance": "yellow", // #FF6D1A
+                "pendingdeployment": "orange",// #FFD300
+                "checkedout": "blue",
+                "retired": "grey"
+        };
 
-                $('#searchColumn')
-                    .off('change.dt_custom')
-                    .on('change.dt_custom', applyScopedSearch);
+        // Pick color class
+        const slug = map[clean] || "blue";  // fallback
+
+        // Return badge HTML
+        return `<span class="badge badge-${slug}">${data}</span>`;
+    }
             }
-        });
+        ],
 
-        // Column visibility toggles
-        document.querySelectorAll('a.toggle-vis').forEach((el) => {
-            el.addEventListener('click', function (e) {
-                e.preventDefault();
-                const columnIdx = e.target.getAttribute('data-column');
-                const column = table.column(columnIdx);
+        initComplete: function () {
+            const api = this.api();
+            const tableId = api.table().node().id;
+            const $filter = $('#' + tableId + '_filter');
 
-                column.visible(!column.visible());
+            // Remove default label text
+            $filter.find('label').contents().filter(function () {
+                return this.nodeType === 3;
+            }).remove();
+
+            // Style search input
+            $filter.find('input').addClass('form-control me-2');
+
+            // Move search bar into custom container
+            $filter.appendTo('#customSearchContainer');
+
+            const searchInput = $filter.find('input');
+
+            // Dropdown selects column
+            $('#searchColumn').on('change', function () {
+                const column = $(this).val();
+                const text = searchInput.val();
+
+                if (column === "__all__") {
+                    table.columns().search("");
+                    table.search(text).draw();
+                } else {
+                    table.search("");
+                    table.columns().search("");
+                    table.column(column).search(text).draw();
+                }
+            });
+
+            // Typing behavior
+            searchInput.on('keyup', function () {
+                const text = this.value;
+                const column = $('#searchColumn').val();
+
+                if (column === "__all__") {
+                    table.columns().search("");
+                    table.search(text).draw();
+                } else {
+                    table.search("");
+                    table.columns().search("");
+                    table.column(column).search(text).draw();
+                }
+            });
+        }
+    });
+
+
+        document.querySelectorAll('input.toggle-vis').forEach((checkbox) => {
+            checkbox.addEventListener('change', function (e) {
+                const colIndex = e.target.getAttribute('data-column');
+                const column = table.column(colIndex);
+                column.visible(e.target.checked);
             });
         });
 
-        // Chart calls — same placement as working dashboard
-        createStatusChart();
-        createCheckedOutChart();
-        createCategoryChart();
-    });
 
-        function createStatusChart() {
+        // create charts
+        createLocationChart();
+        createStatusChart();
+        createMakeChart();
+
+    });
+    function createLocationChart() {
+        const dt = $('#adminTable').DataTable();
+        const locationData = dt.column(4).data().toArray();
+
+        // Count occurrences of each location
+            const locationCounts = {};
+
+        // Count occurrences
+        locationData.forEach(location => {
+        locationCounts[location] = (locationCounts[location] || 0) + 1;
+        });
+
+        // Convert to array, sort, keep top 5
+        const top5 = Object.entries(locationCounts)
+            .sort((a, b) => b[1] - a[1])   // highest first
+            .slice(0, 5);                  // only 5 items
+
+        // Back into labels + values
+        const labels = top5.map(item => item[0]);
+        const values = top5.map(item => item[1]);
+
+        console.log(labels, values);
+
+        const ctx = document.getElementById('location');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Assets by Location',
+                    data: values,
+                    borderWidth: 0,
+                    backgroundColor: [
+                    '#00D084', // vibrant emerald green
+                    '#FF3B30', // vibrant red
+                    '#007BFF', // vibrant royal blue
+                    '#FFC300', // vibrant yellow
+                    '#9B59B6'  // vibrant purple
+    ],
+                }]
+            },
+            options: {
+                    plugins: {
+                        legend: {
+                        display: false, // or false if you want no legend
+                    }
+                },
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    }
+                }
+        });
+    }
+
+   
+
+    function createStatusChart() {
         const dt = $('#adminTable').DataTable();
         const statusData = dt.column(6).data().toArray();
 
-        const statusCounts = {};
-        statusData.forEach(s => {
-            const key = (s || "").trim();
-            statusCounts[key] = (statusCounts[key] || 0) + 1;
-        });
+     // Count occurrences
+    const statusCounts = {};
+    statusData.forEach(status => {
+        statusCounts[status] = (statusCounts[status] || 0) + 1;
+    });
 
-        const labels = Object.keys(statusCounts);
-        const values = Object.values(statusCounts);
+    // Sort by highest count & keep only top 5
+    const top5 = Object.entries(statusCounts)
+        .sort((a, b) => b[1] - a[1])   // highest first
+        .slice(0, 5);                  // keep only 5
+
+    // Convert back to labels + values
+    const labels = top5.map(item => item[0]);
+    const values = top5.map(item => item[1]);
+
+    console.log(labels, values);
 
         const ctx = document.getElementById('status');
-
         new Chart(ctx, {
-            type: 'bar',
+            type: 'doughnut',
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Assets by Status',
+                    label: 'Assets by status',
                     data: values,
-                    borderWidth: 2,
-                    backgroundColor: 'rgba(54,162,235,0.5)',
-                    borderColor: 'rgba(54,162,235,1)'
+                    borderWidth: 0,
+                    backgroundColor: [
+                  '#00C964', // vibrant green (Available)
+                  '#FF2B2B', // vibrant red (Unavailable)
+                  '#009EFF', // vibrant blue
+                  '#FFD300', // vibrant yellow
+                  '#FF6D1A'  // vibrant orange
+    ],
+                    
                 }]
             },
             options: {
-                indexAxis: 'y',
-                responsive: true,
-                scales: {
-                    y: { beginAtZero: true }
+                    plugins: {
+                        legend: {
+                        display: false, // or false if you want no legend
+                    }
                 },
-                plugins: { legend: { display: false } }
-            }
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    }
+                }
         });
     }
-        function createCheckedOutChart() {
+
+    function createMakeChart() {
         const dt = $('#adminTable').DataTable();
-        const col = dt.column(5).data().toArray();
+        const statusData = dt.column(1).data().toArray();
 
-        let available = 0;
-        let occupied = 0;
+        const statusCounts = {};
+        statusData.forEach(status => {
+        statusCounts[status] = (statusCounts[status] || 0) + 1;
+    });
 
-        col.forEach(v => {
-            const s = (v || "").trim();
-            if (!s || s === "—" || s === "-") available++;
-            else occupied++;
-        });
+    // Sort by count (descending) and keep top 5
+    const top5 = Object.entries(statusCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
 
-        const labels = ["Available", "Occupied"];
-        const values = [available, occupied];
+    // Convert back to labels + values
+    const labels = top5.map(item => item[0]);
+    const values = top5.map(item => item[1]);
 
-        const ctx = document.getElementById('avail');
+        console.log(labels, values);
 
+        const ctx = document.getElementById('make');
         new Chart(ctx, {
-            type: 'bar',
+            type: 'doughnut',
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Availability',
+                    label: 'Assets by status',
                     data: values,
-                    borderWidth: 2,
-                    backgroundColor: 'rgba(255,205,86,0.5)',
-                    borderColor: 'rgba(255,205,86,1)'
+                    borderWidth: 0,
+                        backgroundColor: [
+                        '#00B894', // vibrant teal
+                        '#0984E3', // vibrant blue
+                        '#FDCA40', // vibrant yellow
+                        '#FF6B35', // vibrant orange
+                        '#EA2027'  // vibrant red
+                        ]
+                   
                 }]
             },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                scales: {
-                    y: { beginAtZero: true }
+                options: {
+                    plugins: {
+                        legend: {
+                        display: false, // or false if you want no legend
+                    }
                 },
-                plugins: { legend: { display: false } }
-            }
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    }
+                }
         });
-    }
-
-        function createCategoryChart() {
-        const dt = $('#adminTable').DataTable();
-        const col = dt.column(3).data().toArray();
-
-        const counts = {};
-        col.forEach(c => {
-            const key = (c || "").trim();
-            counts[key] = (counts[key] || 0) + 1;
-        });
-
-        const labels = Object.keys(counts);
-        const values = Object.values(counts);
-
-        const ctx = document.getElementById('manufacturer');
-
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Assets by Category',
-                    data: values,
-                    borderWidth: 2,
-                    backgroundColor: 'rgba(153,102,255,0.5)',
-                    borderColor: 'rgba(153,102,255,1)'
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                scales: {
-                    y: { beginAtZero: true }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
-
-    // scoped search implementation that always reads the current table instance
-    function applyScopedSearch() { 
-      const dt = $('#adminTable').DataTable();
-      const q = $('#tableSearch').val() || '';
-      const scope = $('#searchColumn').val();
-
-      // Clear any previous searches so they don't stack
-      dt.search('');
-      dt.columns().search('');
-
-      if (scope === '__all__') {
-        dt.search(q).draw();                 // global search (all columns)
-      } else {
-        dt.column(parseInt(scope, 10))       // one column by index
-          .search(q)
-          .draw();
-      }
     }
 </script>
 

@@ -24,7 +24,10 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 
 // MVC + Razor Pages
 builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages();
+builder.Services.AddRazorPages(options =>
+{
+    options.Conventions.AuthorizeFolder("/Account");
+});
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
