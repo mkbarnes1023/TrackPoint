@@ -25,9 +25,33 @@
                 <div class="d-flex justify-content-center mt-3">
                     @if (Model.Status == Asset.AssetStatus.InStorage || Model.Status == Asset.AssetStatus.Transfered)
                     {
-                        <button type="button" class="btn btn-success btn-lg mx-2">
-                            <a asp-controller="Asset" asp-action="checkOut" asp-route-assetTag="@Model.AssetTag" style="color: white;text-decoration: none;">Borrow</a>
+                        <button type="button" class="btn  btn-success btn-lg mx-2" data-bs-toggle="modal" data-bs-target="#confirmModal">
+                            Borrow
                         </button>
+
+                        @* Confirmation Popup 
+                           TODO: Refactor this (along with the Borrow button itself) into a partial view or component for reuse
+                                 and fix the button so it can properly redirect instead of having to click the link inside the button.
+                        *@
+                        <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="confirmModalLabel">Borrow Asset</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                Are you sure you want to check out this asset?
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary">
+                                    <a asp-controller="Asset" asp-action="checkOut" asp-route-assetTag="@Model.AssetTag" style="color: white;text-decoration: none;">Confirm</a>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                     } else { <button type="button" class="btn btn-secondary btn-lg mx-2" title="Cannot borrow" style="color:#ffffff75">Borrow</button>}
                     <button type="button" class="btn btn-primary btn-lg">
                         <a asp-controller="Asset" asp-action="AuditTrail" asp-route-assetTag="@Model.AssetTag" style="color:white;text-decoration: none;">View Audit Trail</a>
