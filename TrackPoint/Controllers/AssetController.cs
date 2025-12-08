@@ -7,62 +7,62 @@ namespace TrackPoint.Controllers
 {
 	public class AssetController : Controller
 	{
-      /*
-       *  Return the view for the Asset Browser with the sample data as the model
-       */
-      public IActionResult AssetBrowser()
-      {
-        return View(Asset.SampleAssets);
-      }
+        /*
+         *  Return the view for the Asset Browser with the sample data as the model
+         */
+        public IActionResult AssetBrowser()
+        {
+            return View(Asset.SampleAssets);
+        }
 
-      /*
-       *  Return the view for the Location Add Form
-       */
-      public IActionResult LocationAdd()
-      {
-        return View();
-      }
+        /*
+         *  Return the view for the Location Add Form
+         */
+        public IActionResult LocationAdd()
+        {
+            return View();
+        }
 
-      /*
-       *  Add the new location to the database and redirect to the index
-       */
-      public IActionResult NewLocation(Location l)
-      {
-        // Add the new Location to database and redirect the user to the index
+        /*
+         *  Add the new location to the database and redirect to the index
+         */
+        public IActionResult NewLocation(Location l)
+        {
+            // Add the new Location to database and redirect the user to the index
 
-        // Log the Location to the console for debugging purposes
-        Console.WriteLine($"New Locatoin Added: {l.Name}, {l.Abbreviation}");
-        return View("../Home/Index");
-      }
+            // Log the Location to the console for debugging purposes
+            Console.WriteLine($"New Locatoin Added: {l.Name}, {l.Abbreviation}");
+            return View("../Home/Index");
+        }
 		/*
 		 *  Return the view for the Category Add Form
 		 */
 		public IActionResult CategoryAdd()
-    {
-      return View();
-    }
+        {
+            return View();
+        }
     
-    /*
-		 *  Return the view for the Asset Add Form
-		 */
-		public IActionResult AssetAdd()
-		{
-			return View();
-		}
+        /*
+	    *  Return the view for the Asset Add Form
+	    */
+	    public IActionResult AssetAdd()
+	    {
+		    return View();
+	    }
 
-		/*
-		 *  Add the new category to the database and redirect to the index
-		 */
-		public IActionResult NewCategory(Category c)
-		{
-			// Add the new Category to database and redirect the user to the AssetBrowser
+	    /*
+	    *  Add the new category to the database and redirect to the index
+	    */
+	    public IActionResult NewCategory(Category c)
+	    {
+		    // Add the new Category to database and redirect the user to the AssetBrowser
 
-			// Log the category to the console for debugging purposes
-			Console.WriteLine($"New Category Added: {c.Name}, {c.Abbreviation}");
-			return View("../Home/Index");
-    }
+		    // Log the category to the console for debugging purposes
+		    Console.WriteLine($"New Category Added: {c.Name}, {c.Abbreviation}");
+		    return View("../Home/Index");
+        }
      
-    /* 
+        /* 
 		 *  Add the new asset to the database and redirect to the Asset Browser
 		 */
 		public IActionResult NewAsset(Asset a)
@@ -77,13 +77,38 @@ namespace TrackPoint.Controllers
 			Console.WriteLine($"New Asset Added: {a.AssetTag}, {a.Make}, {a.Model}, {a.Category}, {a.Location}, {a.IssuedTo}, {a.Status}, {a.Notes}");
 			return View("AssetBrowser", Asset.SampleAssets);
 		}
-    
-        /**
+
+		/**
+         * Delete the asset from the database and redirect to the Asset Browser
+         * 
+         * We may want to make it clear that this function is for when a mistake was made,
+         * rather than for when they are done with an asset. Assets they are finished with should
+         * have their status changed to "Retired", to preserve their history in the logs.
+         */
+		public IActionResult DeleteAsset(string AssetTag)
+		{
+            // TODO: Replace with database functions
+			// Convert IEnumerable to List
+			List<Asset> assets = Asset.SampleAssets.ToList();
+            // Remove the asset with the given asset tag
+            assets.Remove(assets.FirstOrDefault(a => a.AssetTag == AssetTag));
+			// Convert the asset List back to a IEnumerable and reassign it to Sample Assets
+			Asset.SampleAssets = assets;
+
+            // TODO: Delete any other data that references this asset to prevent any null reference problems
+
+			// Log updated asset
+			Console.WriteLine($"Asset Deleted: {AssetTag}");
+
+			return View("AssetBrowser", Asset.SampleAssets);
+		}
+
+		/**
          * Return the view for the Transfer Log with the sample data sorted by TransferDate descending as the 
          */
-        // TODO: This is not a real transfer log since it's just sorting the assets by transfer date, it does not give a detailed history.
-        // Create a transfer log model in the future to properly track asset transfers.
-        public IActionResult TransferLog()
+		// TODO: This is not a real transfer log since it's just sorting the assets by transfer date, it does not give a detailed history.
+		// Create a transfer log model in the future to properly track asset transfers.
+		public IActionResult TransferLog()
         {
             var sorted = Asset.SampleAssets.OrderByDescending(a => a.TransferDate).ToList();
             return View(sorted);
