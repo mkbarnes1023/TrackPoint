@@ -13,6 +13,8 @@ namespace TrackPoint.Controllers
             return View();
         }
         
+        // TODO: Update for AssetModel
+        /*
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Allocate(string AssetTag, string IssuedTo)
@@ -57,5 +59,6 @@ namespace TrackPoint.Controllers
             
             return View(); // TODO: This leads to nowhere, redirect back to form with error
         }
+        */
     }
 }
