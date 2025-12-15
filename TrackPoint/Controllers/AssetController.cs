@@ -9,18 +9,21 @@ namespace TrackPoint.Controllers
 {
 	public class AssetController : Controller
 	{
-        /*
+		/*
          *  Return the view for the Asset Browser with the sample data as the model
          */
-        public IActionResult AssetBrowser()
+		// TODO: Remove SampleAssets and replace with database calls
+		/*
+		public IActionResult AssetBrowser()
         {
             return View(Asset.SampleAssets);
         }
+        */
 
-        /*
+		/*
          *  Return the view for the Location Add Form
          */
-        public IActionResult LocationAdd()
+		public IActionResult LocationAdd()
         {
             return View();
         }
@@ -28,7 +31,7 @@ namespace TrackPoint.Controllers
         /*
          *  Add the new location to the database and redirect to the index
          */
-        public IActionResult NewLocation(Location l)
+        public IActionResult NewLocation(LocationModel l)
         {
             // Add the new Location to database and redirect the user to the index
 
@@ -55,7 +58,7 @@ namespace TrackPoint.Controllers
 	    /*
 	    *  Add the new category to the database and redirect to the index
 	    */
-	    public IActionResult NewCategory(Category c)
+	    public IActionResult NewCategory(CategoryModel c)
 	    {
 		    // Add the new Category to database and redirect the user to the AssetBrowser
 
@@ -63,10 +66,12 @@ namespace TrackPoint.Controllers
 			Console.WriteLine($"New Category Added: {c.Name}, {c.Abbreviation}");
 			return View("../Home/Index");
         }
-     
-        /* 
+
+		/* 
 		 *  Add the new asset to the database and redirect to the Asset Browser
 		 */
+		// TODO: Remove SampleAssets and replace with database calls
+		/*
 		public IActionResult NewAsset(Asset a)
 		{
 			// Assign the Asset a asset tag based on the Category's abbreviation and a unique number
@@ -79,6 +84,7 @@ namespace TrackPoint.Controllers
 			Console.WriteLine($"New Asset Added: {a.AssetTag}, {a.Make}, {a.Model}, {a.Category}, {a.Location}, {a.IssuedTo}, {a.Status}, {a.Notes}");
 			return View("AssetBrowser", Asset.SampleAssets);
 		}
+        */
 
 		/**
          * Delete the asset from the database and redirect to the Asset Browser
@@ -87,6 +93,8 @@ namespace TrackPoint.Controllers
          * rather than for when they are done with an asset. Assets they are finished with should
          * have their status changed to "Retired", to preserve their history in the logs.
          */
+		// TODO: Remove SampleAssets and replace with database calls
+		/*
 		public IActionResult DeleteAsset(string AssetTag)
 		{
             // TODO: Replace with database functions
@@ -103,10 +111,14 @@ namespace TrackPoint.Controllers
 			Console.WriteLine($"Asset Deleted: {AssetTag}");
 			return View("AssetBrowser", Asset.SampleAssets);
 		}
-        /**
+        */
+
+		/**
          * Return the view for editing assets with the selected asset passed as the model
          */
-        public IActionResult AssetEdit(string AssetTag)
+		// TODO: Remove SampleAssets and replace with database calls
+		/*
+		public IActionResult AssetEdit(string AssetTag)
         {
 			var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
 			if (asset == null)
@@ -115,10 +127,13 @@ namespace TrackPoint.Controllers
 			}
 			return View(asset);
         }
+        */
 
 		/**
          * Return the view for editing assets with the selected asset passed as the model
          */
+		// TODO: Remove SampleAssets and replace with database calls
+		/*
 		public IActionResult UpdateAsset(Asset a)
 		{
             // TODO: Replace with database functions and stop using SampleAssets
@@ -137,23 +152,29 @@ namespace TrackPoint.Controllers
 
 			return View("AssetBrowser", Asset.SampleAssets);
 		}
+        */
 
 		/**
          * Return the view for the Transfer Log with the sample data sorted by TransferDate descending as the 
          */
 		// TODO: This is not a real transfer log since it's just sorting the assets by transfer date, it does not give a detailed history.
 		// Create a transfer log model in the future to properly track asset transfers.
+		// TODO: Remove SampleAssets and replace with database calls
+		/*
 		public IActionResult TransferLog()
         {
             var sorted = Asset.SampleAssets.OrderByDescending(a => a.TransferDate).ToList();
             return View(sorted);
         }
+        */
 
-        /**
+		/**
          * Redirects to the Audit Trail view using the selected asset. In the future, this will be 
          * replaced with a more compact menu instead of a separate page just to view it.
          */
-        public IActionResult AuditTrail(string AssetTag)
+		// TODO: Remove SampleAssets and replace with database calls
+		/*
+		public IActionResult AuditTrail(string AssetTag)
         {
             var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
             if (asset == null)
@@ -162,8 +183,11 @@ namespace TrackPoint.Controllers
             }
             return View(asset);
         }
+        */
 
-        public IActionResult AssetView(string AssetTag)
+		// TODO: Remove SampleAssets and replace with database calls
+		/*
+		public IActionResult AssetView(string AssetTag)
         {
             var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
             if (asset == null)
@@ -173,8 +197,11 @@ namespace TrackPoint.Controllers
 
             return View(asset);
         }
+        */
 
-        public IActionResult checkOut(string AssetTag)
+		// TODO: Remove SampleAssets and replace with database calls
+        /*
+		public IActionResult checkOut(string AssetTag)
         {
             var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
             if (asset == null)
@@ -210,5 +237,6 @@ namespace TrackPoint.Controllers
             
             return View(); // TODO: This leads to nowhere, redirect back to form with error
         }
+        */
     }
 }

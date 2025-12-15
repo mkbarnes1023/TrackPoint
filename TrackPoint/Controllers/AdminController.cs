@@ -12,8 +12,10 @@ namespace TrackPoint.Controllers
         {
             return View();
         }
-        
-        [HttpPost]
+
+		// TODO: Remove SampleAssets and replace with database calls
+        /*
+		[HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Allocate(string AssetTag, string IssuedTo)
         {
@@ -57,5 +59,6 @@ namespace TrackPoint.Controllers
             
             return View(); // TODO: This leads to nowhere, redirect back to form with error
         }
+        */
     }
 }
