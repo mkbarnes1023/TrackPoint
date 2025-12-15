@@ -5,6 +5,7 @@ using System.Net.NetworkInformation;
 using System.Security.Cryptography.Xml;
 using TrackPoint.Models;
 
+// TODO: Remove all references to SampleAssets and replace them with database implementations
 namespace TrackPoint.Controllers
 {
 	public class AssetController : Controller
@@ -12,10 +13,13 @@ namespace TrackPoint.Controllers
       /*
        *  Return the view for the Asset Browser with the sample data as the model
        */
+      // TODO: Update for AssetModel
+      /*
       public IActionResult AssetBrowser()
       {
-        return View(Asset.SampleAssets);
+        return View(AssetModel.SampleAssets);
       }
+      */
 
       /*
        *  Return the view for the Location Add Form
@@ -28,7 +32,7 @@ namespace TrackPoint.Controllers
       /*
        *  Add the new location to the database and redirect to the index
        */
-      public IActionResult NewLocation(Location l)
+      public IActionResult NewLocation(LocationModel l)
       {
         // Add the new Location to database and redirect the user to the index
 
@@ -55,7 +59,7 @@ namespace TrackPoint.Controllers
 		/*
 		 *  Add the new category to the database and redirect to the index
 		 */
-		public IActionResult NewCategory(Category c)
+		public IActionResult NewCategory(CategoryModel c)
 		{
 			// Add the new Category to database and redirect the user to the AssetBrowser
 
@@ -63,11 +67,13 @@ namespace TrackPoint.Controllers
 			Console.WriteLine($"New Category Added: {c.Name}, {c.Abbreviation}");
 			return View("../Home/Index");
         }
-     
-        /* 
+
+		/* 
 		 *  Add the new asset to the database and redirect to the Asset Browser
 		 */
-		public IActionResult NewAsset(Asset a)
+		// TODO: Update for AssetModel
+		/*
+		public IActionResult NewAsset(AssetModel a)
 		{
 			// Assign the Asset a asset tag based on the Category's abbreviation and a unique number
 			a.AssetTag = "Something";
@@ -79,113 +85,131 @@ namespace TrackPoint.Controllers
 			Console.WriteLine($"New Asset Added: {a.AssetTag}, {a.Make}, {a.Model}, {a.Category}, {a.Location}, {a.IssuedTo}, {a.Status}, {a.Notes}");
 			return View("AssetBrowser", Asset.SampleAssets);
 		}
+		*/
 
-        /**
-         * Return the view for editing assets with the selected asset passed as the model
-         */
-        public IActionResult AssetEdit(string AssetTag)
-        {
+		/**
+		 * Return the view for editing assets with the selected asset passed as the model
+		 */
+		// TODO: Update for AssetModel
+		/*
+		public IActionResult AssetEdit(string AssetTag)
+		{
 			var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
 			if (asset == null)
 			{
 				return NotFound();
 			}
 			return View(asset);
-        }
+		}
+		*/
 
 		/**
-         * Return the view for editing assets with the selected asset passed as the model
-         */
+		 * Return the view for editing assets with the selected asset passed as the model
+		 */
+		// TODO: Update for AssetModel
+		/*
 		public IActionResult UpdateAsset(Asset a)
 		{
-            // TODO: Replace with database functions and stop using SampleAssets
+			// TODO: Replace with database functions and stop using SampleAssets
 
-            // Convert IEnumerable to List
-            List<Asset> assets = Asset.SampleAssets.ToList();
-            // Get the index of the asset that shares the tag of the one we are updating
-            int assetIndex = assets.IndexOf(assets.FirstOrDefault(asset => asset.AssetTag == a.AssetTag));
-            // Replace the asset with the updated one
-            assets[assetIndex] = a;
-            // Convert the asset List back to a IEnumerable and reassign it to Sample Assets
-            Asset.SampleAssets = assets;
+			// Convert IEnumerable to List
+			List<Asset> assets = Asset.SampleAssets.ToList();
+			// Get the index of the asset that shares the tag of the one we are updating
+			int assetIndex = assets.IndexOf(assets.FirstOrDefault(asset => asset.AssetTag == a.AssetTag));
+			// Replace the asset with the updated one
+			assets[assetIndex] = a;
+			// Convert the asset List back to a IEnumerable and reassign it to Sample Assets
+			Asset.SampleAssets = assets;
 
 			// Log updated asset
 			Console.WriteLine($"Asset Updated: {a.AssetTag}, {a.Make}, {a.Model}, {a.Category}, {a.Location}, {a.IssuedTo}, {a.Status}, {a.Notes}");
 
 			return View("AssetBrowser", Asset.SampleAssets);
 		}
+		*/
 
 		/**
-         * Return the view for the Transfer Log with the sample data sorted by TransferDate descending as the 
-         */
+		 * Return the view for the Transfer Log with the sample data sorted by TransferDate descending as the 
+		 */
 		// TODO: This is not a real transfer log since it's just sorting the assets by transfer date, it does not give a detailed history.
 		// Create a transfer log model in the future to properly track asset transfers.
+		// TODO: Update for AssetModel
+		/*
 		public IActionResult TransferLog()
-        {
-            var sorted = Asset.SampleAssets.OrderByDescending(a => a.TransferDate).ToList();
-            return View(sorted);
-        }
+		{
+			var sorted = Asset.SampleAssets.OrderByDescending(a => a.TransferDate).ToList();
+			return View(sorted);
+		}
+		*/
 
-        /**
-         * Redirects to the Audit Trail view using the selected asset. In the future, this will be 
-         * replaced with a more compact menu instead of a separate page just to view it.
-         */
-        public IActionResult AuditTrail(string AssetTag)
-        {
-            var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
-            if (asset == null)
-            {
-                return NotFound();
-            }
-            return View(asset);
-        }
+		/**
+		 * Redirects to the Audit Trail view using the selected asset. In the future, this will be 
+		 * replaced with a more compact menu instead of a separate page just to view it.
+		 */
+		// TODO: Update for AssetModel
+		/*
+		public IActionResult AuditTrail(string AssetTag)
+		{
+			var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
+			if (asset == null)
+			{
+				return NotFound();
+			}
+			return View(asset);
+		}
+		*/
 
-        public IActionResult AssetView(string AssetTag)
-        {
-            var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
-            if (asset == null)
-            {
-                return NotFound();
-            }
+		// TODO: Update for AssetModel
+		/*
+		public IActionResult AssetView(string AssetTag)
+		{
+			var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
+			if (asset == null)
+			{
+				return NotFound();
+			}
 
-            return View(asset);
-        }
+			return View(asset);
+		}
+		*/
+		// TODO: Update for AssetModel
+		/*
+		public IActionResult checkOut(string AssetTag)
+		{
+			var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
+			if (asset == null)
+			{
+				TempData["Failure"] = $"Error: Asset not found.";
+				return RedirectToAction("AllocateDemo");
+			}
 
-        public IActionResult checkOut(string AssetTag)
-        {
-            var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
-            if (asset == null)
-            {
-                TempData["Failure"] = $"Error: Asset not found.";
-                return RedirectToAction("AllocateDemo");
-            }
+			// Store previous issued to and transfer date
+			string previousIssuedTo = asset.IssuedTo ?? "Unassigned";
+			DateTime previousTransferDate = asset.TransferDate;
 
-            // Store previous issued to and transfer date
-            string previousIssuedTo = asset.IssuedTo ?? "Unassigned";
-            DateTime previousTransferDate = asset.TransferDate;
+			// Update asset information
+			asset.IssuedTo = @User.Identity?.Name;
+			asset.TransferDate = DateTime.Now;
+			asset.Status = Asset.AssetStatus.InUse;
 
-            // Update asset information
-            asset.IssuedTo = @User.Identity?.Name;
-            asset.TransferDate = DateTime.Now;
-            asset.Status = Asset.AssetStatus.InUse;
+			// Update the asset's audit trail
+			asset.AuditTrail.Add(new AuditTrail
+			{
+				AssetTag = asset.AssetTag,
+				IssuedTo = previousIssuedTo,
+				TransferDate = previousTransferDate,
+				//Asset = asset
+			});
 
-            // Update the asset's audit trail
-            asset.AuditTrail.Add(new AuditTrail
-            {
-                AssetTag = asset.AssetTag,
-                IssuedTo = previousIssuedTo,
-                TransferDate = previousTransferDate,
-                //Asset = asset
-            });
-            
-            // Prevent duplicate form submissions on page refresh
-            if (ModelState.IsValid)
-            {
-                TempData["Success"] = $"Asset {AssetTag} successfully allocated to {asset.IssuedTo}!";
-                return RedirectToAction("AssetBrowser", "Asset");
-            }
-            
-            return View(); // TODO: This leads to nowhere, redirect back to form with error
-        }
-    }
+			// Prevent duplicate form submissions on page refresh
+			if (ModelState.IsValid)
+			{
+				TempData["Success"] = $"Asset {AssetTag} successfully allocated to {asset.IssuedTo}!";
+				return RedirectToAction("AssetBrowser", "Asset");
+			}
+
+			return View(); // TODO: This leads to nowhere, redirect back to form with error
+		}
+		*/
+	}
 }
