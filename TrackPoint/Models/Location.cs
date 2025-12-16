@@ -1,15 +1,18 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TrackPoint.Models;
 
-namespace TrackPoint.Models
+public class Location
 {
-	/**
-	 * This class represents a location where an asset is stored or assigned
-	 */
-	public class Location
-	{
-		[Key]
-		public int LocationId { get; set; }
-		public string? Name { get; set; }
-		public string? Abbreviation { get; set; }
-	}
+    [Key]
+    public int LocationId { get; set; }
+
+    [Required]
+    [StringLength(100)]
+    public string Name { get; set; }
+
+    [StringLength(20)]
+    public string Abbreviation { get; set; }
+
+    // Navigation property (optional but recommended)
+    public ICollection<Asset>? Assets { get; set; }
 }
