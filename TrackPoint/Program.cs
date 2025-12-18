@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TrackPoint.Data;
+using TrackPoint.Models.RepositoryInterfaces;
+using TrackPoint.Models.Repositories.Local;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +37,10 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
     options.ReturnUrlParameter = "returnUrl";
 });
+
+builder.Services.AddScoped<IAssetRepository, AssetLocalRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryLocalRepository>();
+builder.Services.AddScoped<ILocationRepository, LocationLocalRepository>();
 
 var app = builder.Build();
 
