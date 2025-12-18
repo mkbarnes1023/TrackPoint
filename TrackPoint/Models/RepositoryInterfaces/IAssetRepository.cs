@@ -2,7 +2,7 @@
 {
     public interface IAssetRepository
     {
-        IEnumerable<AssetModel> GetAssets();
+        IEnumerable<AssetModel> Assets { get; }
 		AssetModel GetAssetByID(string assetId);
         void AddAsset(AssetModel asset);
         void RemoveAsset(AssetModel asset);

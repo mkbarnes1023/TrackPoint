@@ -2,7 +2,7 @@
 {
     public interface ILocationRepository
     {
-		IEnumerable<LocationModel> GetLocations();
+		IEnumerable<LocationModel> Locations { get; }
 		LocationModel GetLocationByID(string locationId);
 		void AddLocation(LocationModel location);
 		void RemoveLocation(LocationModel location);

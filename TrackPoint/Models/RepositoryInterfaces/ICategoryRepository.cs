@@ -2,7 +2,7 @@
 {
     public interface ICategoryRepository
     {
-		IEnumerable<CategoryModel> GetCategories();
+		IEnumerable<CategoryModel> Categories { get; }
 		CategoryModel GetCategoryByID(string categoryId);
 		void AddCategory(CategoryModel category);
 		void RemoveCategory(CategoryModel category);
