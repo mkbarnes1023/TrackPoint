@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.NetworkInformation;
@@ -7,6 +8,7 @@ using TrackPoint.Models;
 
 namespace TrackPoint.Controllers
 {
+    [Authorize(Roles = "Admin,Borrower")]
 	public class AssetController : Controller
 	{
 		/*

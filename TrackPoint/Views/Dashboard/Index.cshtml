@@ -1,5 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Dashboard";
+    bool isAdmin = User.IsInRole("Admin");
 }
 
 <style>
@@ -60,8 +61,12 @@
 <div class="container mt-4 custom-background">
 
     @* <h2 class="mb-3">Personal Dashboard</h2>  *@
-    <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary btn-sm btn-outline-light">Personal Dashboard</a>
-    <a asp-controller="Dashboard" asp-action="adminDashboard" class="btn btn-light btn-outline-dark btn-sm">Admin View</a>
+    
+
+    @if (isAdmin)
+    {
+        <a asp-controller="Dashboard" asp-action="adminDashboard" class="btn btn-light btn-outline-dark btn-sm">Admin View</a>
+    }
 
     <div class="container" style="padding: 18px">
         <div class="row g-4">
