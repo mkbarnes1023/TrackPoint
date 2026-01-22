@@ -1,0 +1,76 @@
+﻿@using System.Reflection
+@using System.Linq
+@model System.Collections.IEnumerable
+
+@*
+Pseudocode plan (detailed):
+1. Accept the model as a non-generic System.Collections.IEnumerable so the view does not fail
+   when the controller passes either List<AssetModel> or IEnumerable<TrackPoint.Models.Asset>.
+2. If Model is null -> show a friendly "No model passed" message.
+3. Cast Model to IEnumerable<object> (using LINQ.Cast<object>()) and materialize to a List<object>.
+4. If list is empty -> show "no items".
+5. Inspect the first item's runtime type via reflection (GetType()) to obtain public instance properties.
+6. If there are public properties:
+   - Render an HTML table.
+   - Table header: property names.
+   - Table rows: property values for each item (use PropertyInfo.GetValue()).
+7. If there are no public properties:
+   - Fall back to calling ToString() for each item and render as a list.
+8. This approach avoids the InvalidOperationException by not requiring compile-time model type.
+*@
+
+@if (Model == null)
+{
+    <p>No model was passed to the view.</p>
+}
+else
+{
+    var enumerable = (System.Collections.IEnumerable)Model;
+    var items = enumerable.Cast<object>().ToList();
+
+    if (!items.Any())
+    {
+        <p>The model contains no items.</p>
+    }
+    else
+    {
+        var first = items.First();
+        var props = first?.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance) ?? Array.Empty<PropertyInfo>();
+
+        if (props.Length == 0)
+        {
+            <h4>Items</h4>
+            <ul>
+                @foreach (var it in items)
+                {
+                    <li>@(it?.ToString() ?? "")</li>
+                }
+            </ul>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        @foreach (var p in props)
+                        {
+                            <th>@p.Name</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var it in items)
+                    {
+                        <tr>
+                            @foreach (var p in props)
+                            {
+                                var val = p.GetValue(it);
+                                <td>@(val ?? "")</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    }
+}

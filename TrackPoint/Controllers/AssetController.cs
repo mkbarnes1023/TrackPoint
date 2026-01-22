@@ -3,27 +3,42 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.NetworkInformation;
 using System.Security.Cryptography.Xml;
+using Microsoft.EntityFrameworkCore;
+using TrackPoint.Data;
 using TrackPoint.Models;
 
 namespace TrackPoint.Controllers
 {
 	public class AssetController : Controller
 	{
-		/*
+
+        private readonly ApplicationDbContext _context;
+        public AssetController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+        //public async Task<IActionResult> Test()
+        //{
+        //    var assets = await _context.Assets.ToListAsync();
+        //    return View(assets);
+        //}
+
+        /*
          *  Return the view for the Asset Browser with the sample data as the model
          */
-		// TODO: Remove SampleAssets and replace with database calls
-		/*
-		public IActionResult AssetBrowser()
-        {
-            return View(Asset.SampleAssets);
-        }
-        */
+        //TODO: Remove SampleAssets and replace with database calls
 
-		/*
+        public async Task<IActionResult> AssetBrowser()
+        {
+            var assets = await _context.Assets.ToListAsync();
+            return View(assets);
+        }
+
+
+        /*
          *  Return the view for the Location Add Form
          */
-		public IActionResult LocationAdd()
+        public IActionResult LocationAdd()
         {
             return View();
         }

@@ -1,7 +1,6 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@model IEnumerable<TrackPoint.Models.Asset>
+﻿@using System.Reflection
+@using System.Linq
+@model System.Collections.Generic.IEnumerable<TrackPoint.Models.AssetModel>
 @{
     var msg = TempData["Success"] as string;
 
@@ -11,6 +10,9 @@
             @msg
         </div>
     }
+
+    var assets = Model?.ToList() ?? new List<TrackPoint.Models.AssetModel>();
+
 }
 
 <h1>Browse Available Assets</h1>
@@ -30,7 +32,7 @@
 		</tr>
     </thead>
     <tbody>
-        @foreach (var asset in Model)
+        @foreach (var asset in assets)
         {
             <tr>
                 <td><a asp-controller="Asset" asp-action="AssetView" asp-route-assetTag="@asset.AssetTag">@asset.AssetTag</a></td>
@@ -106,11 +108,12 @@
                     }
                     <a class="btn btn-sm btn-warning" asp-controller="Asset" asp-action="AssetEdit" asp-route-assetTag="@asset.AssetTag">Edit</a>
                 		<a class="btn btn-sm btn-danger" asp-controller="Asset" asp-action="DeleteAsset" asp-route-assetTag="@asset.AssetTag">Delete</a>
-							</td>
+				</td>
             </tr>
 		}
     </tbody>
 </table>
+
 <!--Datatabless implementation-->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
