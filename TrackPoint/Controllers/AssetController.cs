@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,9 +10,10 @@ using TrackPoint.Models;
 
 namespace TrackPoint.Controllers
 {
-    public class AssetController : Controller
-    {
-        /*
+    [Authorize(Roles = "Admin,Borrower")]
+	public class AssetController : Controller
+	{
+		/*
          *  Return the view for the Asset Browser with the sample data as the model
          */
 
