@@ -1,7 +1,7 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
-@model IEnumerable<TrackPoint.Models.Asset>
+@model IEnumerable<TrackPoint.Models.AssetModel>
 @{
     var msg = TempData["Success"] as string;
 
@@ -38,7 +38,7 @@
                 <td>@asset.Model</td>
                 <td>@asset.Category</td>
                 <td>@asset.Location</td>
-                <td>@asset.IssuedTo</td>
+                <td>@asset.IssuedToUser</td>
                 <!-- Color statuses -->
                 <!-- 
                     Key: 
@@ -46,21 +46,21 @@
                      - Green: Available to borrow
                      - Grey: No longer in circulation
                 -->
-                @if (asset.Status == Enums.AssetStatus.InUse || asset.Status == Enums.AssetStatus.UnderMaintenance)
+                @if (asset.AssetStatus == Enums.AssetStatus.InUse || asset.AssetStatus == Enums.AssetStatus.UnderMaintenance)
                 {
-                    <td style="color:red">@asset.Status</td>
+                    <td style="color:red">@asset.AssetStatus</td>
                 }
-                else if (asset.Status == Enums.AssetStatus.InStorage || asset.Status == Enums.AssetStatus.Transfered)
+                else if (asset.AssetStatus == Enums.AssetStatus.InStorage || asset.AssetStatus == Enums.AssetStatus.Transfered)
                 {
-                    <td style="color:green">@asset.Status</td>
+                    <td style="color:green">@asset.AssetStatus</td>
                 }
-                else if (asset.Status == Enums.AssetStatus.Retired || asset.Status == Enums.AssetStatus.Lost)
+                else if (asset.AssetStatus == Enums.AssetStatus.Retired || asset.AssetStatus == Enums.AssetStatus.Lost)
                 {
-                    <td style="color:grey">@asset.Status</td>
+                    <td style="color:grey">@asset.AssetStatus</td>
                 }
                 else
                 {
-                    <td>@asset.Status</td>
+                    <td>@asset.AssetStatus</td>
 				}
                 <td>@asset.Notes</td>
                 <td><a asp-controller="Asset" asp-action="AuditTrail" asp-route-assetTag="@asset.AssetTag" class="btn btn-primary">View Audit Trail</a></td>
@@ -69,7 +69,7 @@
                         Disable the button for unavailable assets.
                         asp-action will be added in future iterations.
                     -->
-                    @if (asset.Status == Enums.AssetStatus.InStorage || asset.Status == Enums.AssetStatus.Transfered)
+                    @if (asset.AssetStatus == Enums.AssetStatus.InStorage || asset.AssetStatus == Enums.AssetStatus.Transfered)
                     {
                         <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal">
                             Borrow

@@ -1,7 +1,7 @@
 ﻿@*
     This view is used when selecting an individual Asset to view its details.
 *@
-@model TrackPoint.Models.Asset;
+@model TrackPoint.Models.AssetModel;
 @{
 }
 
@@ -24,7 +24,7 @@
                 @* <p>Asset Barcode</p> *@
                 <div class="d-flex justify-content-center mt-3">
 
-                    @if (Model.Status == Enums.AssetStatus.InStorage || Model.Status == Enums.AssetStatus.Transfered)
+                    @if (Model.AssetStatus == Enums.AssetStatus.InStorage || Model.AssetStatus == Enums.AssetStatus.Transfered)
                     {
                         <button type="button" class="btn  btn-success btn-lg mx-2" data-bs-toggle="modal" data-bs-target="#confirmModal">
                             Borrow
@@ -64,12 +64,12 @@
                 <hr class="border-4"/>
                 <div class="fs-5">
                     <p><b>Asset Tag:</b> @Model.AssetTag</p>
-                    <p><b>Status:</b> @Model.Status</p>
+                    <p><b>Status:</b> @Model.AssetStatus</p>
                     <p><b>Location:</b> @Model.Location</p>
                     <p><b>Make:</b> @Model.Make</p>
                     <p><b>Model:</b> @Model.Model</p>
                     <p><b>Category:</b> @Model.Category</p>
-                    <p><b>Issued To:</b> @if(Model.IssuedTo == null) { <span>Unissued</span> } else { @Model.IssuedTo }</p>
+                    <p><b>Issued To:</b> @if(Model.IssuedToUser == null) { <span>Unissued</span> } else { @Model.IssuedToUser }</p>
                     <p><b>Notes:</b> @Model.Notes</p>
                 </div>
             </div>

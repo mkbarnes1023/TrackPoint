@@ -8,7 +8,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 // DB context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+
+    // In Development, enable EF Core logging and sensitive data logging so connection
+    // errors and SQL details are written to the console for easier debugging.
+    if (builder.Environment.IsDevelopment())
+    {
+        options.EnableSensitiveDataLogging();
+        options.LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information);
+    }
+});
 
 // Removed SMTP email sender configuration
 

@@ -4,66 +4,69 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using TrackPoint.Models;
 
-public class AssetModel
+namespace TrackPoint.Models
 {
-    [Key]
-    public int AssetId { get; set; }
+    public class AssetModel
+    {
+        [Key]
+        public int AssetId { get; set; }
 
-    [Required]
-    [StringLength(100)]
-    public string AssetTag { get; set; }
+        [Required]
+        [StringLength(100)]
+        public string AssetTag { get; set; }
 
-    [Required]
-    [StringLength(100)]
-    public string Make { get; set; }
+        [Required]
+        [StringLength(100)]
+        public string Make { get; set; }
 
-    [Required]
-    [StringLength(100)]
-    public string Model { get; set; }
+        [Required]
+        [StringLength(100)]
+        public string Model { get; set; }
 
-    // ---------------------
-    // Foreign Keys
-    // ---------------------
+        // ---------------------
+        // Foreign Keys
+        // ---------------------
 
-    // Issued to: Identity user FK
-    public string? IssuedToUserId { get; set; }
+        // Issued to: Identity user FK
+        public string? IssuedToUserId { get; set; }
 
-    [ForeignKey(nameof(IssuedToUserId))]
-    public IdentityUser? IssuedToUser { get; set; }
+        [ForeignKey(nameof(IssuedToUserId))]
+        public IdentityUser? IssuedToUser { get; set; }
 
-    // Category FK
-    public int CategoryId { get; set; }
-    public Category Category { get; set; }
+        // Category FK
+        public int CategoryId { get; set; }
+        public Category Category { get; set; }
 
-    // Location FK
-    public int LocationId { get; set; }
-    public Location Location { get; set; }
+        // Location FK
+        public int LocationId { get; set; }
+        public Location Location { get; set; }
 
-    // ---------------------
-    // Status Fields
-    // ---------------------
+        // ---------------------
+        // Status Fields
+        // ---------------------
 
-    [Required]
-    public string AssetStatus { get; set; }
+        [Required]
+        public Enums.AssetStatus AssetStatus { get; set; }
 
-    public string? Notes { get; set; }
+        public string? Notes { get; set; }
 
-    public DateTime StatusDate { get; set; }
+        public DateTime StatusDate { get; set; }
 
-    public DateTime? WarrantyExpirationDate { get; set; }
+        public DateTime? WarrantyExpirationDate { get; set; }
 
-    // ---------------------
-    // Asset Details
-    // ---------------------
+        // ---------------------
+        // Asset Details
+        // ---------------------
 
-    public string SerialNumber { get; set; }
+        public string SerialNumber { get; set; }
 
-    public DateTime? PurchaseDate { get; set; }
+        public DateTime? PurchaseDate { get; set; }
 
-    [Column(TypeName = "decimal(18,2)")]
-    public decimal PurchasePrice { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal PurchasePrice { get; set; }
 
-    public string Vendor { get; set; }
+        public string Vendor { get; set; }
 
-    public string Condition { get; set; }
+        public string Condition { get; set; }
+    }
 }
