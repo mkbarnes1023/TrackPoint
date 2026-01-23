@@ -4,21 +4,30 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net.NetworkInformation;
 using System.Security.Cryptography.Xml;
 using TrackPoint.Models;
+using TrackPoint.Models.RepositoryInterfaces;
 
 namespace TrackPoint.Controllers
 {
 	public class AssetController : Controller
 	{
+
+        private IAssetRepository _assetRepository;
+        private ICategoryRepository _categoryRepository;
+        private ILocationRepository _locationRepository;
+        public AssetController(IAssetRepository assetRepository, ICategoryRepository categoryRepository, ILocationRepository locationRepository)
+        {
+            _assetRepository = assetRepository;
+            _categoryRepository = categoryRepository;
+            _locationRepository = locationRepository;
+		}
+
 		/*
          *  Return the view for the Asset Browser with the sample data as the model
          */
-		// TODO: Remove SampleAssets and replace with database calls
-		/*
 		public IActionResult AssetBrowser()
         {
-            return View(Asset.SampleAssets);
+            return View(_assetRepository.Assets);
         }
-        */
 
 		/*
          *  Return the view for the Location Add Form
@@ -34,9 +43,11 @@ namespace TrackPoint.Controllers
         public IActionResult NewLocation(LocationModel l)
         {
             // Add the new Location to database and redirect the user to the index
+            _locationRepository.AddLocation(l);
+            _locationRepository.Save();
 
-            // Log the Location to the console for debugging purposes
-            Console.WriteLine($"New Locatoin Added: {l.Name}, {l.Abbreviation}");
+			// Log the Location to the console for debugging purposes
+			Console.WriteLine($"New Locatoin Added: {l.Name}, {l.Abbreviation}");
             return View("../Home/Index");
         }
 		/*
@@ -61,6 +72,8 @@ namespace TrackPoint.Controllers
 	    public IActionResult NewCategory(CategoryModel c)
 	    {
 		    // Add the new Category to database and redirect the user to the AssetBrowser
+            _categoryRepository.AddCategory(c);
+            _categoryRepository.Save();
 
 			// Log the category to the console for debugging purposes
 			Console.WriteLine($"New Category Added: {c.Name}, {c.Abbreviation}");
@@ -70,21 +83,33 @@ namespace TrackPoint.Controllers
 		/* 
 		 *  Add the new asset to the database and redirect to the Asset Browser
 		 */
-		// TODO: Remove SampleAssets and replace with database calls
-		/*
-		public IActionResult NewAsset(Asset a)
+		public IActionResult NewAsset(AssetModel a)
 		{
 			// Assign the Asset a asset tag based on the Category's abbreviation and a unique number
+            // Placeholder currently
 			a.AssetTag = "Something";
 
+			//Copilot assisted
+			// Making the Asset Tag:
+			// Get the category abbreviation the asset belongs to. If the category is not found, default to "GEN" (General)
+			String catAbbv = _categoryRepository.Categories
+                .FirstOrDefault(c => c.CategoryId == a.CategoryId)?.Abbreviation ?? "GEN";
+			// Count how many assets are in that category already
+            int catCount = _assetRepository.Assets
+                .Count(asset => asset.CategoryId == a.CategoryId);
+			// Increment by 1 to get the new asset's number
+            catCount += 1;
+			// Combine to make the asset tag
+            a.AssetTag = $"{catAbbv}-{catCount:D4}";
+
 			// Add the new Asset to database and redirect the user to the AssetBrowser
-			Asset.SampleAssets = Asset.SampleAssets.Append(a);
+			_assetRepository.AddAsset(a);
+            _assetRepository.Save();
 
 			// Log the asset to the console for debugging purposes
-			Console.WriteLine($"New Asset Added: {a.AssetTag}, {a.Make}, {a.Model}, {a.Category}, {a.Location}, {a.IssuedTo}, {a.Status}, {a.Notes}");
-			return View("AssetBrowser", Asset.SampleAssets);
+			Console.WriteLine($"New Asset Added: {a.AssetTag}, {a.Make}, {a.Model}, {a.Category}, {a.Location}, {a.Notes}");
+			return View("AssetBrowser", _assetRepository.Assets);
 		}
-        */
 
 		/**
          * Delete the asset from the database and redirect to the Asset Browser
@@ -93,66 +118,44 @@ namespace TrackPoint.Controllers
          * rather than for when they are done with an asset. Assets they are finished with should
          * have their status changed to "Retired", to preserve their history in the logs.
          */
-		// TODO: Remove SampleAssets and replace with database calls
-		/*
 		public IActionResult DeleteAsset(string AssetTag)
 		{
-            // TODO: Replace with database functions
-			// Convert IEnumerable to List
-			List<Asset> assets = Asset.SampleAssets.ToList();
-            // Remove the asset with the given asset tag
-            assets.Remove(assets.FirstOrDefault(a => a.AssetTag == AssetTag));
-			// Convert the asset List back to a IEnumerable and reassign it to Sample Assets
-			Asset.SampleAssets = assets;
+            _assetRepository.RemoveAssetByID(AssetTag);
+            _assetRepository.Save();
 
-            // TODO: Delete any other data that references this asset to prevent any null reference problems
+			// TODO: Delete any other data that references this asset to prevent any null reference problems
 
 			// Log updated asset
 			Console.WriteLine($"Asset Deleted: {AssetTag}");
-			return View("AssetBrowser", Asset.SampleAssets);
+			return View("AssetBrowser", _assetRepository.Assets);
 		}
-        */
 
 		/**
          * Return the view for editing assets with the selected asset passed as the model
          */
-		// TODO: Remove SampleAssets and replace with database calls
-		/*
 		public IActionResult AssetEdit(string AssetTag)
         {
-			var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
+			var asset = _assetRepository.Assets.FirstOrDefault(a => a.AssetTag == AssetTag);
 			if (asset == null)
 			{
 				return NotFound();
 			}
 			return View(asset);
         }
-        */
 
 		/**
          * Return the view for editing assets with the selected asset passed as the model
          */
-		// TODO: Remove SampleAssets and replace with database calls
-		/*
-		public IActionResult UpdateAsset(Asset a)
+		public IActionResult UpdateAsset(AssetModel a)
 		{
-            // TODO: Replace with database functions and stop using SampleAssets
-
-            // Convert IEnumerable to List
-            List<Asset> assets = Asset.SampleAssets.ToList();
-            // Get the index of the asset that shares the tag of the one we are updating
-            int assetIndex = assets.IndexOf(assets.FirstOrDefault(asset => asset.AssetTag == a.AssetTag));
-            // Replace the asset with the updated one
-            assets[assetIndex] = a;
-            // Convert the asset List back to a IEnumerable and reassign it to Sample Assets
-            Asset.SampleAssets = assets;
+            _assetRepository.UpdateAsset(a);
+            _assetRepository.Save();
 
 			// Log updated asset
-			Console.WriteLine($"Asset Updated: {a.AssetTag}, {a.Make}, {a.Model}, {a.Category}, {a.Location}, {a.IssuedTo}, {a.Status}, {a.Notes}");
+			Console.WriteLine($"Asset Updated: {a.AssetTag}, {a.Make}, {a.Model}, {a.Category}, {a.Location}, {a.Notes}");
 
-			return View("AssetBrowser", Asset.SampleAssets);
+			return View("AssetBrowser", _assetRepository.Assets);
 		}
-        */
 
 		/**
          * Return the view for the Transfer Log with the sample data sorted by TransferDate descending as the 
