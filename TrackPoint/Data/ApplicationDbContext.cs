@@ -12,14 +12,6 @@ namespace TrackPoint.Data
         {
         }
 
-        // Domain DbSets
-        public DbSet<CategoryModel> Categories { get; set; } = null!;
-        public DbSet<LocationModel> Locations { get; set; } = null!;
-        public DbSet<AssetModel> Assets { get; set; } = null!;
-        public DbSet<AuditTrail> AuditTrail { get; set; } = null!;
-        public DbSet<Category> Category { get; set; } = null!;
-        public DbSet<Location> Location { get; set; } = null!;
-        public DbSet<Asset> Asset { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

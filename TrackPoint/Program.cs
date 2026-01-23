@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TrackPoint.Data;
-using TrackPoint.Models.RepositoryInterfaces;
-using TrackPoint.Models.Repositories.Local;
+//using TrackPoint.Models.RepositoryInterfaces;
+//using TrackPoint.Models.Repositories.Local;
 using System;
 using System.Linq;
 using TrackPoint.Models;
@@ -62,9 +62,9 @@ builder.Services.ConfigureApplicationCookie(options =>
     };
 });
 
-builder.Services.AddScoped<IAssetRepository, AssetLocalRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryLocalRepository>();
-builder.Services.AddScoped<ILocationRepository, LocationLocalRepository>();
+//builder.Services.AddScoped<IAssetRepository, AssetLocalRepository>();
+//builder.Services.AddScoped<ICategoryRepository, CategoryLocalRepository>();
+//builder.Services.AddScoped<ILocationRepository, LocationLocalRepository>();
 
 var app = builder.Build();
 
