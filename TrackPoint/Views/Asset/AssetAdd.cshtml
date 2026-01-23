@@ -1,7 +1,7 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
-@model TrackPoint.Models.Asset;
+@model TrackPoint.Models.Asset
 @{
 }
 <h1>Register an Asset</h1>
@@ -44,12 +44,12 @@
 	</div>
 
 	<div>
-		<label asp-for="IssuedTo">Issued To</label>
-		<input type="text" asp-for="IssuedTo">
+		<label asp-for="IssuedToUser">Issued To</label>
+		<input type="text" asp-for="IssuedToUser">
 	</div>
 
 	<div>
-		<select asp-for="Status">
+		<select asp-for="AssetStatus">
 			<!--Some of these options may be omitted, as it doesnt really make sense to register a new asset as "Lost"-->
 			<option value="">Select Status</option>
 			<option value="InUse">In Use</option>

@@ -25,5 +25,8 @@ namespace TrackPoint.Data
         {
             base.OnModelCreating(builder);
         }
+        public DbSet<Asset> Asset { get; set; }
+        public DbSet<Category> Category { get; set; }
+        public DbSet<Location> Location { get; set; }
     }
 }

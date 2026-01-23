@@ -1,20 +1,21 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@model List<AssetModel>
-@{
-var msg = TempData["Success"] as string;
+﻿@model IEnumerable<TrackPoint.Models.Asset>
 
-if (!string.IsNullOrEmpty(msg))
+@{
+    ViewData["Title"] = "Browse Available Assets";
+    var msg = TempData["Success"] as string;
+}
+
+@if (!string.IsNullOrEmpty(msg))
 {
-<div class="alert alert-success" role="alert">
-    @msg
-</div>
+    <div class="alert alert-success" role="alert">
+        @msg
+    </div>
 }
 }
 
 
 <h1>Browse Available Assets</h1>
+
 <table class="table" id="asset">
     <thead>
         <tr>
@@ -33,89 +34,90 @@ if (!string.IsNullOrEmpty(msg))
     <tbody>
         @foreach (var asset in Model)
         {
-        <tr>
-            <td><a asp-controller="Asset" asp-action="AssetView" asp-route-assetTag="@asset.AssetTag">@asset.AssetTag</a></td>
-            <td>@asset.Make</td>
-            <td>@asset.Model</td>
-            <td>@asset.Category</td>
-            <td>@asset.Location</td>
-            <td>@asset.IssuedToUser</td>
-            <!-- Color statuses -->
-            <!--
-                Key:
-                 - Red: Unavailable to borrow
-                 - Green: Available to borrow
-                 - Grey: No longer in circulation
-            -->
-            @if (asset.AssetStatus.Equals(Enums.AssetStatus.InUse) || asset.AssetStatus.Equals(Enums.AssetStatus.UnderMaintenance))
+            var issuedToName = asset.IssuedToUser?.UserName ?? "—";
+            var categoryName = asset.Category?.Name ?? (asset.CategoryId > 0 ? asset.CategoryId.ToString() : "—");
+            var locationName = asset.Location?.Name ?? (asset.LocationId > 0 ? asset.LocationId.ToString() : "—");
+            var statusRaw = (asset.AssetStatus ?? "").ToString().Trim();
+            var statusKey = statusRaw.ToLowerInvariant();
+
+            string statusColorClass;
+            if (statusKey == "inuse" || statusKey == "undermaintenance")
             {
-            <td style="color:red">@asset.AssetStatus</td>
+                statusColorClass = "text-danger"; // red
             }
-            else if (asset.AssetStatus.Equals(Enums.AssetStatus.InStorage) || asset.AssetStatus.Equals(Enums.AssetStatus.Transfered))
+            else if (statusKey == "instorage" || statusKey == "transfered" || statusKey == "transferred")
             {
-            <td style="color:green">@asset.AssetStatus</td>
+                statusColorClass = "text-success"; // green
             }
-            else if (asset.AssetStatus.Equals(Enums.AssetStatus.Retired) || asset.AssetStatus.Equals(Enums.AssetStatus.Lost))
+            else if (statusKey == "retired" || statusKey == "lost")
             {
-            <td style="color:grey">@asset.AssetStatus</td>
+                statusColorClass = "text-secondary"; // grey
             }
             else
             {
-            <td>@asset.AssetStatus</td>
+                statusColorClass = "";
             }
-            <td>@asset.Notes</td>
-            <td><a asp-controller="Asset" asp-action="AuditTrail" asp-route-assetTag="@asset.AssetTag" class="btn btn-primary">View Audit Trail</a></td>
-            <td>
-                <!--
-                    Disable the button for unavailable assets.
-                    asp-action will be added in future iterations.
-                -->
-                @if (asset.AssetStatus.Equals(Enums.AssetStatus.InStorage) || asset.AssetStatus.Equals(Enums.AssetStatus.Transfered))
-                {
-                <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal">
-                    Borrow
-                </button>
 
-                @* Confirmation Popup 
-                           TODO: Refactor this (along with the Borrow button itself) into a partial view or component for reuse
-                                 and fix the button so it can properly redirect instead of having to click the link inside the button.
-                        *@
-                <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="confirmModalLabel">Borrow Asset</h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                Are you sure you want to check out this asset?
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="button" class="btn btn-primary">
-                                    <a asp-controller="Asset" asp-action="checkOut" asp-route-assetTag="@asset.AssetTag" style="color: white;text-decoration: none;">Confirm</a>
-                                </button>
+            var modalId = $"confirmModal-{asset.AssetId}";
+            <tr>
+                <td>
+                    <a asp-controller="Asset" asp-action="AssetView" asp-route-assetTag="@asset.AssetTag">@asset.AssetTag</a>
+                </td>
+                <td>@asset.Make</td>
+                <td>@asset.Model</td>
+                <td>@categoryName</td>
+                <td>@locationName</td>
+                <td>@issuedToName</td>
+                <td class="@statusColorClass">@statusRaw</td>
+                <td>@asset.Notes</td>
+                <td>
+                    <a asp-controller="Asset" asp-action="AuditTrail" asp-route-assetTag="@asset.AssetTag" class="btn btn-primary">View Audit Trail</a>
+                </td>
+                <td>
+                    @* Borrow flow: show button only when asset is available/in storage/transfered *@
+                    @if (statusKey == "instorage" || statusKey == "transfered" || statusKey == "transferred")
+                    {
+                        <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#@modalId">
+                            Borrow
+                        </button>
+
+                        <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@($"{modalId}-label")" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="@($"{modalId}-label")">Borrow Asset</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to check out asset <strong>@asset.AssetTag</strong>?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <a asp-controller="Asset" asp-action="checkOut" asp-route-assetTag="@asset.AssetTag" class="btn btn-primary">Confirm</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                @* <a asp-controller="Asset" asp-action="checkOut" asp-route-assetTag="@asset.AssetTag" class="btn btn-sm btn-success" style="color: white;text-decoration: none;">Borrow</a> *@
-                }
-                else
-                {
-                <a class="btn btn-sm btn-outline-success disabled" aria-disabled="true">Borrow</a>
-                }
-                <a class="btn btn-sm btn-warning" asp-controller="Asset" asp-action="AssetEdit" asp-route-assetTag="@asset.AssetTag">Edit</a>
-                <a class="btn btn-sm btn-danger" asp-controller="Asset" asp-action="DeleteAsset" asp-route-assetTag="@asset.AssetTag">Delete</a>
-            </td>
-        </tr>
+                    }
+                    else
+                    {
+                        <button class="btn btn-sm btn-outline-success disabled" aria-disabled="true">Borrow</button>
+                    }
+
+                    <a class="btn btn-sm btn-warning" asp-controller="Asset" asp-action="AssetEdit" asp-route-assetTag="@asset.AssetTag">Edit</a>
+                    <a class="btn btn-sm btn-danger" asp-controller="Asset" asp-action="DeleteAsset" asp-route-assetTag="@asset.AssetTag">Delete</a>
+                </td>
+            </tr>
         }
     </tbody>
 </table>
-<!--Datatabless implementation-->
+
+<!-- DataTables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 <script>
-    var table = $('#asset').DataTable();
+    $(document).ready(function () {
+        $('#asset').DataTable();
+    });
 </script>

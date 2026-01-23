@@ -1,76 +1,99 @@
-﻿@*
-    This view is used when selecting an individual Asset to view its details.
-*@
-@model TrackPoint.Models.Asset;
+﻿@model TrackPoint.Models.Asset
+
 @{
+    ViewData["Title"] = "Asset Details";
 }
 
-@*
-    TODO: Add error checking for if an asset is not passed to this view, and also check if we even have permissions to view the asset.
-    Currently, we can access any asset through the ?assetTag= URL parameter. This could become a security concern depending on the asset.
-    TODO: Replace the <a> tag for buttons so that clicking on the button itself will actually redirect, instead of only the text
-*@
-
-@if (Model.AssetTag != null)
+@if (Model?.AssetTag != null)
 {
+    var statusRaw = (Model.AssetStatus ?? "").ToString().Trim();
+    var statusKey = statusRaw.ToLowerInvariant();
+
+    string statusColorClass;
+    if (statusKey == "inuse" || statusKey == "undermaintenance")
+    {
+        statusColorClass = "text-danger";
+    }
+    else if (statusKey == "instorage" || statusKey == "transfered" || statusKey == "transferred" || statusKey == "pendingdeployment")
+    {
+        statusColorClass = "text-success";
+    }
+    else if (statusKey == "retired" || statusKey == "lost")
+    {
+        statusColorClass = "text-secondary";
+    }
+    else
+    {
+        statusColorClass = "";
+    }
+
+    var issuedToName = Model.IssuedToUser?.UserName ?? "Unassigned";
+    var categoryName = Model.Category?.Name ?? (Model.CategoryId > 0 ? $"ID {Model.CategoryId}" : "—");
+    var locationName = Model.Location?.Name ?? (Model.LocationId > 0 ? $"ID {Model.LocationId}" : "—");
+    var modalId = $"confirmModal-{Model.AssetId}";
     <div class="container">
         <div class="d-flex justify-content-end mb-3">
-            <button type="button" class="btn btn-warning p-2 mx-2">Report</button>
-            <button type="button" class="btn btn-secondary p-2">Generate Barcode</button>
+            <a class="btn btn-warning me-2" asp-controller="Asset" asp-action="Report" asp-route-assetTag="@Model.AssetTag">Report</a>
+            <a class="btn btn-secondary" asp-controller="Asset" asp-action="GenerateBarcode" asp-route-assetTag="@Model.AssetTag">Generate Barcode</a>
         </div>
+
         <div class="row">
-            <div class="col">
-                <img src="https://placehold.co/600x400/000000/FFFFFF.png"/>
-                @* <p>Asset Barcode</p> *@
-                <div class="d-flex justify-content-center mt-3">
-
-                    @if (Model.Status == Enums.AssetStatus.InStorage || Model.Status == Enums.AssetStatus.Transfered)
+            <div class="col-md-6 text-center">
+                <img src="https://placehold.co/600x400/000000/FFFFFF.png" class="img-fluid mb-3" alt="Asset image / barcode placeholder" />
+                <div class="d-flex justify-content-center gap-2">
+                    @if (statusKey == "instorage" || statusKey == "transfered" || statusKey == "transferred" || statusKey == "pendingdeployment")
                     {
-                        <button type="button" class="btn  btn-success btn-lg mx-2" data-bs-toggle="modal" data-bs-target="#confirmModal">
-                            Borrow
-                        </button>
+                        <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#@modalId">Borrow</button>
 
-                        @* Confirmation Popup 
-                           TODO: Refactor this (along with the Borrow button itself) into a partial view or component for reuse
-                                 and fix the button so it can properly redirect instead of having to click the link inside the button.
-                        *@
-                        <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-                          <div class="modal-dialog">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="confirmModalLabel">Borrow Asset</h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                              </div>
-                              <div class="modal-body">
-                                Are you sure you want to check out this asset?
-                              </div>
-                              <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="button" class="btn btn-primary">
-                                    <a asp-controller="Asset" asp-action="checkOut" asp-route-assetTag="@Model.AssetTag" style="color: white;text-decoration: none;">Confirm</a>
-                                </button>
-                              </div>
+                        <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@($"{modalId}-label")" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="@($"{modalId}-label")">Borrow Asset</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to check out asset <strong>@Model.AssetTag</strong>?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <a asp-controller="Asset" asp-action="checkOut" asp-route-assetTag="@Model.AssetTag" class="btn btn-primary">Confirm</a>
+                                    </div>
+                                </div>
                             </div>
-                          </div>
                         </div>
-                    } else { <button type="button" class="btn btn-secondary btn-lg mx-2" title="Cannot borrow" style="color:#ffffff75">Borrow</button>}
-                    <button type="button" class="btn btn-primary btn-lg">
-                        <a asp-controller="Asset" asp-action="AuditTrail" asp-route-assetTag="@Model.AssetTag" style="color:white;text-decoration: none;">View Audit Trail</a>
-                    </button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-secondary btn-lg" disabled title="Cannot borrow">Borrow</button>
+                    }
+
+                    <a asp-controller="Asset" asp-action="AuditTrail" asp-route-assetTag="@Model.AssetTag" class="btn btn-primary btn-lg">View Audit Trail</a>
                 </div>
             </div>
-            <div class="col">
+
+            <div class="col-md-6">
                 <h1 class="text-center">@Model.Make @Model.Model</h1>
-                <hr class="border-4"/>
-                <div class="fs-5">
-                    <p><b>Asset Tag:</b> @Model.AssetTag</p>
-                    <p><b>Status:</b> @Model.Status</p>
-                    <p><b>Location:</b> @Model.Location</p>
-                    <p><b>Make:</b> @Model.Make</p>
-                    <p><b>Model:</b> @Model.Model</p>
-                    <p><b>Category:</b> @Model.Category</p>
-                    <p><b>Issued To:</b> @if(Model.IssuedTo == null) { <span>Unissued</span> } else { @Model.IssuedTo }</p>
-                    <p><b>Notes:</b> @Model.Notes</p>
+                <hr />
+                <div class="fs-6">
+                    <p><strong>Asset Tag:</strong> @Model.AssetTag</p>
+                    <p><strong>Status:</strong> <span class="@statusColorClass">@statusRaw</span></p>
+                    <p><strong>Location:</strong> @locationName</p>
+                    <p><strong>Category:</strong> @categoryName</p>
+                    <p><strong>Serial Number:</strong> @(String.IsNullOrWhiteSpace(Model.SerialNumber) ? "—" : Model.SerialNumber)</p>
+                    <p><strong>Issued To:</strong> @issuedToName</p>
+                    <p><strong>Purchase Date:</strong> @(Model.PurchaseDate.HasValue? Model.PurchaseDate.Value.ToString("yyyy-MM-dd") : "—")</p>
+                    <p><strong>Warranty Expiration:</strong> @(Model.WarrantyExpirationDate.HasValue? Model.WarrantyExpirationDate.Value.ToString("yyyy-MM-dd") : "—")</p>
+                    <p><strong>Purchase Price:</strong> @(Model.PurchasePrice != 0 ? Model.PurchasePrice.ToString("C") : "—")</p>
+                    <p><strong>Vendor:</strong> @(String.IsNullOrWhiteSpace(Model.Vendor) ? "—" : Model.Vendor)</p>
+                    <p><strong>Condition:</strong> @(String.IsNullOrWhiteSpace(Model.Condition) ? "—" : Model.Condition)</p>
+                    <p><strong>Notes:</strong> @(String.IsNullOrWhiteSpace(Model.Notes) ? "—" : Model.Notes)</p>
+                    <p><strong>Last Status Date:</strong> @(Model.StatusDate != default ? Model.StatusDate.ToString("g") : "—")</p>
+                </div>
+
+                <div class="mt-3">
+                    <a asp-controller="Asset" asp-action="AssetEdit" asp-route-assetTag="@Model.AssetTag" class="btn btn-outline-warning me-2">Edit</a>
+                    <a asp-controller="Asset" asp-action="AssetBrowser" class="btn btn-outline-secondary">Back</a>
                 </div>
             </div>
         </div>
@@ -78,9 +101,8 @@
 }
 else
 {
-    <p>No asset detected!</p>
+    <div class="container">
+        <div class="alert alert-warning">No asset detected.</div>
+        <a asp-controller="Asset" asp-action="AssetBrowser" class="btn btn-secondary">Back to list</a>
+    </div>
 }
-
-@*
-    Todo: Back button here
-*@

@@ -41,7 +41,7 @@ namespace TrackPoint.Controllers
         /*
          *  Add the new location to the database and redirect to the index
          */
-        public IActionResult NewLocation(LocationModel l)
+        public IActionResult NewLocation(Location l)
         {
         // Add the new Location to database and redirect the user to the index
 
@@ -68,9 +68,9 @@ namespace TrackPoint.Controllers
         /*
 	    *  Add the new category to the database and redirect to the index
 	    */
-        public IActionResult NewCategory(CategoryModel c)
-        {
-        // Add the new Category to database and redirect the user to the AssetBrowser
+	    public IActionResult NewCategory(Category c)
+	    {
+		    // Add the new Category to database and redirect the user to the AssetBrowser
 
         // Log the category to the console for debugging purposes
         Console.WriteLine($"New Category Added: {c.Name}, {c.Abbreviation}");
