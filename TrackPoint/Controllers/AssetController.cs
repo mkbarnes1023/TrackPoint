@@ -1,31 +1,41 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Net.NetworkInformation;
 using System.Security.Cryptography.Xml;
+using TrackPoint.Data;
 using TrackPoint.Models;
 
 namespace TrackPoint.Controllers
 {
+    [Authorize(Roles = "Admin,Borrower")]
 	public class AssetController : Controller
 	{
 		/*
          *  Return the view for the Asset Browser with the sample data as the model
          */
-		// TODO: Remove SampleAssets and replace with database calls
-		/*
-		public IActionResult AssetBrowser()
-        {
-            return View(Asset.SampleAssets);
-        }
-        */
 
-		/*
+        private readonly ApplicationDbContext _context;
+        public AssetController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<IActionResult> AssetBrowser()
+        {
+            var assets = await _context.Assets.ToListAsync();
+            return View(assets);
+        }
+
+
+        /*
          *  Return the view for the Location Add Form
          */
-		public IActionResult LocationAdd()
+        public IActionResult LocationAdd()
         {
-            return View();
+        return View();
         }
 
         /*
@@ -33,45 +43,45 @@ namespace TrackPoint.Controllers
          */
         public IActionResult NewLocation(Location l)
         {
-            // Add the new Location to database and redirect the user to the index
+        // Add the new Location to database and redirect the user to the index
 
-            // Log the Location to the console for debugging purposes
-            Console.WriteLine($"New Locatoin Added: {l.Name}, {l.Abbreviation}");
-            return View("../Home/Index");
+        // Log the Location to the console for debugging purposes
+        Console.WriteLine($"New Locatoin Added: {l.Name}, {l.Abbreviation}");
+        return View("../Home/Index");
         }
-		/*
+        /*
 		 *  Return the view for the Category Add Form
 		 */
-		public IActionResult CategoryAdd()
+        public IActionResult CategoryAdd()
         {
-          return View();
+        return View();
         }
-    
+
         /*
 		 *  Return the view for the Asset Add Form
 		 */
-		public IActionResult AssetAdd()
-		{
-			return View();
-		}
+        public IActionResult AssetAdd()
+        {
+        return View();
+        }
 
-	    /*
+        /*
 	    *  Add the new category to the database and redirect to the index
 	    */
 	    public IActionResult NewCategory(Category c)
 	    {
 		    // Add the new Category to database and redirect the user to the AssetBrowser
 
-			// Log the category to the console for debugging purposes
-			Console.WriteLine($"New Category Added: {c.Name}, {c.Abbreviation}");
-			return View("../Home/Index");
+        // Log the category to the console for debugging purposes
+        Console.WriteLine($"New Category Added: {c.Name}, {c.Abbreviation}");
+        return View("../Home/Index");
         }
 
-		/* 
+        /* 
 		 *  Add the new asset to the database and redirect to the Asset Browser
 		 */
-		// TODO: Remove SampleAssets and replace with database calls
-		/*
+        // TODO: Remove SampleAssets and replace with database calls
+        /*
 		public IActionResult NewAsset(Asset a)
 		{
 			// Assign the Asset a asset tag based on the Category's abbreviation and a unique number
@@ -86,15 +96,15 @@ namespace TrackPoint.Controllers
 		}
         */
 
-		/**
+        /**
          * Delete the asset from the database and redirect to the Asset Browser
          * 
          * We may want to make it clear that this function is for when a mistake was made,
          * rather than for when they are done with an asset. Assets they are finished with should
          * have their status changed to "Retired", to preserve their history in the logs.
          */
-		// TODO: Remove SampleAssets and replace with database calls
-		/*
+        // TODO: Remove SampleAssets and replace with database calls
+        /*
 		public IActionResult DeleteAsset(string AssetTag)
 		{
             // TODO: Replace with database functions
@@ -113,11 +123,11 @@ namespace TrackPoint.Controllers
 		}
         */
 
-		/**
+        /**
          * Return the view for editing assets with the selected asset passed as the model
          */
-		// TODO: Remove SampleAssets and replace with database calls
-		/*
+        // TODO: Remove SampleAssets and replace with database calls
+        /*
 		public IActionResult AssetEdit(string AssetTag)
         {
 			var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
@@ -129,11 +139,11 @@ namespace TrackPoint.Controllers
         }
         */
 
-		/**
+        /**
          * Return the view for editing assets with the selected asset passed as the model
          */
-		// TODO: Remove SampleAssets and replace with database calls
-		/*
+        // TODO: Remove SampleAssets and replace with database calls
+        /*
 		public IActionResult UpdateAsset(Asset a)
 		{
             // TODO: Replace with database functions and stop using SampleAssets
@@ -154,13 +164,13 @@ namespace TrackPoint.Controllers
 		}
         */
 
-		/**
+        /**
          * Return the view for the Transfer Log with the sample data sorted by TransferDate descending as the 
          */
-		// TODO: This is not a real transfer log since it's just sorting the assets by transfer date, it does not give a detailed history.
-		// Create a transfer log model in the future to properly track asset transfers.
-		// TODO: Remove SampleAssets and replace with database calls
-		/*
+        // TODO: This is not a real transfer log since it's just sorting the assets by transfer date, it does not give a detailed history.
+        // Create a transfer log model in the future to properly track asset transfers.
+        // TODO: Remove SampleAssets and replace with database calls
+        /*
 		public IActionResult TransferLog()
         {
             var sorted = Asset.SampleAssets.OrderByDescending(a => a.TransferDate).ToList();
@@ -168,12 +178,12 @@ namespace TrackPoint.Controllers
         }
         */
 
-		/**
+        /**
          * Redirects to the Audit Trail view using the selected asset. In the future, this will be 
          * replaced with a more compact menu instead of a separate page just to view it.
          */
-		// TODO: Remove SampleAssets and replace with database calls
-		/*
+        // TODO: Remove SampleAssets and replace with database calls
+        /*
 		public IActionResult AuditTrail(string AssetTag)
         {
             var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
@@ -185,8 +195,8 @@ namespace TrackPoint.Controllers
         }
         */
 
-		// TODO: Remove SampleAssets and replace with database calls
-		/*
+        // TODO: Remove SampleAssets and replace with database calls
+        /*
 		public IActionResult AssetView(string AssetTag)
         {
             var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
@@ -199,7 +209,7 @@ namespace TrackPoint.Controllers
         }
         */
 
-		// TODO: Remove SampleAssets and replace with database calls
+        // TODO: Remove SampleAssets and replace with database calls
         /*
 		public IActionResult checkOut(string AssetTag)
         {
