@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using TrackPoint.Models;
+namespace TrackPoint.Models;
 
 public class Location
 {
