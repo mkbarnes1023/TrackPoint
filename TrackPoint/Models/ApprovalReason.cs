@@ -1,9 +1,15 @@
-﻿namespace TrackPoint.Models
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System;
+
+namespace TrackPoint.Models
 {
     public class ApprovalReason
     {
-        public int reasonId; 
-        public string reasonName;
-        public string reasonCode;
+        [Key]
+        public int ReasonId { get; set; } 
+        public string ReasonName { get; set; }
+        public string ReasonCode { get; set; }
     }
 }
