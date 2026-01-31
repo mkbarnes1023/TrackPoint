@@ -423,6 +423,58 @@ namespace TrackPoint.Migrations
                     b.ToTable("Assetloan");
                 });
 
+            modelBuilder.Entity("TrackPoint.Models.AuditTrail", b =>
+                {
+                    b.Property<int>("AuditID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuditID"));
+
+                    b.Property<int>("ApprovalReasonReasonId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AssetId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ChangeDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ChangedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ChangedByUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FieldChanged")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RelatedApprovalId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AuditID");
+
+                    b.HasIndex("ApprovalReasonReasonId");
+
+                    b.HasIndex("AssetId");
+
+                    b.HasIndex("ChangedById");
+
+                    b.ToTable("AuditTrail");
+                });
+
             modelBuilder.Entity("TrackPoint.Models.Category", b =>
                 {
                     b.Property<int>("CategoryId")
@@ -701,6 +753,31 @@ namespace TrackPoint.Migrations
                     b.Navigation("Borrower");
 
                     b.Navigation("ExtendedBy");
+                });
+
+            modelBuilder.Entity("TrackPoint.Models.AuditTrail", b =>
+                {
+                    b.HasOne("TrackPoint.Models.ApprovalReason", "ApprovalReason")
+                        .WithMany()
+                        .HasForeignKey("ApprovalReasonReasonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TrackPoint.Models.Asset", "Asset")
+                        .WithMany()
+                        .HasForeignKey("AssetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "ChangedBy")
+                        .WithMany()
+                        .HasForeignKey("ChangedById");
+
+                    b.Navigation("ApprovalReason");
+
+                    b.Navigation("Asset");
+
+                    b.Navigation("ChangedBy");
                 });
 
             modelBuilder.Entity("TrackPoint.Models.Category", b =>

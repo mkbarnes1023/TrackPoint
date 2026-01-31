@@ -8,6 +8,7 @@ namespace TrackPoint.Models
     {
         [Key]
         public int preferenceId { get; set; }
+
         public int userId { get; set; }
         public string dashboardType { get; set; } = string.Empty;
         public string visibleColumns { get; set; } = string.Empty;
