@@ -7,6 +7,7 @@ using System.Net.NetworkInformation;
 using System.Security.Cryptography.Xml;
 using TrackPoint.Data;
 using TrackPoint.Models;
+using TrackPoint.Views.Asset;
 
 namespace TrackPoint.Controllers
 {
@@ -18,6 +19,9 @@ namespace TrackPoint.Controllers
          */
 
         private readonly ApplicationDbContext _context;
+        private IEnumerable<Asset> assets => _context.Asset;
+        private IEnumerable<Category> categories => _context.Category;
+        private IEnumerable<Location> locations => _context.Location;
         public AssetController(ApplicationDbContext context)
         {
             _context = context;
@@ -35,7 +39,7 @@ namespace TrackPoint.Controllers
          */
         public IActionResult LocationAdd()
         {
-        return View();
+            return View();
         }
 
         /*
@@ -43,18 +47,21 @@ namespace TrackPoint.Controllers
          */
         public IActionResult NewLocation(Location l)
         {
-        // Add the new Location to database and redirect the user to the index
-
-        // Log the Location to the console for debugging purposes
-        Console.WriteLine($"New Locatoin Added: {l.Name}, {l.Abbreviation}");
-        return View("../Home/Index");
+            // Make sure the Abbreviation is captialized
+            l.Abbreviation = l.Abbreviation.ToUpper();
+            // Add the new Location to database and redirect the user to the index
+            _context.Location.Add(l);
+            _context.SaveChanges();
+            // Log the Location to the console for debugging purposes
+            Console.WriteLine($"New Locatoin Added: {l.Name}, {l.Abbreviation}");
+            return View("../Home/Index");
         }
         /*
 		 *  Return the view for the Category Add Form
 		 */
         public IActionResult CategoryAdd()
         {
-        return View();
+            return View();
         }
 
         /*
@@ -62,7 +69,8 @@ namespace TrackPoint.Controllers
 		 */
         public IActionResult AssetAdd()
         {
-        return View();
+            // Pass the locations and categories to the view via the AssetAddModel
+            return View(new AssetAddModel(locations, categories));
         }
 
         /*
@@ -70,31 +78,33 @@ namespace TrackPoint.Controllers
 	    */
 	    public IActionResult NewCategory(Category c)
 	    {
-		    // Add the new Category to database and redirect the user to the AssetBrowser
-
-        // Log the category to the console for debugging purposes
-        Console.WriteLine($"New Category Added: {c.Name}, {c.Abbreviation}");
-        return View("../Home/Index");
+            // Make sure the Abbreviation is captialized
+            c.Abbreviation = c.Abbreviation.ToUpper();
+            // Add the new Category to database and redirect the user to the AssetBrowser
+            _context.Category.Add(c);
+            _context.SaveChanges();
+            // Log the category to the console for debugging purposes
+            Console.WriteLine($"New Category Added: {c.Name}, {c.Abbreviation}");
+            return View("../Home/Index");
         }
 
         /* 
 		 *  Add the new asset to the database and redirect to the Asset Browser
 		 */
-        // TODO: Remove SampleAssets and replace with database calls
-        /*
-		public IActionResult NewAsset(Asset a)
+		public IActionResult NewAsset(AssetAddModel a)
 		{
+            // Get the asset from the model
+            Asset asset = a.asset;
 			// Assign the Asset a asset tag based on the Category's abbreviation and a unique number
-			a.AssetTag = "Something";
+            asset.AssetTag = $"{_context.Category.Find(asset.CategoryId)?.Abbreviation}-{_context.Category.Count() + 1}";
 
-			// Add the new Asset to database and redirect the user to the AssetBrowser
-			Asset.SampleAssets = Asset.SampleAssets.Append(a);
+            // Add the new Asset to database and redirect the user to the AssetBrowser
 
-			// Log the asset to the console for debugging purposes
-			Console.WriteLine($"New Asset Added: {a.AssetTag}, {a.Make}, {a.Model}, {a.Category}, {a.Location}, {a.IssuedTo}, {a.Status}, {a.Notes}");
-			return View("AssetBrowser", Asset.SampleAssets);
+
+            // Log the asset to the console for debugging purposes
+            Console.WriteLine($"New Asset Added: {asset.AssetTag}, {asset.Make}, {asset.Model}, {asset.Category}, {asset.Location}, {asset.IssuedToUser}, {asset.AssetStatus}, {asset.Notes}");
+			return View("AssetBrowser", assets);
 		}
-        */
 
         /**
          * Delete the asset from the database and redirect to the Asset Browser

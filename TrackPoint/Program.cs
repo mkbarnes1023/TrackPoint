@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // DB context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("StevenVM")));
 
 // Identity with roles enabled
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
