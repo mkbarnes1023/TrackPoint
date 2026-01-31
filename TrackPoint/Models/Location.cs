@@ -13,6 +13,6 @@ public class Location
     [StringLength(20)]
     public string Abbreviation { get; set; }
 
-    // Navigation property (optional but recommended)
+    // Navigation property
     public ICollection<Asset>? Assets { get; set; }
 }
