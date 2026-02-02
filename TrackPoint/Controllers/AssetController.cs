@@ -30,7 +30,11 @@ namespace TrackPoint.Controllers
         public async Task<IActionResult> AssetBrowser()
         {
             var assets = await _context.Asset.ToListAsync();
-            return View(assets);
+            AssetBrowserViewModel model = new AssetBrowserViewModel();
+            model._assets = assets;
+            model._categories = categories;
+            model._locations = locations;
+            return View(model);
         }
 
 

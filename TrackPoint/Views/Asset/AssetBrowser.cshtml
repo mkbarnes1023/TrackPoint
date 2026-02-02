@@ -1,4 +1,4 @@
-﻿@model IEnumerable<TrackPoint.Models.Asset>
+﻿@model TrackPoint.Views.Asset.AssetBrowserViewModel;
 
 @{
     ViewData["Title"] = "Browse Available Assets";
@@ -32,11 +32,11 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var asset in Model)
+        @foreach (var asset in Model._assets)
         {
             var issuedToName = asset.IssuedToUser?.UserName ?? "—";
-            var categoryName = asset.Category?.Name ?? (asset.CategoryId > 0 ? asset.CategoryId.ToString() : "—");
-            var locationName = asset.Location?.Name ?? (asset.LocationId > 0 ? asset.LocationId.ToString() : "—");
+            var categoryName = Model._categories?.FirstOrDefault(c => c.CategoryId == asset.CategoryId)?.Name ?? "-";
+            var locationName = Model._locations?.FirstOrDefault(c => c.LocationId == asset.LocationId)?.Name ?? "-";
             var statusRaw = (asset.AssetStatus ?? "").ToString().Trim();
             var statusKey = statusRaw.ToLowerInvariant();
 
