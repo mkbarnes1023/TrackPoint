@@ -70,7 +70,10 @@ namespace TrackPoint.Controllers
         public IActionResult AssetAdd()
         {
             // Pass the locations and categories to the view via the AssetAddModel
-            return View(new AssetAddModel(locations, categories));
+            AssetAddModel model = new AssetAddModel();
+            model._locations = locations;
+            model._categories = categories;
+            return View(model);
         }
 
         /*
@@ -99,7 +102,8 @@ namespace TrackPoint.Controllers
             asset.AssetTag = $"{_context.Category.Find(asset.CategoryId)?.Abbreviation}-{_context.Category.Count() + 1}";
 
             // Add the new Asset to database and redirect the user to the AssetBrowser
-
+            _context.Asset.Add(asset);
+            _context.SaveChanges();
 
             // Log the asset to the console for debugging purposes
             Console.WriteLine($"New Asset Added: {asset.AssetTag}, {asset.Make}, {asset.Model}, {asset.Category}, {asset.Location}, {asset.IssuedToUser}, {asset.AssetStatus}, {asset.Notes}");
