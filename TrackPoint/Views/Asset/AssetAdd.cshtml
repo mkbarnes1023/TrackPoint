@@ -1,11 +1,11 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
-@model TrackPoint.Views.Asset.AssetAddModel;
+@model TrackPoint.Views.Asset.AssetAddViewModel;
 @{
 }
 <h1>Register an Asset</h1>
-<form>
+<form asp-action="NewAsset" method="post">
 	<input type="hidden" asp-for="asset.AssetTag">
 	<div>
 		<label asp-for="asset.Make">Make</label>
@@ -42,8 +42,8 @@
 	</div>
 
 	<div>
-		<label asp-for="asset.Category">Category</label>
-		<select asp-for="asset.Category">
+		<label asp-for="asset.CategoryId">Category</label>
+		<select asp-for="asset.CategoryId">
             <option value="">Select Category</option>
 			<!--Populate the dropdown with available categories-->
 			@foreach(Category c in Model._categories)
@@ -54,8 +54,8 @@
 	</div>
 
 	<div>
-		<label asp-for="asset.Location">Location</label>
-		<select asp-for="asset.Location">
+		<label asp-for="asset.LocationId">Location</label>
+		<select asp-for="asset.LocationId">
 			<option value="">Select Location</option>
 			<!--Populate the dropdown with available locations-->
 			@foreach(Location l in Model._locations)

@@ -4,10 +4,10 @@ using TrackPoint.Models;
 
 namespace TrackPoint.Views.Asset
 {
-    public class AssetAddModel : PageModel
+    public class AssetAddViewModel
     {
         public IEnumerable<Location> _locations;
         public IEnumerable<Category> _categories;
-        public Models.Asset asset { get; set; }
+        public Models.Asset asset { get; set; } = new Models.Asset();
     }
 }

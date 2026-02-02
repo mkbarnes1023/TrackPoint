@@ -70,7 +70,7 @@ namespace TrackPoint.Controllers
         public IActionResult AssetAdd()
         {
             // Pass the locations and categories to the view via the AssetAddModel
-            AssetAddModel model = new AssetAddModel();
+            AssetAddViewModel model = new AssetAddViewModel();
             model._locations = locations;
             model._categories = categories;
             return View(model);
@@ -94,20 +94,18 @@ namespace TrackPoint.Controllers
         /* 
 		 *  Add the new asset to the database and redirect to the Asset Browser
 		 */
-		public IActionResult NewAsset(AssetAddModel a)
+		public IActionResult NewAsset(Asset asset)
 		{
-            // Get the asset from the model
-            Asset asset = a.asset;
-			// Assign the Asset a asset tag based on the Category's abbreviation and a unique number
+            // Assign the Asset a asset tag based on the Category's abbreviation and a unique number
             asset.AssetTag = $"{_context.Category.Find(asset.CategoryId)?.Abbreviation}-{_context.Category.Count() + 1}";
-
+            
             // Add the new Asset to database and redirect the user to the AssetBrowser
             _context.Asset.Add(asset);
             _context.SaveChanges();
 
             // Log the asset to the console for debugging purposes
             Console.WriteLine($"New Asset Added: {asset.AssetTag}, {asset.Make}, {asset.Model}, {asset.Category}, {asset.Location}, {asset.IssuedToUser}, {asset.AssetStatus}, {asset.Notes}");
-			return View("AssetBrowser", assets);
+            return View("AssetBrowser", assets);
 		}
 
         /**
