@@ -166,6 +166,7 @@ namespace TrackPoint.Controllers
 
 		public IActionResult UpdateAsset(Asset asset)
 		{
+            // Update the asset in the database
             _context.Asset.Update(asset);
             _context.SaveChanges();
 
