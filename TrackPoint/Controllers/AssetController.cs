@@ -7,6 +7,7 @@ using System.Net.NetworkInformation;
 using System.Security.Cryptography.Xml;
 using TrackPoint.Data;
 using TrackPoint.Models;
+using TrackPoint.Views.Asset;
 
 namespace TrackPoint.Controllers
 {
@@ -18,15 +19,22 @@ namespace TrackPoint.Controllers
          */
 
         private readonly ApplicationDbContext _context;
+        private IEnumerable<Asset> assets => _context.Asset;
+        private IEnumerable<Category> categories => _context.Category;
+        private IEnumerable<Location> locations => _context.Location;
         public AssetController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        public async Task<IActionResult> AssetBrowser()
+        public IActionResult AssetBrowser()
         {
-            var assets = await _context.Asset.ToListAsync();
-            return View(assets);
+            // Pack the needed information into a ViewModel
+            AssetBrowserViewModel model = new AssetBrowserViewModel();
+            model._assets = assets.ToList();
+            model._categories = categories.ToList();
+            model._locations = locations.ToList();
+            return View(model);
         }
 
 
@@ -35,7 +43,7 @@ namespace TrackPoint.Controllers
          */
         public IActionResult LocationAdd()
         {
-        return View();
+            return View();
         }
 
         /*
@@ -43,18 +51,22 @@ namespace TrackPoint.Controllers
          */
         public IActionResult NewLocation(Location l)
         {
-        // Add the new Location to database and redirect the user to the index
+            // Make sure the Abbreviation is captialized
+            l.Abbreviation = l.Abbreviation.ToUpper();
+            // Add the new Location to database
+            _context.Location.Add(l);
+            _context.SaveChanges();
 
-        // Log the Location to the console for debugging purposes
-        Console.WriteLine($"New Locatoin Added: {l.Name}, {l.Abbreviation}");
-        return View("../Home/Index");
+            // Log the Location to the console for debugging purposes
+            Console.WriteLine($"New Locatoin Added: {l.Name}, {l.Abbreviation}");
+            return View("../Home/Index");
         }
         /*
 		 *  Return the view for the Category Add Form
 		 */
         public IActionResult CategoryAdd()
         {
-        return View();
+            return View();
         }
 
         /*
@@ -62,7 +74,11 @@ namespace TrackPoint.Controllers
 		 */
         public IActionResult AssetAdd()
         {
-        return View();
+            // Pass the locations and categories to the view via the AssetAddModel
+            AssetAddViewModel model = new AssetAddViewModel();
+            model._locations = locations.ToList();
+            model._categories = categories.ToList();
+            return View(model);
         }
 
         /*
@@ -70,31 +86,38 @@ namespace TrackPoint.Controllers
 	    */
 	    public IActionResult NewCategory(Category c)
 	    {
-		    // Add the new Category to database and redirect the user to the AssetBrowser
-
-        // Log the category to the console for debugging purposes
-        Console.WriteLine($"New Category Added: {c.Name}, {c.Abbreviation}");
-        return View("../Home/Index");
+            // Make sure the Abbreviation is captialized
+            c.Abbreviation = c.Abbreviation.ToUpper();
+            // Add the new Category to database and redirect the user to the AssetBrowser
+            _context.Category.Add(c);
+            _context.SaveChanges();
+            // Log the category to the console for debugging purposes
+            Console.WriteLine($"New Category Added: {c.Name}, {c.Abbreviation}");
+            return View("../Home/Index");
         }
 
         /* 
 		 *  Add the new asset to the database and redirect to the Asset Browser
 		 */
-        // TODO: Remove SampleAssets and replace with database calls
-        /*
-		public IActionResult NewAsset(Asset a)
+		public IActionResult NewAsset(Asset asset)
 		{
-			// Assign the Asset a asset tag based on the Category's abbreviation and a unique number
-			a.AssetTag = "Something";
+            // Assign the Asset a asset tag based on the Category's abbreviation and a unique number
+            asset.AssetTag = $"{_context.Category.Find(asset.CategoryId)?.Abbreviation}-{_context.Asset.Count(a => a.CategoryId == asset.CategoryId) + 1}";
+            
+            // Add the new Asset to database and redirect the user to the AssetBrowser
+            _context.Asset.Add(asset);
+            _context.SaveChanges();
 
-			// Add the new Asset to database and redirect the user to the AssetBrowser
-			Asset.SampleAssets = Asset.SampleAssets.Append(a);
+            // Log the asset to the console for debugging purposes
+            Console.WriteLine($"New Asset Added: {asset.AssetTag}, {asset.Make}, {asset.Model}, {asset.Category}, {asset.Location}, {asset.IssuedToUser}, {asset.AssetStatus}, {asset.Notes}");
 
-			// Log the asset to the console for debugging purposes
-			Console.WriteLine($"New Asset Added: {a.AssetTag}, {a.Make}, {a.Model}, {a.Category}, {a.Location}, {a.IssuedTo}, {a.Status}, {a.Notes}");
-			return View("AssetBrowser", Asset.SampleAssets);
+            // Pack the information for the AssetBrowser
+            AssetBrowserViewModel model = new AssetBrowserViewModel();
+            model._assets = assets.ToList();
+            model._categories = categories.ToList();
+            model._locations = locations.ToList();
+            return View("AssetBrowser", model);
 		}
-        */
 
         /**
          * Delete the asset from the database and redirect to the Asset Browser
@@ -103,66 +126,59 @@ namespace TrackPoint.Controllers
          * rather than for when they are done with an asset. Assets they are finished with should
          * have their status changed to "Retired", to preserve their history in the logs.
          */
-        // TODO: Remove SampleAssets and replace with database calls
-        /*
 		public IActionResult DeleteAsset(string AssetTag)
 		{
-            // TODO: Replace with database functions
-			// Convert IEnumerable to List
-			List<Asset> assets = Asset.SampleAssets.ToList();
-            // Remove the asset with the given asset tag
-            assets.Remove(assets.FirstOrDefault(a => a.AssetTag == AssetTag));
-			// Convert the asset List back to a IEnumerable and reassign it to Sample Assets
-			Asset.SampleAssets = assets;
+            Asset asset = _context.Asset.First(a => a.AssetTag == AssetTag);
 
-            // TODO: Delete any other data that references this asset to prevent any null reference problems
+            _context.Asset.Remove(asset);
+            _context.SaveChanges();
 
-			// Log updated asset
+			// Log deleted asset
 			Console.WriteLine($"Asset Deleted: {AssetTag}");
-			return View("AssetBrowser", Asset.SampleAssets);
+            // Pack the information for the AssetBrowser
+            AssetBrowserViewModel model = new AssetBrowserViewModel();
+            model._assets = assets.ToList();
+            model._categories = categories.ToList();
+            model._locations = locations.ToList();
+            return View("AssetBrowser", model);
 		}
-        */
 
         /**
          * Return the view for editing assets with the selected asset passed as the model
          */
-        // TODO: Remove SampleAssets and replace with database calls
-        /*
 		public IActionResult AssetEdit(string AssetTag)
         {
-			var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
+            Asset asset = _context.Asset.First(a => a.AssetTag == AssetTag);
 			if (asset == null)
 			{
 				return NotFound();
 			}
-			return View(asset);
+            AssetAddViewModel model = new AssetAddViewModel();
+            model._categories = categories.ToList();
+            model._locations = locations.ToList();
+            model.asset = asset;
+            return View(model);
         }
-        */
 
         /**
          * Return the view for editing assets with the selected asset passed as the model
          */
-        // TODO: Remove SampleAssets and replace with database calls
-        /*
-		public IActionResult UpdateAsset(Asset a)
+
+		public IActionResult UpdateAsset(Asset asset)
 		{
-            // TODO: Replace with database functions and stop using SampleAssets
+            // Update the asset in the database
+            _context.Asset.Update(asset);
+            _context.SaveChanges();
 
-            // Convert IEnumerable to List
-            List<Asset> assets = Asset.SampleAssets.ToList();
-            // Get the index of the asset that shares the tag of the one we are updating
-            int assetIndex = assets.IndexOf(assets.FirstOrDefault(asset => asset.AssetTag == a.AssetTag));
-            // Replace the asset with the updated one
-            assets[assetIndex] = a;
-            // Convert the asset List back to a IEnumerable and reassign it to Sample Assets
-            Asset.SampleAssets = assets;
-
-			// Log updated asset
-			Console.WriteLine($"Asset Updated: {a.AssetTag}, {a.Make}, {a.Model}, {a.Category}, {a.Location}, {a.IssuedTo}, {a.Status}, {a.Notes}");
-
-			return View("AssetBrowser", Asset.SampleAssets);
+            // Log updated asset
+            Console.WriteLine($"Asset Updated: {asset.AssetTag}, {asset.Make}, {asset.Model}, {asset.Category}, {asset.Location}, {asset.IssuedToUser}, {asset.AssetStatus}, {asset.Notes}");
+            // Pack the information for the AssetBrowser
+            AssetBrowserViewModel model = new AssetBrowserViewModel();
+            model._assets = assets.ToList();
+            model._categories = categories.ToList();
+            model._locations = locations.ToList();
+            return View("AssetBrowser", model);
 		}
-        */
 
         /**
          * Return the view for the Transfer Log with the sample data sorted by TransferDate descending as the 

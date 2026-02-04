@@ -17,5 +17,24 @@
 		<input type="text" asp-for="Abbreviation">
 	</div>
 
+	<div>
+		<textarea asp-for="Description" placeholder="Description"></textarea>
+	</div>
+
+	<div>
+		<label asp-for="RequiresApproval">This category requires approval to check out</label>
+        <input type="checkbox" asp-for="RequiresApproval">
+	</div>
+
+	<div>
+		<label asp-for="DefaultLoanPeriodDays">Default loan period (In days)</label>
+        <input type="number" asp-for="DefaultLoanPeriodDays">
+	</div>
+
+	<div>
+		<label asp-for="ContainsConsumables">This category contains consumables that are not individually tracked</label>
+		<input type="checkbox" asp-for="ContainsConsumables">
+	</div>
+
 	<input type="submit" value="Submit" asp-action="NewCategory">
 </form>
