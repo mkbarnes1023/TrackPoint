@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // DB context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("StevenVM")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Identity with roles enabled
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
@@ -68,64 +68,86 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 var app = builder.Build();
 
+// Ensure database exists and is up to date BEFORE seeding roles/users
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await db.Database.MigrateAsync();
+}
+
 // Seed roles and enforce: one Admin, everyone else Borrower
 using (var scope = app.Services.CreateScope())
 {
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-    var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-
-    // Ensure roles exist
-    foreach (var role in new[] { "Admin", "Borrower" })
+    try
     {
-        if (!await roleManager.RoleExistsAsync(role))
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+        var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+
+        // Ensure roles exist
+        foreach (var role in new[] { "Admin", "Borrower" })
         {
-            await roleManager.CreateAsync(new IdentityRole(role));
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                var createResult = await roleManager.CreateAsync(new IdentityRole(role));
+                if (!createResult.Succeeded)
+                {
+                    throw new InvalidOperationException($"Failed to create role '{role}': {string.Join(", ", createResult.Errors.Select(e => e.Description))}");
+                }
+            }
+        }
+
+        // Configured admin email
+        var adminEmail = config["Seed:AdminEmail"] ?? "admin@example.com";
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+
+        if (adminUser != null)
+        {
+            // Ensure admin has Admin role
+            if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
+            {
+                var addResult = await userManager.AddToRoleAsync(adminUser, "Admin");
+                if (!addResult.Succeeded)
+                {
+                    throw new InvalidOperationException($"Failed to add Admin role to '{adminEmail}': {string.Join(", ", addResult.Errors.Select(e => e.Description))}");
+                }
+            }
+        }
+        else
+        {
+            Console.WriteLine($"Seed:AdminEmail user not found: {adminEmail}");
+        }
+
+        // Backfill everyone else: Borrower yes, Admin no
+        var allUsers = await userManager.Users.ToListAsync();
+        foreach (var u in allUsers)
+        {
+            var isConfiguredAdmin = !string.IsNullOrWhiteSpace(adminEmail) &&
+                                    string.Equals(u.Email, adminEmail, StringComparison.OrdinalIgnoreCase);
+
+            if (isConfiguredAdmin)
+            {
+                continue;
+            }
+
+            // Ensure Borrower
+            if (!await userManager.IsInRoleAsync(u, "Borrower"))
+            {
+                await userManager.AddToRoleAsync(u, "Borrower");
+            }
+
+            // Ensure not Admin
+            if (await userManager.IsInRoleAsync(u, "Admin"))
+            {
+                await userManager.RemoveFromRoleAsync(u, "Admin");
+            }
         }
     }
-
-    // Configured admin email
-    var adminEmail = config["Seed:AdminEmail"] ?? "admin@example.com";
-    var adminUser = await userManager.FindByEmailAsync(adminEmail);
-
-    if (adminUser != null)
+    catch (Exception ex)
     {
-        // Ensure admin has Admin role
-        if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
-        {
-            await userManager.AddToRoleAsync(adminUser, "Admin");
-        }
-    }
-    else
-    {
-        Console.WriteLine($"Seed:AdminEmail user not found: {adminEmail}");
-    }
-
-    // Backfill everyone else: must be Borrower, and must NOT be Admin
-    var allUsers = await userManager.Users.ToListAsync();
-    foreach (var u in allUsers)
-    {
-        var isConfiguredAdmin = !string.IsNullOrWhiteSpace(adminEmail) &&
-                                string.Equals(u.Email, adminEmail, StringComparison.OrdinalIgnoreCase);
-
-        if (isConfiguredAdmin)
-        {
-            // Optionally remove Borrower from admin if you want admin to be admin-only:
-            // if (await userManager.IsInRoleAsync(u, "Borrower")) await userManager.RemoveFromRoleAsync(u, "Borrower");
-            continue;
-        }
-
-        // Ensure Borrower
-        if (!await userManager.IsInRoleAsync(u, "Borrower"))
-        {
-            await userManager.AddToRoleAsync(u, "Borrower");
-        }
-
-        // Ensure not Admin
-        if (await userManager.IsInRoleAsync(u, "Admin"))
-        {
-            await userManager.RemoveFromRoleAsync(u, "Admin");
-        }
+        // Emit detailed startup errors to help diagnose configuration issues
+        Console.Error.WriteLine($"Startup seeding failed: {ex}");
+        throw;
     }
 }
 
