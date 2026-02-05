@@ -11,7 +11,6 @@
         @msg
     </div>
 }
-}
 
 
 <h1>Browse Available Assets</h1>
@@ -61,7 +60,7 @@
             var modalId = $"confirmModal-{asset.AssetId}";
             <tr>
                 <td>
-                    <a asp-controller="Asset" asp-action="AssetView" asp-route-assetTag="@asset.AssetTag">@asset.AssetTag</a>
+                    <a asp-controller="Asset" asp-action="AssetView" asp-route-assetId="@asset.AssetId">@asset.AssetTag</a>
                 </td>
                 <td>@asset.Make</td>
                 <td>@asset.Model</td>

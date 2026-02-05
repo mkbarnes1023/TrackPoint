@@ -30,11 +30,41 @@
     var issuedToName = Model.IssuedToUser?.UserName ?? "Unassigned";
     var categoryName = Model.Category?.Name ?? (Model.CategoryId > 0 ? $"ID {Model.CategoryId}" : "—");
     var locationName = Model.Location?.Name ?? (Model.LocationId > 0 ? $"ID {Model.LocationId}" : "—");
-    var modalId = $"confirmModal-{Model.AssetId}";
+    var barcodeModalId = $"barcodeModal-{Model.AssetId}";
+    var borrowModalId = $"borrowModal-{Model.AssetId}";
     <div class="container">
         <div class="d-flex justify-content-end mb-3">
-            <a class="btn btn-warning me-2" asp-controller="Asset" asp-action="Report" asp-route-assetTag="@Model.AssetTag">Report</a>
-            <a class="btn btn-secondary" asp-controller="Asset" asp-action="GenerateBarcode" asp-route-assetTag="@Model.AssetTag">Generate Barcode</a>
+            <a class="btn btn-warning me-2 btn-lg" asp-controller="Asset" asp-action="Report" asp-route-assetTag="@Model.AssetTag">Report</a>
+            <button type="button" class="btn btn-secondary btn-lg" data-bs-toggle="modal" data-bs-target="#@barcodeModalId">Generate Barcode</button>
+
+            <!-- Barcode Modal -->
+            <div class="modal fade" id="@barcodeModalId" tabindex="-1" aria-labelledby="@($"{barcodeModalId}-label")" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="@($"{barcodeModalId}-label")">QR Code for Asset @Model.AssetTag</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <!-- Hidden form used to get antiforgery token and assetTag for JS POST -->
+                            <form id="qrForm-@Model.AssetId" method="post" style="display:none">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="assetTag" value="@Model.AssetTag" />
+                            </form>
+
+                            <div id="qrContainer-@Model.AssetId" class="d-flex justify-content-center align-items-center" style="min-height:180px;">
+                                <div class="spinner-border text-secondary" role="status" aria-hidden="true"></div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <a id="qrDownloadLink-@Model.AssetId" class="btn btn-primary" style="display:none" download>Download PNG</a>
+                            <btn class="btn btn-outline-secondary" style="">Print</btn>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End Barcode Modal -->
         </div>
 
         <div class="row">
@@ -43,13 +73,13 @@
                 <div class="d-flex justify-content-center gap-2">
                     @if (statusKey == "instorage" || statusKey == "transfered" || statusKey == "transferred" || statusKey == "pendingdeployment")
                     {
-                        <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#@modalId">Borrow</button>
+                        <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#@borrowModalId">Borrow</button>
 
-                        <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@($"{modalId}-label")" aria-hidden="true">
+                        <div class="modal fade" id="@borrowModalId" tabindex="-1" aria-labelledby="@($"{borrowModalId}-label")" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="@($"{modalId}-label")">Borrow Asset</h5>
+                                        <h5 class="modal-title" id="@($"{borrowModalId}-label")">Borrow Asset</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
@@ -92,12 +122,96 @@
                 </div>
 
                 <div class="mt-3">
-                    <a asp-controller="Asset" asp-action="AssetEdit" asp-route-assetTag="@Model.AssetTag" class="btn btn-outline-warning me-2">Edit</a>
-                    <a asp-controller="Asset" asp-action="AssetBrowser" class="btn btn-outline-secondary">Back</a>
+                    <a asp-controller="Asset" asp-action="AssetEdit" asp-route-assetTag="@Model.AssetTag" class="btn btn-outline-warning me-2 btn-lg">Edit</a>
+                    <a asp-controller="Asset" asp-action="AssetBrowser" class="btn btn-secondary btn-lg">Back</a>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        (function () {
+            // Elements per-asset (unique IDs using AssetId)
+            var barcodeModalSelector = '#@barcodeModalId';
+            var qrFormId = 'qrForm-@Model.AssetId';
+            var qrContainerId = 'qrContainer-@Model.AssetId';
+            var qrDownloadLinkId = 'qrDownloadLink-@Model.AssetId';
+
+            var modalEl = document.querySelector(barcodeModalSelector);
+            if (!modalEl) return;
+
+            modalEl.addEventListener('shown.bs.modal', function () {
+                var qrContainer = document.getElementById(qrContainerId);
+                // If image already loaded, do nothing
+                if (qrContainer.querySelector('img')) return;
+
+                // Show spinner (already present) and fetch the QR code
+                var form = document.getElementById(qrFormId);
+                if (!form) return;
+
+                var tokenInput = form.querySelector('input[name="__RequestVerificationToken"]');
+                var token = tokenInput ? tokenInput.value : '';
+
+                var assetTagInput = form.querySelector('input[name="assetTag"]');
+                var assetTag = assetTagInput ? assetTagInput.value : '';
+
+                // Build form data including antiforgery token
+                var fd = new URLSearchParams();
+                if (token) {
+                    fd.append('__RequestVerificationToken', token);
+                }
+                fd.append('assetTag', assetTag);
+
+                var fetchUrl = '@Url.Action("GenerateQRCode", "Asset")';
+
+                fetch(fetchUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'image/png',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: fd.toString()
+                })
+                    .then(function (res) {
+                        if (!res.ok) throw new Error('Network response was not ok');
+                        return res.blob();
+                    })
+                    .then(function (blob) {
+                        // Create image and download link
+                        var img = document.createElement('img');
+                        img.className = 'img-fluid';
+                        var url = URL.createObjectURL(blob);
+                        img.src = url;
+
+                        // Clear container and append image
+                        qrContainer.innerHTML = '';
+                        qrContainer.appendChild(img);
+
+                        // Show download link
+                        var downloadLink = document.getElementById(qrDownloadLinkId);
+                        if (downloadLink) {
+                            downloadLink.style.display = 'inline-block';
+                            downloadLink.href = url;
+                            downloadLink.download = assetTag + '_QRCode.png';
+                        }
+                    })
+                    .catch(function (err) {
+                        qrContainer.innerHTML = '<div class="alert alert-danger">Failed to generate QR code.</div>';
+                        console.error(err);
+                    });
+            });
+
+            // Optional: clear blob URLs when modal hidden to free memory
+            modalEl.addEventListener('hidden.bs.modal', function () {
+                var qrContainer = document.getElementById(qrContainerId);
+                if (!qrContainer) return;
+                var img = qrContainer.querySelector('img');
+                if (img && img.src && img.src.startsWith('blob:')) {
+                    URL.revokeObjectURL(img.src);
+                }
+            });
+        })();
+    </script>
 }
 else
 {
