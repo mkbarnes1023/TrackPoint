@@ -8,6 +8,7 @@ using System.Security.Cryptography.Xml;
 using TrackPoint.Data;
 using TrackPoint.Models;
 using TrackPoint.Views.Asset;
+using QRCoder;
 
 namespace TrackPoint.Controllers
 {
@@ -185,37 +186,31 @@ namespace TrackPoint.Controllers
          */
         // TODO: This is not a real transfer log since it's just sorting the assets by transfer date, it does not give a detailed history.
         // Create a transfer log model in the future to properly track asset transfers.
-        // TODO: Remove SampleAssets and replace with database calls
-        /*
 		public IActionResult TransferLog()
         {
-            var sorted = Asset.SampleAssets.OrderByDescending(a => a.TransferDate).ToList();
+            var sorted = _context.Asset.OrderByDescending(a => a.StatusDate).ToList();
             return View(sorted);
         }
-        */
 
         /**
          * Redirects to the Audit Trail view using the selected asset. In the future, this will be 
          * replaced with a more compact menu instead of a separate page just to view it.
          */
-        // TODO: Remove SampleAssets and replace with database calls
-        /*
-		public IActionResult AuditTrail(string AssetTag)
-        {
-            var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
-            if (asset == null)
-            {
-                return NotFound();
-            }
-            return View(asset);
-        }
-        */
 
-        // TODO: Remove SampleAssets and replace with database calls
-        /*
-		public IActionResult AssetView(string AssetTag)
+        /* TODO: Implement the new Audit Trail view */
+		//public IActionResult AuditTrail(string AssetTag)
+  //      {
+  //          var asset = _context.Asset.FirstOrDefault(a => a.AssetTag == AssetTag);
+  //          if (asset == null)
+  //          {
+  //              return NotFound();
+  //          }
+  //          return View(asset);
+  //      }
+
+		public IActionResult AssetView(int AssetId)
         {
-            var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
+            var asset = _context.Asset.FirstOrDefault(a => a.AssetId == AssetId);
             if (asset == null)
             {
                 return NotFound();
@@ -223,7 +218,32 @@ namespace TrackPoint.Controllers
 
             return View(asset);
         }
-        */
+
+        public IActionResult GenerateQRCode()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult GenerateQRCode(string assetTag)
+        {
+            using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
+            {
+                QRCodeData qrCodeData = qrGenerator.CreateQrCode(assetTag, QRCodeGenerator.ECCLevel.Q);
+                using (QRCode qrCode = new QRCode(qrCodeData))
+                {
+                    using (var qrCodeImage = qrCode.GetGraphic(20))
+                    {
+                        using (var ms = new MemoryStream())
+                        {
+                            qrCodeImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                            var qrCodeBytes = ms.ToArray();
+                            return File(qrCodeBytes, "image/png", $"{assetTag}_QRCode.png");
+                        }
+                    }
+                }
+            }
+        }
 
         // TODO: Remove SampleAssets and replace with database calls
         /*
