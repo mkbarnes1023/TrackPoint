@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TrackPoint.Data;
+using TrackPoint.Models;
+using TrackPoint.Data.SeedData; // added for seeding
+//using TrackPoint.Models.RepositoryInterfaces;
+//using TrackPoint.Models.Repositories.Local;
 using System;
 using System.Linq;
-using TrackPoint.Models;
-using TrackPoint.Data.SeedData;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -150,7 +152,7 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Seed application data (categories, locations, assets) — no controller changes required
+// Seed application data (categories, locations)
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
