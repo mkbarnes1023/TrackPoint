@@ -1,0 +1,47 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Report Builder";
+}
+
+<body>
+    <div class="container" style="padding: 18px">
+        <div class="container" style="padding: 18px" id="form-card">
+            <h1>Generate a Report</h1>
+            <form>
+               @* Report Type *@
+                <div class="form-selection">
+                    <input type="radio" id="category" name="category" value="Category">
+                    <label for="category" class="form-label">Category Report</label>
+
+                    <input type="radio" id="location" name="location" value="Location">
+                    <label for="category" class="form-label">Location Report</label>
+
+                    <input type="radio" id="status" name="status" value="Status">
+                    <label for="status" class="form-label">Status Report</label>
+                </div>
+
+                <div class="form-selection">
+                    <label>Include in Report</label>
+                    <input type="checkbox" id="vizualization" name="vizualization" value="Yes">
+                    <label for="vizualization">Generate KPI Summary Page?</label>
+
+                    <input type="checkbox" id="table" name="table" value="Yes">
+                    <label for="table">Generate Table Summary? </label>
+                </div>
+                <div class="form-selection">
+                    <label for="table"> </label>
+                    <select class="form-select" itemid="exportType">
+                        <option selected>Please select one</option>
+                        <option value="1">Excel</option>
+                        <option value="2">PDF</option>
+                    </select>
+
+                </div>
+                <button type="submit" class="btn btn-primary">Generate Report</button>
+            </form>
+        </div>
+    </div>
+
+</body>

@@ -6,385 +6,104 @@
 
 <style>
     canvas {
-        width: 180px !important;
-        height: 180px !important;
+        width: 100px !important;
+        height: 130px !important;
     }
 
     .table-div {
         border: 1px solid #D3D3D3;
         border-radius: 10px;
     }
-
-    .badge {
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-        color: #fff;
-        display: inline-block;
-    }
-
-    /* Red - InUse */
-    .badge-red {
-        background-color: #FF2B2B;
-        color: white;
-    }
-
-    /* Orange - Retired */
-    .badge-orange {
-        background-color: #FF6D1A;
-        color: white;
-    }
-
-    /* Green - InStorage */
-    .badge-green {
-        background-color: #00C964;
-        color: white;
-    }
-
-    /* Blue -CheckedOut */
-    .badge-blue {
-        background-color: #009EFF;
-        color: white; /* readable on yellow */
-    }
-
-    /* Orange - UnderMaintenance */
-    .badge-yellow {
-        background-color: #FFD300;
-        color: black;
-    }
-
-    .badge-grey {
-        background-color: gray;
-        color: black;
-    }
 </style>
 
 <div class="container" style="padding: 18px;">
-    <div class="row g-4">
-
-        <div class="col-md-4">
+    <div class="row g-3">
+        <div class="col-md-3">
             <div class="custom-background"
-                 style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
-                <h6>Total Assets</h6>
+                 style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">               
                 <canvas id="location"></canvas>
+                <h6>Needs Attention</h6>
             </div>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="custom-background"
                  style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
-                <h6>Assets by Status</h6>
-                <canvas id="status"></canvas>
+                 <canvas id="status"></canvas>
+                 <h6>Overdue</h6>               
             </div>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="custom-background"
                  style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
-                <h6>Assets by Make</h6>
                 <canvas id="make"></canvas>
+                 <h6>Warrany Expiring</h6>          
             </div>
         </div>
 
-    </div>
-</div>
-
-@* custom search container *@
-<div class="container">
-    <div class="row align-items-center g-2">
-        <div class="col-auto">
-            <select id="searchColumn" class="form-select">
-                <option value="__all__">All</option>
-                <option value="0">Asset Tag</option>
-                <option value="1">Make</option>
-                <option value="2">Model</option>
-                <option value="3">Category</option>
-                <option value="4">Location</option>
-                <option value="5">Issued To</option>
-                <option value="6">Status</option>
-                <option value="7">Notes</option>
-            </select>
-        </div>
-
-        <div class="col-sm">
-            <div id="customSearchContainer"></div>
+        <div class="col-md-3">
+            <div class="custom-background"
+                 style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                <canvas id="make"></canvas>
+                <h6>Unassigned</h6>
+            </div>
         </div>
     </div>
 </div>
 
-@* Column visibility dropdown *@
-<div class="dropdown mb-3">
-    <button class="btn btn-secondary dropdown-toggle" type="button" id="columnToggleDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-        Toggle Columns
-    </button>
-    <ul class="dropdown-menu p-3" aria-labelledby="columnToggleDropdown" style="min-width: 200px;">
+<div class="container" style="padding: 18px;">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="custom-background"
+                 style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                <canvas id="make"></canvas>
+                <h6>Asset by Status</h6>
+            </div>
+        </div>
+            <div class="col-md-6">
+                <div class="custom-background"
+                     style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                    <canvas id="make"></canvas>
+                    <h6>Warranty Coverage</h6>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <li>
-            <label class="dropdown-item">
-                <input type="checkbox" class="toggle-vis" data-column="0" checked>
-                Asset Tag
-            </label>
-        </li>
-
-        <li>
-            <label class="dropdown-item">
-                <input type="checkbox" class="toggle-vis" data-column="1" checked>
-                Make
-            </label>
-        </li>
-
-        <li>
-            <label class="dropdown-item">
-                <input type="checkbox" class="toggle-vis" data-column="2" checked>
-                Model
-            </label>
-        </li>
-
-        <li>
-            <label class="dropdown-item">
-                <input type="checkbox" class="toggle-vis" data-column="3" checked>
-                Category
-            </label>
-        </li>
-
-        <li>
-            <label class="dropdown-item">
-                <input type="checkbox" class="toggle-vis" data-column="4" checked>
-                Location
-            </label>
-        </li>
-
-        <li>
-            <label class="dropdown-item">
-                <input type="checkbox" class="toggle-vis" data-column="5" checked>
-                Issued To
-            </label>
-        </li>
-
-        <li>
-            <label class="dropdown-item">
-                <input type="checkbox" class="toggle-vis" data-column="6" checked>
-                Status
-            </label>
-        </li>
-
-        <li>
-            <label class="dropdown-item">
-                <input type="checkbox" class="toggle-vis" data-column="7" checked>
-                Notes
-            </label>
-        </li>
-
-    </ul>
+<div class="container" style="padding: 18px;">
+    <div class="row g-3">
+        <div class="col-md-12">
+            <div class="custom-background"
+                 style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                <canvas id="make"></canvas>
+                <h6>Needs Immediate Action</h6>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="custom-background"
+                 style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                <canvas id="make"></canvas>
+                <h6>Upcoming deadlines</h6>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div id="customButtonsContainer" class="mb-3">
-    <button id="exportCopy" class="btn btn-primary btn-sm">Copy</button>
-    <button id="exportCSV" class="btn btn-success btn-sm">CSV</button>
-    <button id="exportExcel" class="btn btn-warning btn-sm">Excel</button>
-</div>
 
-<div class="table-div">
-    <table id="adminTable" class="table table-borderless " style="width:100%">
-        <thead>
-            <tr>
-                <th>Asset Tag</th>
-                <th>Make</th>
-                <th>Model</th>
-                <th>Category</th>
-                <th>Location</th>
-                <th>Issued To</th>
-                <th>Status</th>
-                <th>Notes</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr><td>LSNF-001</td><td>Dell</td><td>Latitude 7420</td><td>Tech</td><td>HQ Closet</td><td>Emily</td><td>InUse</td><td>Assigned</td></tr>
-            <tr><td>LSNF-002</td><td>HP</td><td>ProBook</td><td>Tech</td><td>HQ Closet</td><td>—</td><td>InStorage</td><td>Spare</td></tr>
-            <tr><td>LSNF-003</td><td>Epson</td><td>EX5280</td><td>Tech</td><td>Room 101</td><td>Alex</td><td>UnderMaintenance</td><td>Bulb</td></tr>
-            <tr><td>LSNF-001</td><td>Dell</td><td>Latitude 7420</td><td>Tech</td><td>HQ Closet</td><td>Emily</td><td>InUse</td><td>Assigned</td></tr>
-            <tr><td>LSNF-002</td><td>HP</td><td>ProBook</td><td>Tech</td><td>HQ Closet</td><td>—</td><td>InStorage</td><td>Spare</td></tr>
-            <tr><td>LSNF-003</td><td>Epson</td><td>EX5280</td><td>Tech</td><td>Room 101</td><td>Alex</td><td>UnderMaintenance</td><td>Bulb</td></tr>
-            <tr><td>LSNF-004</td><td>Lenovo</td><td>ThinkPad X13</td><td>Tech</td><td>Field Office</td><td>Sarah</td><td>CheckedOut</td><td>Used for outreach event</td></tr>
-            <tr><td>LSNF-005</td><td>Canon</td><td>Pixma G3270</td><td>Tech</td><td>HQ Supply Room</td><td>—</td><td>InStorage</td><td>Spare printer</td></tr>
-            <tr><td>LSNF-006</td><td>Microsoft</td><td>Surface Pro 7</td><td>Tech</td><td>HQ Desk 4</td><td>Michael</td><td>CheckedOut</td><td>Used for client presentation</td></tr>
-            <tr><td>LSNF-007</td><td>Samsung</td><td>Galaxy Tab A7</td><td>Tech</td><td>Outreach Van</td><td>Jasmine</td><td>InUse</td><td>Deployed for field survey</td></tr>
-            <tr><td>LSNF-008</td><td>Apple</td><td>MacBook Air M1</td><td>Tech</td><td>HQ Closet</td><td>—</td><td>PendingDeployment</td><td>New hire device</td></tr>
-            <tr><td>LSNF-009</td><td>LG</td><td>Projector MiniBeam</td><td>Tech</td><td>Room 202</td><td>Jessica</td><td>CheckedOut</td><td>Training session</td></tr>
-            <tr><td>LSNF-010</td><td>Amazon</td><td>Echo Dot</td><td>Non-Tech</td><td>Conference Room</td><td>—</td><td>InUse</td><td>Office automation</td></tr>
-            <tr><td>LSNF-011</td><td>Brother</td><td>HL-L2350DW</td><td>Tech</td><td>HQ Printing Station</td><td>—</td><td>InUse</td><td>Main printer</td></tr>
-            <tr><td>LSNF-012</td><td>Generic</td><td>Extension Cord</td><td>Non-Tech</td><td>Kit A</td><td>—</td><td>InStorage</td><td>Used for outreach setups</td></tr>
-            <tr><td>LSNF-013</td><td>HP</td><td>EliteBook 840</td><td>Tech</td><td>Kit B</td><td>Anthony</td><td>CheckedOut</td><td>Field reporting</td></tr>
-            <tr><td>LSNF-014</td><td>Canon</td><td>EOS Rebel T7</td><td>Tech</td><td>HQ Media Closet</td><td>—</td><td>InStorage</td><td>Photo documentation</td></tr>
-            <tr><td>LSNF-015</td><td>Logitech</td><td>C920</td><td>Tech</td><td>HQ Closet</td><td>—</td><td>Retired</td><td>Outdated equipment</td></tr>
-        </tbody>
-    </table>
-</div>
 
-<!-- === IMPORTANT: single, compatible set of CDN includes === -->
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-<!-- DataTables (stable 1.13.8) -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
-<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
-
-<!-- Buttons (compatible 2.4.1) -->
-<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" />
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
-
-<!-- Export dependencies -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // Ensure no duplicate DataTables / Buttons libraries are loaded.
-    // If you previously had other versions included elsewhere remove them.
-
-    let table;
-
-    $(function () {
-        table = $('#adminTable').DataTable({
-            pageLength: 25,
-            ordering: true,
-            searching: true,
-            stateSave: true,
-            lengthChange: false,
-
-            // register Buttons so the Buttons API exists; exportOptions restrict to visible columns and applied search
-            dom: 'Bfrtip',
-            buttons: [
-                { extend: 'copy', className: 'buttons-copy', exportOptions: { columns: ':visible', modifier: { search: 'applied' } } },
-                { extend: 'csv', className: 'buttons-csv', exportOptions: { columns: ':visible', modifier: { search: 'applied' } } },
-                { extend: 'excel', className: 'buttons-excel', exportOptions: { columns: ':visible', modifier: { search: 'applied' } } },
-                { extend: 'pdf', className: 'buttons-pdf', exportOptions: { columns: ':visible', modifier: { search: 'applied' } } },
-                { extend: 'print', className: 'buttons-print', exportOptions: { columns: ':visible', modifier: { search: 'applied' } } },
-                { extend: 'colvis', className: 'buttons-colvis' }
-            ],
-
-            columnDefs: [
-                {
-                    targets: 6,
-                    render: function (data) {
-                        const clean = (data || "").toString().trim().toLowerCase();
-
-                        const map = {
-                            "inuse": "red",
-                            "instorage": "green",
-                            "undermaintenance": "yellow",
-                            "pendingdeployment": "orange",
-                            "checkedout": "blue",
-                            "retired": "grey"
-                        };
-
-                        const slug = map[clean] || "blue";
-                        return `<span class="badge badge-${slug}">${data}</span>`;
-                    }
-                }
-            ],
-
-            initComplete: function () {
-                const api = this.api();
-                const tableId = api.table().node().id;
-                const $filter = $('#' + tableId + '_filter');
-
-                // move search into custom container
-                $filter.find('label').contents().filter(function () { return this.nodeType === 3; }).remove();
-                $filter.find('input').addClass('form-control me-2');
-                $filter.appendTo('#customSearchContainer');
-
-                const searchInput = $filter.find('input');
-
-                $('#searchColumn').on('change', function () {
-                    const column = $(this).val();
-                    const text = searchInput.val();
-
-                    if (column === "__all__") {
-                        api.columns().search("");
-                        api.search(text).draw();
-                    } else {
-                        api.search("");
-                        api.columns().search("");
-                        api.column(column).search(text).draw();
-                    }
-                });
-
-                searchInput.on('keyup', function () {
-                    const text = this.value;
-                    const column = $('#searchColumn').val();
-
-                    if (column === "__all__") {
-                        api.columns().search("");
-                        api.search(text).draw();
-                    } else {
-                        api.search("");
-                        api.columns().search("");
-                        api.column(column).search(text).draw();
-                    }
-                });
-
-                // Hide default Buttons UI (we use custom UI)
-                if (typeof api.buttons === 'function') {
-                    api.buttons().container().addClass('d-none');
-                } else {
-                    console.warn('Buttons API not available — check that DataTables Buttons JS is loaded and not duplicated.');
-                }
-
-                // Wire custom buttons to the Buttons API (safe checks)
-                $('#exportCopy').off('click').on('click', function (e) {
-                    e.preventDefault();
-                    try {
-                        if (api.button('.buttons-copy').any()) api.button('.buttons-copy').trigger();
-                        else api.button(0).trigger();
-                    } catch (err) {
-                        console.error('Copy export failed', err);
-                    }
-                });
-
-                $('#exportCSV').off('click').on('click', function (e) {
-                    e.preventDefault();
-                    try {
-                        if (api.button('.buttons-csv').any()) api.button('.buttons-csv').trigger();
-                        else api.button(1).trigger();
-                    } catch (err) {
-                        console.error('CSV export failed', err);
-                    }
-                });
-
-                $('#exportExcel').off('click').on('click', function (e) {
-                    e.preventDefault();
-                    try {
-                        if (api.button('.buttons-excel').any()) api.button('.buttons-excel').trigger();
-                        else api.button(2).trigger();
-                    } catch (err) {
-                        console.error('Excel export failed', err);
-                    }
-                });
-            }
-        });
-
-        // Column visibility checkboxes
-        document.querySelectorAll('input.toggle-vis').forEach((checkbox) => {
-            checkbox.addEventListener('change', function (e) {
-                const colIndex = e.target.getAttribute('data-column');
-                const column = table.column(colIndex);
-                column.visible(e.target.checked);
-            });
-        });
+    
 
         // create charts
         createLocationChart();
         createStatusChart();
         createMakeChart();
-    });
 
     // chart functions unchanged
     function createLocationChart() {
