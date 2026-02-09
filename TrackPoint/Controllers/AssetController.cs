@@ -53,31 +53,34 @@ namespace TrackPoint.Controllers
         {
             // Perform input validation. Redirect back to the form with an error message if the input is invalid.
             // Copilot:
+            // Empty or whitespace name/abbreviation
             if (string.IsNullOrWhiteSpace(l.Name) || string.IsNullOrWhiteSpace(l.Abbreviation))
             {
                 TempData["InputError"] = "Error: Name and Abbreviation cannot be empty.";
                 return View("LocationAdd", l);
             }
-    
+            // Abbreviation too long
             if (l.Abbreviation.Length > 10)
             {
                 TempData["InputError"] = "Error: Abbreviation cannot be longer than 10 characters.";
                 return View("LocationAdd", l);
             }
-    
+            // Location with same name already exists
             if (_context.Location.Any(loc => loc.Name == l.Name))
             {
                 Location existingLocation = _context.Location.First(loc => loc.Name == l.Name);
                 TempData["InputError"] = "Error: A location with this name already exists: " + existingLocation.Name + " (" + existingLocation.Abbreviation + ")";
                 return View("LocationAdd", l);
             }
-    
+            // Location with same abbreviation already exists
             if (_context.Location.Any(loc => loc.Abbreviation == l.Abbreviation.ToUpper()))
             {
                 Location existingLocation = _context.Location.First(loc => loc.Name == l.Name);
                 TempData["InputError"] = "Error: A location with this abbreviation already exists: " + existingLocation.Name + " (" + existingLocation.Abbreviation + ")";
                 return View("LocationAdd", l);
             }
+
+            // Prepare the data for entry into the database:
             // Make sure the Abbreviation is captialized
             l.Abbreviation = l.Abbreviation.ToUpper();
             // Add the new Location to database
@@ -154,9 +157,10 @@ namespace TrackPoint.Controllers
                 return View("CategoryAdd", c);
             }
 
+            // Prepare the data for entry into the database:
             // Make sure the Abbreviation is captialized
             c.Abbreviation = c.Abbreviation.ToUpper();
-            // Add the new Category to database and redirect the user to the AssetBrowser
+            // Add the new Category to database and redirect the user to the Index
             _context.Category.Add(c);
             _context.SaveChanges();
             // Log the category to the console for debugging purposes
