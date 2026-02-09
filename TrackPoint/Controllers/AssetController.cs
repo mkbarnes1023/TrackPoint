@@ -43,7 +43,7 @@ namespace TrackPoint.Controllers
          */
         public IActionResult LocationAdd()
         {
-            return View();
+            return View(new Location());
         }
 
         /*
@@ -51,6 +51,33 @@ namespace TrackPoint.Controllers
          */
         public IActionResult NewLocation(Location l)
         {
+            // Perform input validation. Redirect back to the form with an error message if the input is invalid.
+            // Copilot:
+            if (string.IsNullOrWhiteSpace(l.Name) || string.IsNullOrWhiteSpace(l.Abbreviation))
+            {
+                TempData["InputError"] = "Error: Name and Abbreviation cannot be empty.";
+                return View("LocationAdd", l);
+            }
+    
+            if (l.Abbreviation.Length > 10)
+            {
+                TempData["InputError"] = "Error: Abbreviation cannot be longer than 10 characters.";
+                return View("LocationAdd", l);
+            }
+    
+            if (_context.Location.Any(loc => loc.Name == l.Name))
+            {
+                Location existingLocation = _context.Location.First(loc => loc.Name == l.Name);
+                TempData["InputError"] = "Error: A location with this name already exists: " + existingLocation.Name + " (" + existingLocation.Abbreviation + ")";
+                return View("LocationAdd", l);
+            }
+    
+            if (_context.Location.Any(loc => loc.Abbreviation == l.Abbreviation.ToUpper()))
+            {
+                Location existingLocation = _context.Location.First(loc => loc.Name == l.Name);
+                TempData["InputError"] = "Error: A location with this abbreviation already exists: " + existingLocation.Name + " (" + existingLocation.Abbreviation + ")";
+                return View("LocationAdd", l);
+            }
             // Make sure the Abbreviation is captialized
             l.Abbreviation = l.Abbreviation.ToUpper();
             // Add the new Location to database
@@ -66,7 +93,7 @@ namespace TrackPoint.Controllers
 		 */
         public IActionResult CategoryAdd()
         {
-            return View();
+            return View(new Category());
         }
 
         /*
@@ -86,6 +113,47 @@ namespace TrackPoint.Controllers
 	    */
 	    public IActionResult NewCategory(Category c)
 	    {
+            // Perform input validation. Redirect back to the form with an error message if the input is invalid.
+            // Copilot:
+            // Empty or whitespace name/abbreviation
+            if (string.IsNullOrWhiteSpace(c.Name) || string.IsNullOrWhiteSpace(c.Abbreviation))
+            {
+                TempData["InputError"] = "Error: Name and Abbreviation cannot be empty.";
+                return View("CategoryAdd", c);
+            }
+            // Abbreviation too long
+            if (c.Abbreviation.Length > 10)
+            {
+                TempData["InputError"] = "Error: Abbreviation cannot be longer than 10 characters.";
+                return View("CategoryAdd", c);
+            }
+            // Abbreviation contains whitespace
+            if (c.Abbreviation.Any(char.IsWhiteSpace))
+            {
+                TempData["InputError"] = "Error: Abbreviation cannot contain whitespace.";
+                return View("CategoryAdd", c);
+            }
+            // Category with same name already exists
+            if (_context.Category.Any(cat => cat.Name == c.Name))
+            {
+                Category existingCategory = _context.Category.First(cat => cat.Name == c.Name);
+                TempData["InputError"] = "Error: A category with this name already exists: " + existingCategory.Name + " (" + existingCategory.Abbreviation + ")";
+                return View("CategoryAdd", c);
+            }
+            // Category with same abbreviation already exists
+            if (_context.Category.Any(cat => cat.Abbreviation == c.Abbreviation.ToUpper()))
+            {
+                Category existingCategory = _context.Category.First(cat => cat.Name == c.Name);
+                TempData["InputError"] = "Error: A category with this abbreviation already exists: " + existingCategory.Name + " (" + existingCategory.Abbreviation + ")";
+                return View("CategoryAdd", c);
+            }
+            // Negative default loan period
+            if (c.DefaultLoanPeriodDays < 0)
+            {
+                TempData["InputError"] = "Error: Default Loan Period cannot be negative.";
+                return View("CategoryAdd", c);
+            }
+
             // Make sure the Abbreviation is captialized
             c.Abbreviation = c.Abbreviation.ToUpper();
             // Add the new Category to database and redirect the user to the AssetBrowser
