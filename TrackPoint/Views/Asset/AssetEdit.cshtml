@@ -1,10 +1,13 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@model TrackPoint.Views.Asset.AssetAddViewModel;
+﻿@model TrackPoint.Views.Asset.AssetAddViewModel;
 @{
 }
 <h1>Editing an Asset</h1>
+@if (TempData["InputError"] != null)
+{
+	<div class="alert alert-danger" role="alert">
+		@TempData["InputError"]
+	</div>
+}
 <form asp-action="NewAsset" method="post">
 	<input type="hidden" asp-for="asset.AssetTag" value="@Model.asset.AssetTag">
 	<input type="hidden" asp-for="asset.AssetId" value="@Model.asset.AssetId">
@@ -57,7 +60,7 @@
 					<option value="@c.CategoryId" selected>@c.Name</option>
 				} else
 				{
-					<option value="@c.CategoryId" selected>@c.Name</option>
+					<option value="@c.CategoryId">@c.Name</option>
 				}
 						
 			}
@@ -78,7 +81,7 @@
 				}
 				else
 				{
-					<option value="l.LocationId" selected>@l.Name</option>
+					<option value="@l.LocationId">@l.Name</option>
 				}
 			}
 		</select>

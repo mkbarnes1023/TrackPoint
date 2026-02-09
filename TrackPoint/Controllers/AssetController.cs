@@ -102,19 +102,20 @@ namespace TrackPoint.Controllers
         /*
 		 *  Return the view for the Asset Add Form
 		 */
-        public IActionResult AssetAdd()
+        public IActionResult AssetAdd(Asset a)
         {
             // Pass the locations and categories to the view via the AssetAddModel
             AssetAddViewModel model = new AssetAddViewModel();
             model._locations = locations.ToList();
             model._categories = categories.ToList();
+            model.asset = a;
             return View(model);
         }
 
         /*
 	    *  Add the new category to the database and redirect to the index
 	    */
-	    public IActionResult NewCategory(Category c)
+        public IActionResult NewCategory(Category c)
 	    {
             // Perform input validation. Redirect back to the form with an error message if the input is invalid.
             // Copilot:
@@ -173,9 +174,33 @@ namespace TrackPoint.Controllers
 		 */
 		public IActionResult NewAsset(Asset asset)
 		{
-            // Assign the Asset a asset tag based on the Category's abbreviation and a unique number
-            asset.AssetTag = $"{_context.Category.Find(asset.CategoryId)?.Abbreviation}-{_context.Asset.Count(a => a.CategoryId == asset.CategoryId) + 1}";
-            
+            // Perform input validation. Redirect back to the form with an error message if the input is invalid.
+            // Copilot:
+            // Empty or whitespace make/model
+            if (string.IsNullOrWhiteSpace(asset.Make) || string.IsNullOrWhiteSpace(asset.Model))
+            {
+                TempData["InputError"] = "Error: Make and Model cannot be empty.";
+                return RedirectToAction("AssetAdd", asset);
+            }
+            // Category is empty or invalid
+            if (!_context.Category.Any(c => c.CategoryId == asset.CategoryId))
+            {
+                TempData["InputError"] = "Error: Invalid category selected.";
+                return RedirectToAction("AssetAdd", asset);
+            }
+            // Location is empty or invalid
+            if (!_context.Location.Any(l => l.LocationId == asset.LocationId))
+            {
+                TempData["InputError"] = "Error: Invalid location selected.";
+                return RedirectToAction("AssetAdd", asset);
+            }
+
+            // Assign the Asset a asset tag based on the Category's abbreviation, Location abbreviation and a unique number, padded to 4 digits with leading zeros.
+            asset.AssetTag = $"{_context.Category.Find(asset.CategoryId)?.Abbreviation}-{_context.Location.Find(asset.LocationId)?.Abbreviation}-{(_context.Asset.Count(a => a.CategoryId == asset.CategoryId && a.LocationId == asset.LocationId) + 1).ToString().PadLeft(4, '0')}";
+
+
+            //asset.AssetTag = $"{_context.Category.Find(asset.CategoryId)?.Abbreviation}-{_context.Asset.Count(a => a.CategoryId == asset.CategoryId) + 1}";
+
             // Add the new Asset to database and redirect the user to the AssetBrowser
             _context.Asset.Add(asset);
             _context.SaveChanges();
@@ -231,13 +256,44 @@ namespace TrackPoint.Controllers
             model.asset = asset;
             return View(model);
         }
+        /**
+         * Return the view for editing assets with the selected asset passed as the model
+         */
+        public IActionResult AssetEditFromModel(Asset a)
+        {
+            AssetAddViewModel model = new AssetAddViewModel();
+            model._categories = categories.ToList();
+            model._locations = locations.ToList();
+            model.asset = a;
+            return View("AssetEdit", model);
+        }
 
         /**
          * Return the view for editing assets with the selected asset passed as the model
          */
 
-		public IActionResult UpdateAsset(Asset asset)
+        public IActionResult UpdateAsset(Asset asset)
 		{
+            // Perform input validation. Redirect back to the form with an error message if the input is invalid.
+            // Copilot:
+            // Empty or whitespace make/model
+            if (string.IsNullOrWhiteSpace(asset.Make) || string.IsNullOrWhiteSpace(asset.Model))
+            {
+                TempData["InputError"] = "Error: Make and Model cannot be empty.";
+                return RedirectToAction("AssetEditFromModel", asset);
+            }
+            // Category is empty or invalid
+            if (!_context.Category.Any(c => c.CategoryId == asset.CategoryId))
+            {
+                TempData["InputError"] = "Error: Invalid category selected.";
+                return RedirectToAction("AssetEditFromModel", asset);
+            }
+            // Location is empty or invalid
+            if (!_context.Location.Any(l => l.LocationId == asset.LocationId))
+            {
+                TempData["InputError"] = "Error: Invalid location selected.";
+                return RedirectToAction("AssetEditFromModel", asset);
+            }
             // Update the asset in the database
             _context.Asset.Update(asset);
             _context.SaveChanges();
