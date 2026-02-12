@@ -1,8 +1,12 @@
-﻿@{
+﻿@model TrackPoint.Models.DTOs.AdminDashboardViewModel
+
+
+@{
     ViewData["Title"] = "Dashboard";
 }
 <a asp-controller="Dashboard" asp-action="Index" class="btn btn-light btn-sm btn-outline-dark">Personal Dashboard</a>
-<a asp-controller="Dashboard" asp-action="adminDashboard" class="btn btn-primary btn-sm btn-outline-light">Admin View</a>
+<a asp-controller="Dashboard" asp-action="AdminDashboard" class="btn btn-primary btn-sm btn-outline-light">Admin View</a>
+
 
 <style>
     canvas {
@@ -26,6 +30,7 @@
             </div>
         </div>
 
+        @* This will hold assets that arent turned in *@
         <div class="col-md-3">
             <div class="custom-background"
                  style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
@@ -38,19 +43,21 @@
             <div class="custom-background"
                  style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
                 <canvas id="make"></canvas>
-                 <h6>Warrany Expiring</h6>          
+                 <h6>Warranty Expiring</h6>          
             </div>
         </div>
 
         <div class="col-md-3">
             <div class="custom-background"
                  style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
-                <canvas id="make"></canvas>
+                <canvas id="make-unassigned"></canvas>
+                <div class="display-4">@Model.UnassignedCount</div>
                 <h6>Unassigned</h6>
             </div>
         </div>
     </div>
 </div>
+
 
 <div class="container" style="padding: 18px;">
     <div class="row g-3">
@@ -58,9 +65,17 @@
             <div class="custom-background"
                  style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
                 <canvas id="make"></canvas>
+                <ul>
+                    @foreach (var item in Model.StatusCounts)
+                    {
+                        <li>@item.Label: @item.Count</li>
+                    }
+                </ul>
                 <h6>Asset by Status</h6>
             </div>
         </div>
+
+
             <div class="col-md-6">
                 <div class="custom-background"
                      style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
@@ -80,6 +95,8 @@
                 <h6>Needs Immediate Action</h6>
             </div>
         </div>
+
+        @* list of assets with upcoming deadlines *@
         <div class="col-md-12">
             <div class="custom-background"
                  style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
@@ -105,8 +122,7 @@
         createStatusChart();
         createMakeChart();
 
-    // chart functions unchanged
-    function createLocationChart() {
+       function createLocationChart() {
         const dt = $('#adminTable').DataTable();
         const locationData = dt.column(4).data().toArray();
         const locationCounts = {};

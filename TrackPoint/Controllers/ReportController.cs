@@ -7,8 +7,5 @@ namespace TrackPoint.Controllers
     {
 
         public IActionResult ReportBuilder() => View();
-
-  
-        public IActionResult adminDashboard() => View();
     }
 }
