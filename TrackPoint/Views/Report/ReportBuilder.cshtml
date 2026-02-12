@@ -1,47 +1,193 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
     ViewData["Title"] = "Report Builder";
 }
 
-<body>
-    <div class="container" style="padding: 18px">
-        <div class="container" style="padding: 18px" id="form-card">
-            <h1>Generate a Report</h1>
-            <form>
-               @* Report Type *@
-                <div class="form-selection">
-                    <input type="radio" id="category" name="category" value="Category">
-                    <label for="category" class="form-label">Category Report</label>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-                    <input type="radio" id="location" name="location" value="Location">
-                    <label for="category" class="form-label">Location Report</label>
+<style>
+    body {
+        background: aliceblue;
+        font-family: 'DM Sans', system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+    }
+    h1 {
+        font-weight:700;
+        font-size:45px;
+        color: #064973;
+    }
 
-                    <input type="radio" id="status" name="status" value="Status">
-                    <label for="status" class="form-label">Status Report</label>
-                </div>
+    .page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+    }
 
-                <div class="form-selection">
-                    <label>Include in Report</label>
-                    <input type="checkbox" id="vizualization" name="vizualization" value="Yes">
-                    <label for="vizualization">Generate KPI Summary Page?</label>
+    .card {
+        background: #fff;
+        width: 520px;
+        padding: 36px;
+        border-radius: 14px;
+        box-shadow: 0 20px 40px rgba(15, 42, 68, 0.15), 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
 
-                    <input type="checkbox" id="table" name="table" value="Yes">
-                    <label for="table">Generate Table Summary? </label>
-                </div>
-                <div class="form-selection">
-                    <label for="table"> </label>
-                    <select class="form-select" itemid="exportType">
-                        <option selected>Please select one</option>
-                        <option value="1">Excel</option>
-                        <option value="2">PDF</option>
-                    </select>
+        .card h1 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 28px;
+            text-align: center;
+        }
 
-                </div>
-                <button type="submit" class="btn btn-primary">Generate Report</button>
-            </form>
-        </div>
+    .field {
+        margin-bottom: 22px;
+    }
+
+    label {
+        display: block;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #334155;
+    }
+
+    select {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        font-size: 14px;
+        transition: border 0.2s, box-shadow 0.2s;
+    }
+
+        select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+    .section-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #475569;
+        margin: 26px 0 14px;
+    }
+
+    .toggle-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 14px;
+        font-size: 14px;
+        color: #334155;
+    }
+
+    /* Toggle Switch */
+    .switch {
+        position: relative;
+        width: 44px;
+        height: 24px;
+    }
+
+        .switch input {
+            display: none;
+        }
+
+    .slider {
+        position: absolute;
+        inset: 0;
+        background: #d1d5db;
+        border-radius: 999px;
+        transition: background 0.2s;
+    }
+
+        .slider::before {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            top: 3px;
+            left: 3px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+
+    .switch input:checked + .slider {
+        background: #7c3aed;
+    }
+
+        .switch input:checked + .slider::before {
+            transform: translateX(20px);
+        }
+
+    .primary-btn {
+        width: 100%;
+        margin-top: 28px;
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #fff;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+        .primary-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
+        }
+</style>
+
+<div class="page">
+    <div class="card">
+        <h1>Generate a Report</h1>
+
+        <form method="post">
+            <!-- Report Type -->
+            <div class="field">
+                <div class="section-title">Report Type</div>
+                <select id="reportType" name="reportType">
+                    <option selected disabled>Please select one</option>
+                    <option value="Category">Category Report</option>
+                    <option value="Location">Location Report</option>
+                    <option value="Status">Status Report</option>
+                </select>
+            </div>
+
+            <!-- Include Section -->
+            <div class="section-title">Include in Report</div>
+
+            <div class="toggle-row">
+                <span>Generate KPI Summary Page</span>
+                <label class="switch">
+                    <input type="checkbox" name="visualization" />
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="toggle-row">
+                <span>Generate Table Summary</span>
+                <label class="switch">
+                    <input type="checkbox" name="table" />
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <!-- Export Type -->
+            <div class="field">
+                <div class="section-title">Export Type</div>
+                <select id="exportType" name="exportType">
+                    <option selected disabled>Please select one</option>
+                    <option value="Excel">Excel</option>
+                    <option value="PDF">PDF</option>
+                </select>
+            </div>
+
+            <button type="submit" class="primary-btn">
+                Generate Report
+            </button>
+        </form>
     </div>
-
-</body>
+</div>
