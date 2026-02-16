@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TrackPoint.Data;
+using TrackPoint.Models;
 using TrackPoint.Models.DTOs;
 
 namespace TrackPoint.Controllers
@@ -32,10 +33,41 @@ namespace TrackPoint.Controllers
             var unassignedCount = await _context.Asset
                 .CountAsync(a => string.IsNullOrEmpty(a.IssuedToUserId));
 
+            var limit = DateTime.Now.AddMonths(6);
+
+            var expiringSoonCount = await _context.Asset
+                .CountAsync(a => a.WarrantyExpirationDate.HasValue && a.WarrantyExpirationDate >= DateTime.Now && a.WarrantyExpirationDate <= limit);
+
+            var today = DateTime.Today;
+
+            var expiredCount = _context.Asset
+                .Count(a => a.WarrantyExpirationDate != null
+                            && a.WarrantyExpirationDate < today);
+
+            var zeroToThirty = _context.Asset
+                .Count(a => a.WarrantyExpirationDate != null
+                            && a.WarrantyExpirationDate >= today
+                            && a.WarrantyExpirationDate <= today.AddDays(30));
+
+            var thirtyOneToNinety = _context.Asset
+                .Count(a => a.WarrantyExpirationDate != null
+                            && a.WarrantyExpirationDate > today.AddDays(30)
+                            && a.WarrantyExpirationDate <= today.AddDays(90));
+
+            var ninetyPlus = _context.Asset
+                .Count(a => a.WarrantyExpirationDate != null
+                            && a.WarrantyExpirationDate > today.AddDays(90));
+
+
             var viewModel = new AdminDashboardViewModel
             {
                 StatusCounts = statusCounts,
-                UnassignedCount = unassignedCount
+                UnassignedCount = unassignedCount,
+                ExpiringSoonCount = expiringSoonCount,
+                ExpiredCount = expiredCount,
+                ZeroToThirty = zeroToThirty,
+                ThirtyOneToNinety = thirtyOneToNinety,
+                NinetyPlus = ninetyPlus
             };
 
             return View(viewModel);

@@ -1,159 +1,233 @@
 ﻿@model TrackPoint.Models.DTOs.AdminDashboardViewModel
-
+@using System.Text.Json
 
 @{
     ViewData["Title"] = "Dashboard";
 }
-<a asp-controller="Dashboard" asp-action="Index" class="btn btn-light btn-sm btn-outline-dark">Personal Dashboard</a>
-<a asp-controller="Dashboard" asp-action="AdminDashboard" class="btn btn-primary btn-sm btn-outline-light">Admin View</a>
 
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
     canvas {
-        width: 100px !important;
-        height: 130px !important;
+        width: 260px !important;
+        height: 260px !important;
     }
 
-    .table-div {
-        border: 1px solid #D3D3D3;
+    .col-md-3 {
+        align-content: center;
+        width: 300px;
+        height: 180px;
+        
+    }
+    .page {
+        display:flex;
+        flex-direction: column;
+        gap:25px;
+        padding: 20px;
+    }
+
+    h1 {
+        font-weight: 700;
+        font-size: 40px;
+        color: #064973;
+        letter-spacing: -1px;
+    }
+    .display-4 {
+        text-align: center;
+    }
+    h6 {
+        text-align: center;
+        font-weight: 700;
+
+    }
+
+    body {
+        background: #f2f2f2;
+        font-family: 'DM Sans', system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+    }
+    h4 {
+        font-family: 'DM Sans', system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+        font-weight: 700;
+        font-size: 22px;
+        color:dimgrey;
+        letter-spacing: -1px;
+        
+    }
+
+    .section {
+        align-content: center;
+        background: white;
+        border-color: red;
+        border: 2px;
+        padding: 15px;
         border-radius: 10px;
     }
+
 </style>
 
-<div class="container" style="padding: 18px;">
-    <div class="row g-3">
-        <div class="col-md-3">
-            <div class="custom-background"
-                 style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">               
-                <canvas id="location"></canvas>
-                <h6>Needs Attention</h6>
-            </div>
-        </div>
-
-        @* This will hold assets that arent turned in *@
-        <div class="col-md-3">
-            <div class="custom-background"
-                 style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
-                 <canvas id="status"></canvas>
-                 <h6>Overdue</h6>               
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="custom-background"
-                 style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
-                <canvas id="make"></canvas>
-                 <h6>Warranty Expiring</h6>          
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="custom-background"
-                 style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
-                <canvas id="make-unassigned"></canvas>
-                <div class="display-4">@Model.UnassignedCount</div>
-                <h6>Unassigned</h6>
-            </div>
-        </div>
-    </div>
-</div>
 
 
-<div class="container" style="padding: 18px;">
-    <div class="row g-3">
+    <div class="page">
+    <div class="row g-1">
         <div class="col-md-6">
-            <div class="custom-background"
-                 style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
-                <canvas id="make"></canvas>
-                <ul>
-                    @foreach (var item in Model.StatusCounts)
-                    {
-                        <li>@item.Label: @item.Count</li>
-                    }
-                </ul>
-                <h6>Asset by Status</h6>
+            <h1>Home</h1>
+        </div>
+
+        <div class="col-md-6">
+            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-light btn-sm btn-outline-dark">Personal Dashboard</a>
+            <a asp-controller="Dashboard" asp-action="AdminDashboard" class="btn btn-primary btn-sm btn-outline-light">Admin View</a>
+        </div>
+        </div>
+        <!-- Priority Overview -->
+        <div class="section">
+            <h4>Priority Overview</h4>
+            <div class="d-flex justify-content-between flex-wrap" style="gap: 20px; margin-top: 15px;">
+                <div class="custom-background" style="flex: 1 1 220px; border:1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                    <div class="display-4">0</div>
+                    <h6>Needs Attention</h6>
+                </div>
+                <div class="custom-background" style="flex: 1 1 220px; border:1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                    <div class="display-4">0</div>
+                    <h6>Overdue</h6>
+                </div>
+                <div class="custom-background" style="flex: 1 1 220px; border:1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                    <div class="display-4">@Model.ExpiringSoonCount</div>
+                    <h6>Warranty Expiring</h6>
+                </div>
+                <div class="custom-background" style="flex: 1 1 220px; border:1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                    <div class="display-4">@Model.UnassignedCount</div>
+                    <h6>Unassigned</h6>
+                </div>
             </div>
         </div>
 
-
-            <div class="col-md-6">
-                <div class="custom-background"
-                     style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
-                    <canvas id="make"></canvas>
+        <!-- System Overview -->
+        <div class="section">
+            <h4>System Overview</h4>
+            <div class="d-flex flex-wrap justify-content-between" style="gap: 20px; margin-top: 15px;">
+                <div class="custom-background" style="flex: 1 1 45%; border:1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                    <canvas id="statusChart"></canvas>
+                    <h6>Asset by Status</h6>
+                </div>
+                <div class="custom-background" style="flex: 1 1 45%; border:1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                    <canvas id="warranty"></canvas>
                     <h6>Warranty Coverage</h6>
                 </div>
             </div>
         </div>
-    </div>
 
-<div class="container" style="padding: 18px;">
-    <div class="row g-3">
-        <div class="col-md-12">
-            <div class="custom-background"
-                 style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
-                <canvas id="make"></canvas>
-                <h6>Needs Immediate Action</h6>
+        <!-- Action Center -->
+        <div class="section">
+            <h4>Action Center</h4>
+            <div class="d-flex flex-column" style="gap: 20px; margin-top: 15px;">
+                <div class="custom-background" style="border:1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                    <canvas id="make"></canvas>
+                    <h6>Needs Immediate Action</h6>
+                </div>
+                <div class="custom-background" style="border:1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                    <canvas id="make"></canvas>
+                    <h6>Pending Approvals</h6>
+                </div>
             </div>
         </div>
 
-        @* list of assets with upcoming deadlines *@
-        <div class="col-md-12">
-            <div class="custom-background"
-                 style="border: 1px solid #D3D3D3; border-radius:10px; padding:10px;">
-                <canvas id="make"></canvas>
-                <h6>Upcoming deadlines</h6>
-            </div>
-        </div>
     </div>
-</div>
-
-
-
-
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    
+    //create charts 
+    DrawAssetChart();
+    DrawWarrantyChart();
 
-        // create charts
-        createLocationChart();
-        createStatusChart();
-        createMakeChart();
+    function DrawAssetChart(){
+        const labels = @Html.Raw(JsonSerializer.Serialize(Model.StatusCounts.Select(s => s.Label)));
+        const Data = @Html.Raw(JsonSerializer.Serialize(Model.StatusCounts.Select(s => s.Count)));
+        const ctx = document.getElementById('statusChart');
+        const statusChart = new Chart (ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                   
+                    data: Data,
+                    backgroundColor: [
 
-       function createLocationChart() {
-        const dt = $('#adminTable').DataTable();
-        const locationData = dt.column(4).data().toArray();
-        const locationCounts = {};
-        locationData.forEach(location => {
-            locationCounts[location] = (locationCounts[location] || 0) + 1;
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+         
+                },
+            scales:{
+               
+            }
+            }
         });
-        const top5 = Object.entries(locationCounts).sort((a,b) => b[1]-a[1]).slice(0,5);
-        const labels = top5.map(i=>i[0]), values = top5.map(i=>i[1]);
-        const ctx = document.getElementById('location');
-        new Chart(ctx, { type:'doughnut', data:{ labels, datasets:[{ data:values, backgroundColor:['#00D084','#FF3B30','#007BFF','#FFC300','#9B59B6'] }] }, options:{ plugins:{ legend:{ display:false } }, scales:{ x:{display:false}, y:{display:false} } } });
+
     }
 
-    function createStatusChart() {
-        const dt = $('#adminTable').DataTable();
-        const statusData = dt.column(6).data().toArray();
-        const statusCounts = {};
-        statusData.forEach(status => { statusCounts[status] = (statusCounts[status] || 0) + 1; });
-        const top5 = Object.entries(statusCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        const labels = top5.map(i=>i[0]), values = top5.map(i=>i[1]);
-        const ctx = document.getElementById('status');
-        new Chart(ctx, { type:'doughnut', data:{ labels, datasets:[{ data:values, backgroundColor:['#00C964','#FF2B2B','#009EFF','#FFD300','#FF6D1A'] }] }, options:{ plugins:{ legend:{ display:false } }, scales:{ x:{display:false}, y:{display:false} } } });
-    }
+    function DrawWarrantyChart(){
+        // Values provided by the AdminDashboard controller
+        const expired = @Html.Raw(JsonSerializer.Serialize(Model.ExpiredCount));
+        const zeroToThirty = @Html.Raw(JsonSerializer.Serialize(Model.ZeroToThirty));
+        const thirtyOneToNinety = @Html.Raw(JsonSerializer.Serialize(Model.ThirtyOneToNinety));
+        const ninetyPlus = @Html.Raw(JsonSerializer.Serialize(Model.NinetyPlus));
+        // total assets from status counts (grouped by status) -> used to infer "No Warranty"
+        const totalAssets = @Html.Raw(JsonSerializer.Serialize(Model.StatusCounts.Sum(s => s.Count)));
 
-    function createMakeChart() {
-        const dt = $('#adminTable').DataTable();
-        const makeData = dt.column(1).data().toArray();
-        const makeCounts = {};
-        makeData.forEach(m => { makeCounts[m] = (makeCounts[m] || 0) + 1; });
-        const top5 = Object.entries(makeCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        const labels = top5.map(i=>i[0]), values = top5.map(i=>i[1]);
-        const ctx = document.getElementById('make');
-        new Chart(ctx, { type:'doughnut', data:{ labels, datasets:[{ data:values, backgroundColor:['#00B894','#0984E3','#FDCA40','#FF6B35','#EA2027'] }] }, options:{ plugins:{ legend:{ display:false } }, scales:{ x:{display:false}, y:{display:false} } } });
+        const noWarranty = Math.max(0, totalAssets - (expired + zeroToThirty + thirtyOneToNinety + ninetyPlus));
+
+        const labels = ['No Warranty', 'Expired', '0-30 days', '31-90 days', '90+ days'];
+        const data = [noWarranty, expired, zeroToThirty, thirtyOneToNinety, ninetyPlus];
+
+        const ctx = document.getElementById('warranty').getContext('2d');
+
+        // simple color palette
+        const backgroundColors = [
+            'rgba(201, 203, 207, 0.8)', // grey - no warranty
+            'rgba(255, 99, 132, 0.8)',  // red - expired
+            'rgba(255, 205, 86, 0.8)',  // yellow - 0-30
+            'rgba(54, 162, 235, 0.8)',  // blue - 31-90
+            'rgba(75, 192, 192, 0.8)'   // green - 90+
+        ];
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: backgroundColors,
+                    borderColor: backgroundColors.map(c => c.replace('0.8', '1')),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                // plugins: {
+                //     legend: {
+                //         position: 'bottom',
+                //         labels: {
+                //             boxWidth: 12,
+                //             padding: 12
+                //         }
+                //     },
+                //     tooltip: {
+                //         callbacks: {
+                //             label: function(context) {
+                //                 const label = context.label || '';
+                //                 const value = context.raw || 0;
+                //                 return label + ': ' + value;
+                //             }
+                //         }
+                //     }
+                // }
+            }
+        });
     }
 </script>
