@@ -387,5 +387,28 @@ namespace TrackPoint.Controllers
             
             return View(); // TODO: This leads to nowhere, redirect back to form with error or remove this if we will never reach it
         }
+
+        public IActionResult checkIn(string AssetTag)
+        {
+            var asset = _context.Asset.FirstOrDefault(a => a.AssetTag == AssetTag);
+            if (asset == null)
+            {
+                TempData["Failure"] = $"Error: Asset not found.";
+                return RedirectToAction("AssetBrowser");
+            }
+            asset.IssuedToUserId = null;
+            asset.StatusDate = DateTime.Now;
+            asset.AssetStatus = "InStorage";
+            _context.SaveChanges();
+
+            // Prevent duplicate form submissions on page refresh
+            if (ModelState.IsValid)
+            {
+                TempData["Success"] = $"Asset {AssetTag} successfully checked back in!";
+                return RedirectToAction("AssetBrowser", "Asset");
+            }
+            
+            return View();
+        }
     }
 }
