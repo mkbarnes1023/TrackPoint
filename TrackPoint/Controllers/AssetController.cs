@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net.NetworkInformation;
+using System.Security.Claims;
 using System.Security.Cryptography.Xml;
 using TrackPoint.Data;
 using TrackPoint.Models;
@@ -19,12 +20,15 @@ namespace TrackPoint.Controllers
          */
 
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
+
         private IEnumerable<Asset> assets => _context.Asset;
         private IEnumerable<Category> categories => _context.Category;
         private IEnumerable<Location> locations => _context.Location;
-        public AssetController(ApplicationDbContext context)
+        public AssetController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         public IActionResult AssetBrowser()
@@ -313,37 +317,30 @@ namespace TrackPoint.Controllers
          */
         // TODO: This is not a real transfer log since it's just sorting the assets by transfer date, it does not give a detailed history.
         // Create a transfer log model in the future to properly track asset transfers.
-        // TODO: Remove SampleAssets and replace with database calls
-        /*
+
 		public IActionResult TransferLog()
         {
-            var sorted = Asset.SampleAssets.OrderByDescending(a => a.TransferDate).ToList();
+            var sorted = _context.Asset.OrderByDescending(a => a.StatusDate).ToList();
             return View(sorted);
         }
-        */
 
         /**
          * Redirects to the Audit Trail view using the selected asset. In the future, this will be 
          * replaced with a more compact menu instead of a separate page just to view it.
          */
-        // TODO: Remove SampleAssets and replace with database calls
-        /*
 		public IActionResult AuditTrail(string AssetTag)
         {
-            var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
+            var asset = _context.Asset.FirstOrDefault(a => a.AssetTag == AssetTag);
             if (asset == null)
             {
                 return NotFound();
             }
             return View(asset);
         }
-        */
 
-        // TODO: Remove SampleAssets and replace with database calls
-        /*
 		public IActionResult AssetView(string AssetTag)
         {
-            var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
+            var asset = _context.Asset.FirstOrDefault(a => a.AssetTag == AssetTag);
             if (asset == null)
             {
                 return NotFound();
@@ -351,46 +348,44 @@ namespace TrackPoint.Controllers
 
             return View(asset);
         }
-        */
-
-        // TODO: Remove SampleAssets and replace with database calls
-        /*
-		public IActionResult checkOut(string AssetTag)
+		// TODO: Upgrade this to the new checkout process.
+        public IActionResult checkOut(string AssetTag)
         {
-            var asset = Asset.SampleAssets.FirstOrDefault(a => a.AssetTag == AssetTag);
+            var asset = _context.Asset.FirstOrDefault(a => a.AssetTag == AssetTag);
             if (asset == null)
             {
                 TempData["Failure"] = $"Error: Asset not found.";
-                return RedirectToAction("AllocateDemo");
+                return RedirectToAction("AssetBrowser");
             }
 
-            // Store previous issued to and transfer date
-            string previousIssuedTo = asset.IssuedTo ?? "Unassigned";
-            DateTime previousTransferDate = asset.TransferDate;
+            // Get the current user's Id
+            string userId = _userManager.GetUserId(User);
+            // alternatively: string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // Update asset information
-            asset.IssuedTo = @User.Identity?.Name;
-            asset.TransferDate = DateTime.Now;
-            asset.Status = Enums.AssetStatus.InUse;
-
-            // Update the asset's audit trail
-            asset.AuditTrail.Add(new AuditTrail
-            {
-                AssetTag = asset.AssetTag,
-                IssuedTo = previousIssuedTo,
-                TransferDate = previousTransferDate,
-                //Asset = asset
-            });
+            asset.IssuedToUserId = userId;
+            asset.StatusDate = DateTime.Now;
+            asset.AssetStatus = "InUse";
             
+            // Update the asset's audit trail
+            // TODO: Properly re-implement this functionality.
+            //asset.AuditTrail.Add(new AuditTrail
+            //{
+            //    AssetTag = asset.AssetTag,
+            //    IssuedTo = previousIssuedTo,
+            //    TransferDate = previousTransferDate,
+            //    //Asset = asset
+            //});
+            
+            _context.SaveChanges();
+
             // Prevent duplicate form submissions on page refresh
             if (ModelState.IsValid)
             {
-                TempData["Success"] = $"Asset {AssetTag} successfully allocated to {asset.IssuedTo}!";
+                TempData["Success"] = $"Asset {AssetTag} successfully allocated to {User.Identity?.Name}!";
                 return RedirectToAction("AssetBrowser", "Asset");
             }
             
-            return View(); // TODO: This leads to nowhere, redirect back to form with error
+            return View(); // TODO: This leads to nowhere, redirect back to form with error or remove this if we will never reach it
         }
-        */
     }
 }

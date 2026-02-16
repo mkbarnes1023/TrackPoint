@@ -1,4 +1,6 @@
 ﻿@model TrackPoint.Views.Asset.AssetBrowserViewModel;
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager // TODO: Needed to get username of borrower, consider replacing this later so injection is not needed.
 
 @{
     ViewData["Title"] = "Browse Available Assets";
@@ -24,15 +26,26 @@
             <th>Location</th>
             <th>Issued To</th>
             <th>Status</th>
-            <th>Notes</th>
-            <th>Audit Trail</th>
-            <th>Actions</th>
+            <th>Notes</th> <!-- TODO: This can become too long, either truncate, make it openable, or remove this. -->
+            <th>Audit Trail</th> <!-- TODO: Move the audit trail to Actions instead of its own tab, it makes no sense to be able to sort by Audit Trail in the DataTable. -->
+            <th>Actions</th> <!-- TODO: This is also sortable for no particular reason, figure out how to prevent sorting in DataTables. -->
         </tr>
     </thead>
     <tbody>
         @foreach (var asset in Model._assets)
         {
-            var issuedToName = asset.IssuedToUser?.UserName ?? "—";
+            // Model.IssuedToUser.UserName currently does not work, so look up their username by their Id instead.
+            var issuedToName = "—";
+            if (!string.IsNullOrWhiteSpace(asset.IssuedToUser?.UserName))
+            {
+                issuedToName = asset.IssuedToUser.UserName;
+            }
+            else if (!string.IsNullOrWhiteSpace(asset.IssuedToUserId))
+            {
+                // Lookup user by Id in dbo.AspNetUsers
+                var user = UserManager.FindByIdAsync(asset.IssuedToUserId).GetAwaiter().GetResult();
+                issuedToName = user?.UserName ?? "Unassigned";
+            }
             var categoryName = Model._categories?.FirstOrDefault(c => c.CategoryId == asset.CategoryId)?.Name ?? "-";
             var locationName = Model._locations?.FirstOrDefault(c => c.LocationId == asset.LocationId)?.Name ?? "-";
             var statusRaw = (asset.AssetStatus ?? "").ToString().Trim();
