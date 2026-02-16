@@ -1,4 +1,6 @@
 ﻿@model TrackPoint.Models.Asset
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager // TODO: Needed to get username of borrower, consider replacing this later so injection is not needed.
 
 @{
     ViewData["Title"] = "Asset Details";
@@ -27,7 +29,19 @@
         statusColorClass = "";
     }
 
-    var issuedToName = Model.IssuedToUser?.UserName ?? "Unassigned";
+    // Model.IssuedToUser.UserName currently does not work, so look up their username by their Id instead.
+    var issuedToName = "Unassigned";
+    if (!string.IsNullOrWhiteSpace(Model.IssuedToUser?.UserName))
+    {
+        issuedToName = Model.IssuedToUser.UserName;
+    }
+    else if (!string.IsNullOrWhiteSpace(Model.IssuedToUserId))
+    {
+        // Lookup user by Id in dbo.AspNetUsers
+        var user = UserManager.FindByIdAsync(Model.IssuedToUserId).GetAwaiter().GetResult();
+        issuedToName = user?.UserName ?? "Unassigned";
+    }
+
     var categoryName = Model.Category?.Name ?? (Model.CategoryId > 0 ? $"ID {Model.CategoryId}" : "—");
     var locationName = Model.Location?.Name ?? (Model.LocationId > 0 ? $"ID {Model.LocationId}" : "—");
     var modalId = $"confirmModal-{Model.AssetId}";
