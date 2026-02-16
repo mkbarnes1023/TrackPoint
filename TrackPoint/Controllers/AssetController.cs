@@ -92,7 +92,7 @@ namespace TrackPoint.Controllers
             _context.SaveChanges();
 
             // Log the Location to the console for debugging purposes
-            Console.WriteLine($"New Locatoin Added: {l.Name}, {l.Abbreviation}");
+            Console.WriteLine($"New Location Added: {l.Name}, {l.Abbreviation}");
             return View("../Home/Index");
         }
         /*
@@ -199,7 +199,14 @@ namespace TrackPoint.Controllers
                 return RedirectToAction("AssetAdd", asset);
             }
 
-            // Assign the Asset a asset tag based on the Category's abbreviation, Location abbreviation and a unique number, padded to 4 digits with leading zeros.
+            // Check if IssuedToUser is valid if not null (TODO: Currently broken.)
+            if (asset.IssuedToUser != null && !_userManager.Users.Any(u => u.Id == asset.IssuedToUserId))
+            {
+                TempData["InputError"] = $"Error: User '{asset.IssuedToUser}' not found.";
+                return RedirectToAction("AssetAdd", asset);
+            }
+
+            // Assign the Asset an asset tag based on the Category's abbreviation, Location abbreviation and a unique number, padded to 4 digits with leading zeros.
             asset.AssetTag = $"{_context.Category.Find(asset.CategoryId)?.Abbreviation}-{_context.Location.Find(asset.LocationId)?.Abbreviation}-{(_context.Asset.Count(a => a.CategoryId == asset.CategoryId && a.LocationId == asset.LocationId) + 1).ToString().PadLeft(4, '0')}";
 
 

@@ -85,7 +85,7 @@
                     <a asp-controller="Asset" asp-action="AuditTrail" asp-route-assetTag="@asset.AssetTag" class="btn btn-primary">View Audit Trail</a>
                 </td>
                 <td>
-                    @* Borrow flow: show button only when asset is available/in storage/transfered
+                    @* Borrow flow: Show button only when asset is available/in storage/transfered
                        Temporary change: Show the "Return" button if user currently borrows the asset.
                        TODO: Discuss if we want to keep this or relegate it to only the personal dashboard.
                     *@
@@ -115,7 +115,7 @@
                     }
                     else if (statusKey == "inuse" && asset.IssuedToUserId == UserManager.GetUserId(User))
                     {
-                        <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#@modalId">
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#@modalId">
                             Return
                         </button>
                          <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@($"{modalId}-label")" aria-hidden="true">
