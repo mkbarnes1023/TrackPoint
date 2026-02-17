@@ -5,57 +5,229 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - TrackPoint</title>
     <script type="importmap"></script>
+
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TrackPoint.styles.css" asp-append-version="true" />
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark border-bottom box-shadow mb-3 lsnfHeader">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"><img class="img-fluid" style="height: 2em !important;" src="https://www.lsnf.org/wp-content/themes/LSNFtheme/assets/images/Logo.png" /></a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
-                        aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
 
-                <div id="mainNav" class="navbar-collapse collapse d-sm-inline-flex">
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Asset" asp-action="AssetBrowser">Browse</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-page="/Account/Settings">Settings</a>
-                        </li>
-                    </ul>
-
-                    <partial name="_LoginPartial" />
-                </div>
-            </div>
-        </nav>
-    </header>
-
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - TrackPoint - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-
-    <!-- DataTables core -->
+    <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Sidebar fixed layout */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            height: 100vh;
+            overflow-y: auto;
+            background: #064973;
+            padding: 20px 16px;
+            border-right: 1px solid #e2e8f0;
+            z-index: 1000;
+        }
+
+        /* Push main content to the right of the fixed sidebar */
+        .main-with-sidebar {
+            margin-left: 280px;
+            min-height: 100vh;
+        }
+
+        /* Small screen behavior: let the sidebar stack above content */
+        /* media (max-width: 767.98px) {
+            .sidebar {
+                position: static;
+                width: 100%;
+                height: auto;
+                border-right: none;
+            }
+            .main-with-sidebar {
+                margin-left: 0;
+            }
+        } */
+    </style>
+</head>
+
+
+<body>
+    
+
+        <!-- ===== Sidebar ===== -->
+        <nav class="d-flex flex-column sidebar">
+
+            <!-- Top Section -->
+            <div>
+
+                <!-- Logo (Reduced spacing) -->
+                <a class="navbar-brand d-block"
+                   style="margin-bottom:18px;"
+                   asp-controller="Home" asp-action="Index">
+                    <img class="img-fluid"
+                         style="height:50px;"
+                         src="https://www.lsnf.org/wp-content/themes/LSNFtheme/assets/images/Logo.png" />
+                </a>
+
+                <!-- Navigation -->
+                <ul class="navbar-nav flex-column w-100"
+                    style="gap:22px; font-family:Inter, sans-serif;">
+
+                    <!-- DASHBOARD -->
+                    <li class="nav-item">
+                        <span style="font-size:11px;
+                                 text-transform:uppercase;
+                                 letter-spacing:.08em;
+                                 color:#94a3b8;
+                                 margin-bottom:6px;
+                                 display:block;">
+                            Dashboard
+                        </span>
+
+                        <ul class="nav flex-column" style="gap:6px;">
+                            <li>
+                                <a class="nav-link text-light"
+                                   style="border-radius:8px;
+                                      padding:8px 12px;
+                                      font-weight:500;
+                                      color:#334155;"
+                                   asp-controller="Dashboard"
+                                   asp-action="Index">
+                                    Personal
+                                </a>
+                            </li>
+                            <li>
+                                <a class="nav-link text-light"
+                                   style="border-radius:8px;
+                                      padding:8px 12px;
+                                      font-weight:500;
+                                      color:#334155;"
+                                   asp-controller="Dashboard"
+                                   asp-action="adminDashboard">
+                                    Admin
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- ASSETS -->
+                    <li class="nav-item">
+                        <span style="font-size:11px;
+                                 text-transform:uppercase;
+                                 letter-spacing:.08em;
+                                 color:#94a3b8;
+                                 margin-bottom:6px;
+                                 display:block;">
+                
+                            Assets
+                        </span>
+
+                        <ul class="nav flex-column" style="gap:6px;">
+                            <li>
+                                <a class="nav-link text-light" 
+                                style="border-radius:8px;
+                                    padding:8px 12px;
+                                    font-weight:500;
+                                    color:#334155;"
+                                   asp-controller="Asset"
+                                   asp-action="AssetBrowser">                                
+                                Browse Assets</a></li>
+                            <li>
+                                <a class="nav-link text-light"
+                                style="border-radius:8px;
+                                padding:8px 12px;
+                                font-weight:500;
+                                color:#334155;"
+                                asp-controller="Asset"
+                                asp-action="AssetAdd">                                                              
+                                Register Asset</a></li>
+                            <li>
+                                <a class="nav-link text-light"
+                                style="border-radius:8px;
+                                    padding:8px 12px;
+                                    font-weight:500;
+                                    color:#334155;"
+                                asp-controller="Asset"
+                                asp-action="TransferLog">
+                                    
+                                Transfer Log</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- MANAGEMENT -->
+                    <li class="nav-item text-light">
+                        <span style="font-size:11px;
+                                 text-transform:uppercase;
+                                 letter-spacing:.08em;
+                                 color:#94a3b8;
+                                 margin-bottom:6px;
+                                 display:block;">
+                            Management
+                        </span>
+
+                        <ul class="nav flex-column" style="gap:6px;">
+                            <li><a class="nav-link text-light" style="border-radius:8px;padding:8px 12px;font-weight:500;color:#334155;" asp-controller="Admin" asp-action="AllocateDemo">Admin Allocation</a></li>
+                            <li><a class="nav-link text-light" style="border-radius:8px;padding:8px 12px;font-weight:500;color:#334155;" asp-controller="Asset" asp-action="CategoryAdd">Register Category</a></li>
+                            <li><a class="nav-link text-light" style="border-radius:8px;padding:8px 12px;font-weight:500;color:#334155;" asp-controller="Asset" asp-action="LocationAdd">Register Location</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- SETTINGS -->
+                    @* <li>
+                        <a class="nav-link"
+                           style="border-radius:8px;
+                              padding:8px 12px;
+                              font-weight:500;
+                              color:#334155;">
+                            Settings
+                        </a>
+                    </li> *@
+
+                </ul>
+            </div>
+
+            <!-- Bottom Section (Perfectly aligned now) -->
+            <div style="margin-top:auto; padding-top:20px; width:100%;">
+                <partial name="_LoginPartial" />
+            </div>
+
+        </nav>
+
+        <!-- ===== Main Content ===== -->
+        <div class="main-with-sidebar d-flex flex-column">
+
+            <div class="container-fluid">
+                <main role="main" style="padding:24px;">
+                    @RenderBody()
+                </main>
+            </div>
+
+            <footer style="border-top:1px solid #e2e8f0;
+                       padding:16px 24px;
+                       font-size:14px;
+                       color:#64748b;">
+                © 2025 - TrackPoint -
+                <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+            </footer>
+
+        </div>
+    
+
+
+    <!-- ===== Scripts ===== -->
+    <!-- jQuery -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+
+    <!-- Site JS -->
+    <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
