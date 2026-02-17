@@ -1,0 +1,55 @@
+﻿@model TrackPoint.Models.Category;
+@{
+}
+<h1>Register a Category</h1>
+@if (TempData["InputError"] != null)
+{
+	<div class="alert alert-danger" role="alert">
+		@TempData["InputError"]
+	</div>
+}
+<form>
+	<input type="hidden" asp-for="CategoryId">
+	<div>
+		<label asp-for="Name">Name</label>
+		<input type="text" asp-for="Name" value="@Model.Name">
+	</div>
+
+	<div>
+		<label asp-for="Abbreviation">Abbreviation</label>
+		<input type="text" asp-for="Abbreviation" value="@Model.Abbreviation">
+	</div>
+
+	<div>
+		<textarea asp-for="Description" placeholder="Description">@Model.Description</textarea>
+	</div>
+
+	<div>
+		<label asp-for="RequiresApproval">This category requires approval to check out</label>
+		@if (Model.RequiresApproval)
+		{
+			<input type="checkbox" asp-for="RequiresApproval" checked>
+		} 
+		else 
+		{
+			<input type="checkbox" asp-for="RequiresApproval">
+		}
+		
+	</div>
+
+	<div>
+		<label asp-for="DefaultLoanPeriodDays">Default loan period (In days)</label>
+		<input type="number" asp-for="DefaultLoanPeriodDays" value="@Model.DefaultLoanPeriodDays">
+	</div>
+
+	<div>
+		<label asp-for="ContainsConsumables">This category contains consumables that are not individually tracked</label>
+			@if (Model.ContainsConsumables) {
+				<input type="checkbox" asp-for="ContainsConsumables" checked>
+			} else {
+			<input type="checkbox" asp-for="ContainsConsumables">
+			}
+		</div>
+
+	<input type="submit" value="Submit" asp-action="EditCategory">
+</form>

@@ -13,7 +13,7 @@
     {
         string modalId = $"confirmModal-{l.LocationId}"; ;
         <li class="list-group-item">
-            @l.Name (@l.Abbreviation) <a class="btn btn-warning">Edit</a> <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#@modalId">Delete</a>
+            @l.Name (@l.Abbreviation) <a class="btn btn-warning" asp-controller="Asset" asp-action="LocationEdit" asp-route-locationId="@l.LocationId">Edit</a> <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#@modalId">Delete</a>
             <!--Confirmation modal adapted from Matthew's in the AssetBrowser-->
             <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@($"{modalId}-label")" aria-hidden="true">
                 <div class="modal-dialog">
@@ -33,7 +33,6 @@
                 </div>
             </div>
         </li>
-        
     }
     </ul>
 </div>
