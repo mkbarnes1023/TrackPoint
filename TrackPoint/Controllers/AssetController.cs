@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AspNetCoreGeneratedDocument;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -94,6 +95,11 @@ namespace TrackPoint.Controllers
             // Log the Location to the console for debugging purposes
             Console.WriteLine($"New Location Added: {l.Name}, {l.Abbreviation}");
             return View("../Home/Index");
+        }
+        public IActionResult ManageLocations()
+        {
+            IEnumerable<Location> locations = _context.Location.ToList();
+            return View(locations);
         }
         /*
 		 *  Return the view for the Category Add Form

@@ -1,0 +1,39 @@
+﻿@{
+}
+@model IEnumerable<TrackPoint.Models.Location>
+
+<h1>Manage Locations</h1>
+
+<div class="overflow-auto">
+    @*
+        Display each location in a list with options
+    *@
+    <ul class="list-group">
+    @foreach(Location l in Model)
+    {
+        string modalId = $"confirmModal-{l.LocationId}"; ;
+        <li class="list-group-item">
+            @l.Name (@l.Abbreviation) <a class="btn btn-warning">Edit</a> <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#@modalId">Delete</a>
+            <!--Confirmation modal adapted from Matthew's in the AssetBrowser-->
+            <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@($"{modalId}-label")" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="@($"{modalId}-label")">Delete Location: @l.Name (@l.Abbreviation)</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete this location? <strong>All existing assets with this location will be reassigned to have no location.</strong>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <a asp-controller="Asset" asp-action="DeleteLocation" asp-route-locationId="@l.LocationId" class="btn btn-danger">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </li>
+        
+    }
+    </ul>
+</div>
