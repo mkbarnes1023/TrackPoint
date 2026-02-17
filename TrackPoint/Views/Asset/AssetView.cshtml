@@ -53,6 +53,8 @@
 
     <div class="container">
         <div class="d-flex justify-content-end mb-3">
+        @if (issuedToName == User.Identity.Name)
+        {
         <button type="button" class="btn btn-warning me-2 btn-lg" data-bs-toggle="modal" data-bs-target="#@maintenanceModalId">Report</button>
         <!-- Report for Maintenance Modal -->
         <!-- TODO: Input validation, disable submit button until all fields are filled-->
@@ -86,6 +88,11 @@
                 </div>
             </div>
         </div>
+        }
+        else
+        {
+            <button type="button" class="btn btn-secondary me-2 btn-lg" disabled title="Cannot report because you are not borrowing this asset.">Report</button>
+        }
 
         <!-- Barcode Modal -->
         <button type="button" class="btn btn-secondary btn-lg" data-bs-toggle="modal" data-bs-target="#@barcodeModalId">Generate Barcode</button>
@@ -146,7 +153,7 @@
                     }
                     else
                     {
-                        <button type="button" class="btn btn-secondary btn-lg" disabled title="Cannot borrow.">Borrow</button>
+                        <button type="button" class="btn btn-secondary btn-lg" disabled title="Cannot borrow this asset.">Borrow</button>
                     }
                     <a asp-controller="Asset" asp-action="AuditTrail" asp-route-assetTag="@Model.AssetTag" class="btn btn-primary btn-lg">View Audit Trail</a>
                 </div>
