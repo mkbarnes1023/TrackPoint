@@ -6,7 +6,7 @@
 
 <div class="overflow-auto">
     @*
-        Display each location in a list with options
+        Display each category in a list with options
     *@
     <ul class="list-group">
         @foreach (Category c in Model)
@@ -27,7 +27,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <a asp-controller="Asset" asp-action="DeleteCategory" asp-route-locationId="@c.CategoryId" class="btn btn-danger">Delete</a>
+                                <a asp-controller="Asset" asp-action="DeleteCategory" asp-route-categoryId="@c.CategoryId" class="btn btn-danger">Delete</a>
                             </div>
                         </div>
                     </div>

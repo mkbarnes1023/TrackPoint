@@ -1,13 +1,13 @@
 ﻿@model TrackPoint.Models.Category;
 @{
 }
-<h1>Register a Category</h1>
-@if (TempData["InputError"] != null)
+<h1>Editing a Category</h1>
+@if(TempData["InputError"] != null)
 {
 	<div class="alert alert-danger" role="alert">
 		@TempData["InputError"]
 	</div>
-}
+ }
 <form>
 	<input type="hidden" asp-for="CategoryId">
 	<div>
