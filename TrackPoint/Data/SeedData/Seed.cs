@@ -19,6 +19,17 @@ namespace TrackPoint.Data.SeedData
             {
                 var categories = new[]
                 {
+                    // Null category, assets are assigned this category when their current category is deleted
+                    new Category
+                    {
+                        CategoryId = 0,
+                        Name = "Unasigned",
+                        Abbreviation = "UN",
+                        RequiresApproval = true,
+                        DefaultLoanPeriodDays = 0,
+                        Description = "Needs a proper category",
+                        ContainsConsumables = false
+                    },
                     new Category
                     {
                         Name = "Laptop",
@@ -75,6 +86,8 @@ namespace TrackPoint.Data.SeedData
             {
                 var locations = new[]
                 {
+                    // Null location, assets are assigned this locaton when their current location is deleted
+                    new Location { LocationId = 0, Name = "Unasigned", Abbreviation = "UN" },
                     new Location { Name = "Jacksonville", Abbreviation = "JAX" },
                     new Location { Name = "Tallahassee", Abbreviation = "TLH" },
                     new Location { Name = "Pensacola", Abbreviation = "PNS" },

@@ -61,6 +61,34 @@ namespace TrackPoint.Controllers
         }
 
         /*
+		 *  Try to delete a category
+		 */
+        public IActionResult DeleteLocation(int locationId)
+        {
+            // Check that the location specified corresponds to a real location
+            if (!_context.Location.Any(l => l.LocationId == locationId))
+            {
+                Console.WriteLine($"Couldn't Find location: {locationId}");
+                return RedirectToAction("ManageLocations");
+            }
+            // Set each asset in this location to a "null" location
+            IEnumerable<Asset> assets = _context.Asset.Where(l => l.LocationId == locationId);
+            foreach (Asset a in assets)
+            {
+                // Replace with null location's ID in the future. "Unasigned" is seeded with id 0 by default.
+                a.LocationId = 0;
+                _context.Update(a);
+            }
+
+            // Remove the category
+            Location l = _context.Location.Find(locationId);
+            _context.Location.Remove(l);
+            _context.SaveChanges();
+
+            return RedirectToAction("ManageLocations");
+        }
+
+        /*
         *  Add the new location to the database and redirect to the index
         */
         public IActionResult EditLocation(Location l)
@@ -245,11 +273,11 @@ namespace TrackPoint.Controllers
                 Console.WriteLine($"Couldn't Find category: {categoryId}");
                 return RedirectToAction("ManageCategories");
             }
-            // Set each asset in this category to a "Unsorted" category
+            // Set each asset in this category to a "null" category
             IEnumerable<Asset> assets = _context.Asset.Where(a => a.CategoryId == categoryId);
             foreach (Asset a in assets)
             {
-                // Replace with null category's ID in the future
+                // Replace with null category's ID. "Unasigned" is seeded as 0 by default
                 a.CategoryId = 0;
                 _context.Update(a);
             }
