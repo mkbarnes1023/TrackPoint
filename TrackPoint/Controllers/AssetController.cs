@@ -11,6 +11,7 @@ using System.Threading;
 using TrackPoint.Data;
 using TrackPoint.Models;
 using TrackPoint.Views.Asset;
+using QRCoder;
 
 namespace TrackPoint.Controllers
 {
@@ -480,6 +481,7 @@ namespace TrackPoint.Controllers
             return View(); // TODO: This leads to nowhere, redirect back to form with error or remove this if we will never reach it
         }
 
+        // Check In an Asset
         public IActionResult checkIn(string AssetTag)
         {
             var asset = _context.Asset.FirstOrDefault(a => a.AssetTag == AssetTag);
@@ -636,6 +638,48 @@ namespace TrackPoint.Controllers
             }
 
             return "";
+        }
+        // Generate QR Code for Asset
+        // TODO: Fix the URL and integrate this into the Check Out flow later
+        [HttpPost]
+        public IActionResult GenerateQRCode(string assetTag)
+        {
+            using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
+            {
+                QRCodeData qrCodeData = qrGenerator.CreateQrCode(assetTag, QRCodeGenerator.ECCLevel.Q);
+                using (QRCode qrCode = new QRCode(qrCodeData))
+                {
+                    using (var qrCodeImage = qrCode.GetGraphic(20))
+                    {
+                        using (var ms = new MemoryStream())
+                        {
+                            qrCodeImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png); // TODO: Test compatibility of this, CA1416 claims this won't work on non-Windows browsers
+                            var qrCodeBytes = ms.ToArray();
+                            return File(qrCodeBytes, "image/png", $"{assetTag}_QRCode.png");
+                        }
+                    }
+                }
+            }
+        }
+
+        // Report an Asset for Maintenance
+        public IActionResult ReportForMaintenance(string AssetTag)
+        {
+            var asset = _context.Asset.FirstOrDefault(a => a.AssetTag == AssetTag);
+            if (asset == null)
+            {
+                TempData["Failure"] = $"Error: Asset not found.";
+                return RedirectToAction("AssetBrowser");
+            }
+            // TODO: Check for errors in maintenance request
+            // TODO: Change asset status and send information to approvals queue
+            // Redirect user to Asset Browser/Dashboard on success
+            if (ModelState.IsValid)
+            {
+                TempData["Success"] = $"Asset {AssetTag} successfully reported for maintenance.";
+                return RedirectToAction("AssetBrowser", "Asset");
+            }
+            return View();
         }
     }
 }

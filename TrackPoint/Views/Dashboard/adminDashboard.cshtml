@@ -1,6 +1,7 @@
 ﻿@model TrackPoint.Models.DTOs.AdminDashboardViewModel
 @using System.Text.Json
 
+
 @{
     ViewData["Title"] = "Dashboard";
 }
@@ -209,24 +210,6 @@
             },
             options: {
                 responsive: true,
-                // plugins: {
-                //     legend: {
-                //         position: 'bottom',
-                //         labels: {
-                //             boxWidth: 12,
-                //             padding: 12
-                //         }
-                //     },
-                //     tooltip: {
-                //         callbacks: {
-                //             label: function(context) {
-                //                 const label = context.label || '';
-                //                 const value = context.raw || 0;
-                //                 return label + ': ' + value;
-                //             }
-                //         }
-                //     }
-                // }
             }
         });
     }

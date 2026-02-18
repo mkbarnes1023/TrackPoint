@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using TrackPoint.Configuration;
 using TrackPoint.Data;
 
@@ -38,7 +39,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     {
         var userManager = ctx.HttpContext.RequestServices.GetRequiredService<UserManager<IdentityUser>>();
         var config = ctx.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
-        var adminEmail = config["Seed:AdminEmail"];
+        var adminEmails = config.GetSection("Seed:AdminEmails").Get<string[]>();
 
         var user = await userManager.GetUserAsync(ctx.Principal);
         if (user is null)
@@ -47,10 +48,15 @@ builder.Services.ConfigureApplicationCookie(options =>
         }
 
         // Skip *legacy* single-admin logic; role seeding is handled separately now
-        if (!string.IsNullOrWhiteSpace(adminEmail) &&
-            string.Equals(user.Email, adminEmail, StringComparison.OrdinalIgnoreCase))
+        if (adminEmails != null && adminEmails.Length > 0)
         {
-            return;
+            foreach (var adminEmail in adminEmails)
+            {
+                if (string.Equals(user.Email, adminEmail, StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
+            }
         }
 
         // Ensure Borrower role for everyone else
