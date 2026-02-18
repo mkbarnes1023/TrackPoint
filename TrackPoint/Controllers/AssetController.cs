@@ -15,9 +15,9 @@ using TrackPoint.Views.Asset;
 namespace TrackPoint.Controllers
 {
     [Authorize(Roles = "Admin,Borrower")]
-	public class AssetController : Controller
-	{
-		/*
+    public class AssetController : Controller
+    {
+        /*
          *  Return the view for the Asset Browser with the sample data as the model
          */
 
@@ -93,44 +93,11 @@ namespace TrackPoint.Controllers
         */
         public IActionResult EditLocation(Location l)
         {
-            // Perform input validation. Redirect back to the form with an error message if the input is invalid.
-            // Copilot:
-            // Empty or whitespace name/abbreviation
-            if (string.IsNullOrWhiteSpace(l.Name) || string.IsNullOrWhiteSpace(l.Abbreviation))
+            // Validate the category. If the string returned isnt empty, return a error message back to the view.
+            string ErrorString = ValidateLocation(l);
+            if (!ErrorString.Equals(""))
             {
-                TempData["InputError"] = "Error: Name and Abbreviation cannot be empty.";
-                return View("LocationEdit", l);
-            }
-            // Abbreviation too long
-            if (l.Abbreviation.Length > 10)
-            {
-                TempData["InputError"] = "Error: Abbreviation cannot be longer than 10 characters.";
-                return View("LocationEdit", l);
-            }
-            // Location uses reserved name
-            if (l.Name.Equals("Unassigned"))
-            {
-                TempData["InputError"] = "Error: The name \"Unassigned\" is reserved. Please choose a different name.";
-                return View("LocationEdit", l);
-            }
-            // Location uses reserved abbreviation
-            if (l.Abbreviation.ToUpper().Equals("UN"))
-            {
-                TempData["InputError"] = "Error: The abbreviation \"UN\" is reserved. Please choose a different abbreviation.";
-                return View("LocationEdit", l);
-            }
-            // Location with same name already exists
-            if (_context.Location.Any(loc => loc.Name == l.Name && loc.LocationId != l.LocationId))
-            {
-                Location existingLocation = _context.Location.First(loc => loc.Name == l.Name);
-                TempData["InputError"] = "Error: A location with this name already exists: " + existingLocation.Name + " (" + existingLocation.Abbreviation + ")";
-                return View("LocationEdit", l);
-            }
-            // Location with same abbreviation already exists
-            if (_context.Location.Any(loc => loc.Abbreviation == l.Abbreviation.ToUpper() && loc.LocationId != l.LocationId))
-            {
-                Location existingLocation = _context.Location.First(loc => loc.Name == l.Name);
-                TempData["InputError"] = "Error: A location with this abbreviation already exists: " + existingLocation.Name + " (" + existingLocation.Abbreviation + ")";
+                TempData["InputError"] = ErrorString;
                 return View("LocationEdit", l);
             }
 
@@ -151,44 +118,11 @@ namespace TrackPoint.Controllers
          */
         public IActionResult NewLocation(Location l)
         {
-            // Perform input validation. Redirect back to the form with an error message if the input is invalid.
-            // Copilot:
-            // Empty or whitespace name/abbreviation
-            if (string.IsNullOrWhiteSpace(l.Name) || string.IsNullOrWhiteSpace(l.Abbreviation))
+            // Validate the category. If the string returned isnt empty, return a error message back to the view.
+            string ErrorString = ValidateLocation(l);
+            if (!ErrorString.Equals(""))
             {
-                TempData["InputError"] = "Error: Name and Abbreviation cannot be empty.";
-                return View("LocationAdd", l);
-            }
-            // Abbreviation too long
-            if (l.Abbreviation.Length > 10)
-            {
-                TempData["InputError"] = "Error: Abbreviation cannot be longer than 10 characters.";
-                return View("LocationAdd", l);
-            }
-            // Location uses reserved name
-            if (l.Name.Equals("Unassigned"))
-            {
-                TempData["InputError"] = "Error: The name \"Unassigned\" is reserved. Please choose a different name.";
-                return View("LocationAdd", l);
-            }
-            // Location uses reserved abbreviation
-            if (l.Abbreviation.ToUpper().Equals("UN"))
-            {
-                TempData["InputError"] = "Error: The abbreviation \"UN\" is reserved. Please choose a different abbreviation.";
-                return View("LocationAdd", l);
-            }
-            // Location with same name already exists
-            if (_context.Location.Any(loc => loc.Name == l.Name))
-            {
-                Location existingLocation = _context.Location.First(loc => loc.Name == l.Name);
-                TempData["InputError"] = "Error: A location with this name already exists: " + existingLocation.Name + " (" + existingLocation.Abbreviation + ")";
-                return View("LocationAdd", l);
-            }
-            // Location with same abbreviation already exists
-            if (_context.Location.Any(loc => loc.Abbreviation == l.Abbreviation.ToUpper()))
-            {
-                Location existingLocation = _context.Location.First(loc => loc.Name == l.Name);
-                TempData["InputError"] = "Error: A location with this abbreviation already exists: " + existingLocation.Name + " (" + existingLocation.Abbreviation + ")";
+                TempData["InputError"] = ErrorString;
                 return View("LocationAdd", l);
             }
 
@@ -234,56 +168,11 @@ namespace TrackPoint.Controllers
          */
         public IActionResult EditCategroy(Category c)
         {
-            // Perform input validation. Redirect back to the form with an error message if the input is invalid.
-            // Copilot:
-            // Empty or whitespace name/abbreviation
-            if (string.IsNullOrWhiteSpace(c.Name) || string.IsNullOrWhiteSpace(c.Abbreviation))
+            // Validate the category. If the string returned isnt empty, return a error message back to the view.
+            string ErrorString = ValidateCategory(c);
+            if (!ErrorString.Equals(""))
             {
-                TempData["InputError"] = "Error: Name and Abbreviation cannot be empty.";
-                return View("CategoryEdit", c);
-            }
-            // Abbreviation too long
-            if (c.Abbreviation.Length > 10)
-            {
-                TempData["InputError"] = "Error: Abbreviation cannot be longer than 10 characters.";
-                return View("CategoryEdit", c);
-            }
-            // Abbreviation contains whitespace
-            if (c.Abbreviation.Any(char.IsWhiteSpace))
-            {
-                TempData["InputError"] = "Error: Abbreviation cannot contain whitespace.";
-                return View("CategoryEdit", c);
-            }
-            // Category uses reserved name
-            if (c.Name.Equals("Unassigned"))
-            {
-                TempData["InputError"] = "Error: The name \"Unassigned\" is reserved. Please choose a different name.";
-                return View("CategoryEdit", c);
-            }
-            // Category uses reserved abbreviation
-            if (c.Abbreviation.ToUpper().Equals("UN"))
-            {
-                TempData["InputError"] = "Error: The abbreviation \"UN\" is reserved. Please choose a different abbreviation.";
-                return View("CategoryEdit", c);
-            }
-            // Category with same name already exists
-            if (_context.Category.Any(cat => cat.Name == c.Name && cat.CategoryId != c.CategoryId))
-            {
-                Category existingCategory = _context.Category.First(cat => cat.Name == c.Name);
-                TempData["InputError"] = "Error: A category with this name already exists: " + existingCategory.Name + " (" + existingCategory.Abbreviation + ")";
-                return View("CategoryEdit", c);
-            }
-            // Category with same abbreviation already exists
-            if (_context.Category.Any(cat => cat.Abbreviation == c.Abbreviation.ToUpper()))
-            {
-                Category existingCategory = _context.Category.First(cat => cat.Name == c.Name && cat.CategoryId != c.CategoryId);
-                TempData["InputError"] = "Error: A category with this abbreviation already exists: " + existingCategory.Name + " (" + existingCategory.Abbreviation + ")";
-                return View("CategoryEdit", c);
-            }
-            // Negative default loan period
-            if (c.DefaultLoanPeriodDays < 0)
-            {
-                TempData["InputError"] = "Error: Default Loan Period cannot be negative.";
+                TempData["InputError"] = ErrorString;
                 return View("CategoryEdit", c);
             }
 
@@ -304,7 +193,7 @@ namespace TrackPoint.Controllers
         public IActionResult DeleteCategory(int categoryId)
         {
             // Check that the category specified corresponds to a real category
-            if(!_context.Category.Any(c => c.CategoryId == categoryId))
+            if (!_context.Category.Any(c => c.CategoryId == categoryId))
             {
                 Console.WriteLine($"Couldn't Find category: {categoryId}");
                 return RedirectToAction("ManageCategories");
@@ -317,7 +206,7 @@ namespace TrackPoint.Controllers
                 a.CategoryId = 1;
                 _context.Update(a);
             }
-            
+
             // Remove the category
             Category c = _context.Category.Find(categoryId);
             _context.Category.Remove(c);
@@ -345,60 +234,15 @@ namespace TrackPoint.Controllers
 	    *  Add the new category to the database and redirect to the index
 	    */
         public IActionResult NewCategory(Category c)
-	    {
-            // Perform input validation. Redirect back to the form with an error message if the input is invalid.
-            // Copilot:
-            // Empty or whitespace name/abbreviation
-            if (string.IsNullOrWhiteSpace(c.Name) || string.IsNullOrWhiteSpace(c.Abbreviation))
+        {
+            // Validate the category. If the string returned isnt empty, return a error message back to the view.
+            string ErrorString = ValidateCategory(c);
+            if (!ErrorString.Equals(""))
             {
-                TempData["InputError"] = "Error: Name and Abbreviation cannot be empty.";
+                TempData["InputError"] = ErrorString;
                 return View("CategoryAdd", c);
             }
-            // Abbreviation too long
-            if (c.Abbreviation.Length > 10)
-            {
-                TempData["InputError"] = "Error: Abbreviation cannot be longer than 10 characters.";
-                return View("CategoryAdd", c);
-            }
-            // Abbreviation contains whitespace
-            if (c.Abbreviation.Any(char.IsWhiteSpace))
-            {
-                TempData["InputError"] = "Error: Abbreviation cannot contain whitespace.";
-                return View("CategoryAdd", c);
-            }
-            // Category uses reserved name
-            if (c.Name.Equals("Unassigned"))
-            {
-                TempData["InputError"] = "Error: The name \"Unassigned\" is reserved. Please choose a different name.";
-                return View("CategoryAdd", c);
-            }
-            // Category uses reserved abbreviation
-            if (c.Abbreviation.ToUpper().Equals("UN"))
-            {
-                TempData["InputError"] = "Error: The abbreviation \"UN\" is reserved. Please choose a different abbreviation.";
-                return View("CategoryAdd", c);
-            }
-            // Category with same name already exists
-            if (_context.Category.Any(cat => cat.Name == c.Name))
-            {
-                Category existingCategory = _context.Category.First(cat => cat.Name == c.Name);
-                TempData["InputError"] = "Error: A category with this name already exists: " + existingCategory.Name + " (" + existingCategory.Abbreviation + ")";
-                return View("CategoryAdd", c);
-            }
-            // Category with same abbreviation already exists
-            if (_context.Category.Any(cat => cat.Abbreviation == c.Abbreviation.ToUpper()))
-            {
-                Category existingCategory = _context.Category.First(cat => cat.Name == c.Name);
-                TempData["InputError"] = "Error: A category with this abbreviation already exists: " + existingCategory.Name + " (" + existingCategory.Abbreviation + ")";
-                return View("CategoryAdd", c);
-            }
-            // Negative default loan period
-            if (c.DefaultLoanPeriodDays < 0)
-            {
-                TempData["InputError"] = "Error: Default Loan Period cannot be negative.";
-                return View("CategoryAdd", c);
-            }
-
+            
             // Prepare the data for entry into the database:
             // Make sure the Abbreviation is captialized
             c.Abbreviation = c.Abbreviation.ToUpper();
@@ -413,33 +257,13 @@ namespace TrackPoint.Controllers
         /* 
 		 *  Add the new asset to the database and redirect to the Asset Browser
 		 */
-		public IActionResult NewAsset(Asset asset)
-		{
-            // Perform input validation. Redirect back to the form with an error message if the input is invalid.
-            // Copilot:
-            // Empty or whitespace make/model
-            if (string.IsNullOrWhiteSpace(asset.Make) || string.IsNullOrWhiteSpace(asset.Model))
+        public IActionResult NewAsset(Asset asset)
+        {
+            // Validate the asset. If the string returned isnt empty, return a error message back to the view.
+            string ErrorString = ValidateAsset(asset);
+            if (!ErrorString.Equals(""))
             {
-                TempData["InputError"] = "Error: Make and Model cannot be empty.";
-                return RedirectToAction("AssetAdd", asset);
-            }
-            // Category is empty or invalid
-            if (!_context.Category.Any(c => c.CategoryId == asset.CategoryId))
-            {
-                TempData["InputError"] = "Error: Invalid category selected.";
-                return RedirectToAction("AssetAdd", asset);
-            }
-            // Location is empty or invalid
-            if (!_context.Location.Any(l => l.LocationId == asset.LocationId))
-            {
-                TempData["InputError"] = "Error: Invalid location selected.";
-                return RedirectToAction("AssetAdd", asset);
-            }
-
-            // Check if IssuedToUser is valid if not null (TODO: Currently broken.)
-            if (asset.IssuedToUser != null && !_userManager.Users.Any(u => u.Id == asset.IssuedToUserId))
-            {
-                TempData["InputError"] = $"Error: User '{asset.IssuedToUser}' not found.";
+                TempData["InputError"] = ErrorString;
                 return RedirectToAction("AssetAdd", asset);
             }
 
@@ -462,7 +286,7 @@ namespace TrackPoint.Controllers
             model._categories = categories.ToList();
             model._locations = locations.ToList();
             return View("AssetBrowser", model);
-		}
+        }
 
         /**
          * Delete the asset from the database and redirect to the Asset Browser
@@ -471,33 +295,33 @@ namespace TrackPoint.Controllers
          * rather than for when they are done with an asset. Assets they are finished with should
          * have their status changed to "Retired", to preserve their history in the logs.
          */
-		public IActionResult DeleteAsset(string AssetTag)
-		{
+        public IActionResult DeleteAsset(string AssetTag)
+        {
             Asset asset = _context.Asset.First(a => a.AssetTag == AssetTag);
 
             _context.Asset.Remove(asset);
             _context.SaveChanges();
 
-			// Log deleted asset
-			Console.WriteLine($"Asset Deleted: {AssetTag}");
+            // Log deleted asset
+            Console.WriteLine($"Asset Deleted: {AssetTag}");
             // Pack the information for the AssetBrowser
             AssetBrowserViewModel model = new AssetBrowserViewModel();
             model._assets = assets.ToList();
             model._categories = categories.ToList();
             model._locations = locations.ToList();
             return View("AssetBrowser", model);
-		}
+        }
 
         /**
          * Return the view for editing assets with the selected asset passed as the model
          */
-		public IActionResult AssetEdit(string AssetTag)
+        public IActionResult AssetEdit(string AssetTag)
         {
             Asset asset = _context.Asset.First(a => a.AssetTag == AssetTag);
-			if (asset == null)
-			{
-				return NotFound();
-			}
+            if (asset == null)
+            {
+                return NotFound();
+            }
             AssetAddViewModel model = new AssetAddViewModel();
             model._categories = categories.ToList();
             model._locations = locations.ToList();
@@ -521,27 +345,15 @@ namespace TrackPoint.Controllers
          */
 
         public IActionResult UpdateAsset(Asset asset)
-		{
-            // Perform input validation. Redirect back to the form with an error message if the input is invalid.
-            // Copilot:
-            // Empty or whitespace make/model
-            if (string.IsNullOrWhiteSpace(asset.Make) || string.IsNullOrWhiteSpace(asset.Model))
+        {
+            // Validate the asset. If the string returned isnt empty, return a error message back to the view.
+            string ErrorString = ValidateAsset(asset);
+            if (!ErrorString.Equals(""))
             {
-                TempData["InputError"] = "Error: Make and Model cannot be empty.";
+                TempData["InputError"] = ErrorString;
                 return RedirectToAction("AssetEditFromModel", asset);
             }
-            // Category is empty or invalid
-            if (!_context.Category.Any(c => c.CategoryId == asset.CategoryId))
-            {
-                TempData["InputError"] = "Error: Invalid category selected.";
-                return RedirectToAction("AssetEditFromModel", asset);
-            }
-            // Location is empty or invalid
-            if (!_context.Location.Any(l => l.LocationId == asset.LocationId))
-            {
-                TempData["InputError"] = "Error: Invalid location selected.";
-                return RedirectToAction("AssetEditFromModel", asset);
-            }
+
             // Update the asset in the database
             _context.Asset.Update(asset);
             _context.SaveChanges();
@@ -554,7 +366,7 @@ namespace TrackPoint.Controllers
             model._categories = categories.ToList();
             model._locations = locations.ToList();
             return View("AssetBrowser", model);
-		}
+        }
 
         /**
          * Return the view for the Transfer Log with the sample data sorted by TransferDate descending as the 
@@ -562,7 +374,7 @@ namespace TrackPoint.Controllers
         // TODO: This is not a real transfer log since it's just sorting the assets by transfer date, it does not give a detailed history.
         // Create a transfer log model in the future to properly track asset transfers.
 
-		public IActionResult TransferLog()
+        public IActionResult TransferLog()
         {
             var sorted = _context.Asset.OrderByDescending(a => a.StatusDate).ToList();
             return View(sorted);
@@ -572,7 +384,7 @@ namespace TrackPoint.Controllers
          * Redirects to the Audit Trail view using the selected asset. In the future, this will be 
          * replaced with a more compact menu instead of a separate page just to view it.
          */
-		public IActionResult AuditTrail(string AssetTag)
+        public IActionResult AuditTrail(string AssetTag)
         {
             var asset = _context.Asset.FirstOrDefault(a => a.AssetTag == AssetTag);
             if (asset == null)
@@ -582,7 +394,7 @@ namespace TrackPoint.Controllers
             return View(asset);
         }
 
-		public IActionResult AssetView(string AssetTag)
+        public IActionResult AssetView(string AssetTag)
         {
             var asset = _context.Asset.FirstOrDefault(a => a.AssetTag == AssetTag);
             if (asset == null)
@@ -592,7 +404,7 @@ namespace TrackPoint.Controllers
 
             return View(asset);
         }
-		// TODO: Upgrade this to the new checkout process.
+        // TODO: Upgrade this to the new checkout process.
         public IActionResult checkOut(string AssetTag)
         {
             var asset = _context.Asset.FirstOrDefault(a => a.AssetTag == AssetTag);
@@ -609,7 +421,7 @@ namespace TrackPoint.Controllers
             asset.IssuedToUserId = userId;
             asset.StatusDate = DateTime.Now;
             asset.AssetStatus = "InUse";
-            
+
             // Update the asset's audit trail
             // TODO: Properly re-implement this functionality.
             //asset.AuditTrail.Add(new AuditTrail
@@ -619,7 +431,7 @@ namespace TrackPoint.Controllers
             //    TransferDate = previousTransferDate,
             //    //Asset = asset
             //});
-            
+
             _context.SaveChanges();
 
             // Prevent duplicate form submissions on page refresh
@@ -628,7 +440,7 @@ namespace TrackPoint.Controllers
                 TempData["Success"] = $"Asset {AssetTag} successfully allocated to {User.Identity?.Name}!";
                 return RedirectToAction("AssetBrowser", "Asset");
             }
-            
+
             return View(); // TODO: This leads to nowhere, redirect back to form with error or remove this if we will never reach it
         }
 
@@ -651,8 +463,143 @@ namespace TrackPoint.Controllers
                 TempData["Success"] = $"Asset {AssetTag} successfully checked back in!";
                 return RedirectToAction("AssetBrowser", "Asset");
             }
-            
+
             return View();
+        }
+
+        /*
+         * Validate a given asset. 
+         * Returns an empty string if all checks passed
+         * Return an error string if a check fails
+         */
+        public string ValidateAsset(Asset a)
+        {
+            // Perform input validation. Redirect back to the form with an error message if the input is invalid.
+            // Copilot:
+            // Empty or whitespace make/model
+            if (string.IsNullOrWhiteSpace(a.Make) || string.IsNullOrWhiteSpace(a.Model))
+            {
+                return "Error: Make and Model cannot be empty.";
+            }
+            // Category is empty or invalid
+            if (!_context.Category.Any(c => c.CategoryId == a.CategoryId))
+            {
+                return "Error: Invalid category selected.";
+
+            }
+            // Location is empty or invalid
+            if (!_context.Location.Any(l => l.LocationId == a.LocationId))
+            {
+
+                return "Error: Invalid location selected.";
+            }
+            // Check if IssuedToUser is valid if not null (TODO: Currently broken.)
+            if (a.IssuedToUser != null && !_userManager.Users.Any(u => u.Id == a.IssuedToUserId))
+            {
+                return $"Error: User '{a.IssuedToUser}' not found.";
+            }
+
+            // If all checks pass, return empty string
+            return "";
+        }
+
+        /*
+         * Validate a given location. 
+         * Returns an empty string if all checks passed
+         * Return an error string if a check fails
+         */
+        public string ValidateLocation(Location l)
+        {
+            // Perform input validation. Redirect back to the form with an error message if the input is invalid.
+            // Copilot:
+            // Empty or whitespace name/abbreviation
+            if (string.IsNullOrWhiteSpace(l.Name) || string.IsNullOrWhiteSpace(l.Abbreviation))
+            {
+                return "Error: Name and Abbreviation cannot be empty.";
+            }
+            // Abbreviation too long
+            if (l.Abbreviation.Length > 10)
+            {
+                return "Error: Abbreviation cannot be longer than 10 characters.";
+            }
+            // Location uses reserved name
+            if (l.Name.Equals("Unassigned"))
+            {
+                return "Error: The name \"Unassigned\" is reserved. Please choose a different name.";
+            }
+            // Location uses reserved abbreviation
+            if (l.Abbreviation.ToUpper().Equals("UN"))
+            {
+                return "Error: The abbreviation \"UN\" is reserved. Please choose a different abbreviation.";
+            }
+            // Location with same name already exists
+            if (_context.Location.Any(loc => loc.Name == l.Name && loc.LocationId != l.LocationId))
+            {
+                Location existingLocation = _context.Location.First(loc => loc.Name == l.Name);
+                return "Error: A location with this name already exists: " + existingLocation.Name + " (" + existingLocation.Abbreviation + ")";
+            }
+            // Location with same abbreviation already exists
+            if (_context.Location.Any(loc => loc.Abbreviation == l.Abbreviation.ToUpper() && loc.LocationId != l.LocationId))
+            {
+                Location existingLocation = _context.Location.First(loc => loc.Name == l.Name);
+                return "Error: A location with this abbreviation already exists: " + existingLocation.Name + " (" + existingLocation.Abbreviation + ")";
+            }
+
+            return "";
+        }
+        /*
+         * Validate a given category. 
+         * Returns an empty string if all checks passed
+         * Return an error string if a check fails
+         */
+        public string ValidateCategory(Category c)
+        {
+            // Perform input validation. Redirect back to the form with an error message if the input is invalid.
+            // Copilot:
+            // Empty or whitespace name/abbreviation
+            if (string.IsNullOrWhiteSpace(c.Name) || string.IsNullOrWhiteSpace(c.Abbreviation))
+            {
+                return "Error: Name and Abbreviation cannot be empty.";
+            }
+            // Abbreviation too long
+            if (c.Abbreviation.Length > 10)
+            {
+                return "Error: Abbreviation cannot be longer than 10 characters.";
+            }
+            // Abbreviation contains whitespace
+            if (c.Abbreviation.Any(char.IsWhiteSpace))
+            {
+                return "Error: Abbreviation cannot contain whitespace.";
+            }
+            // Category uses reserved name
+            if (c.Name.Equals("Unassigned"))
+            {
+                return "Error: The name \"Unassigned\" is reserved. Please choose a different name.";
+            }
+            // Category uses reserved abbreviation
+            if (c.Abbreviation.ToUpper().Equals("UN"))
+            {
+                return "Error: The abbreviation \"UN\" is reserved. Please choose a different abbreviation.";
+            }
+            // Category with same name already exists
+            if (_context.Category.Any(cat => cat.Name == c.Name && cat.CategoryId != c.CategoryId))
+            {
+                Category existingCategory = _context.Category.First(cat => cat.Name == c.Name);
+                return "Error: A category with this name already exists: " + existingCategory.Name + " (" + existingCategory.Abbreviation + ")";
+            }
+            // Category with same abbreviation already exists
+            if (_context.Category.Any(cat => cat.Abbreviation == c.Abbreviation.ToUpper()))
+            {
+                Category existingCategory = _context.Category.First(cat => cat.Name == c.Name && cat.CategoryId != c.CategoryId);
+                return "Error: A category with this abbreviation already exists: " + existingCategory.Name + " (" + existingCategory.Abbreviation + ")";
+            }
+            // Negative default loan period
+            if (c.DefaultLoanPeriodDays < 0)
+            {
+                return "Error: Default Loan Period cannot be negative.";
+            }
+
+            return "";
         }
     }
 }
