@@ -43,7 +43,6 @@ namespace TrackPoint.Controllers
             return View(model);
         }
 
-
         /*
          *  Return the view for the Location Add Form
          */
@@ -57,7 +56,9 @@ namespace TrackPoint.Controllers
          */
         public IActionResult LocationEdit(int locationId)
         {
-            return View(_context.Location.Find(locationId));
+            LocationEditViewModel model = new LocationEditViewModel();
+            model.location = _context.Location.Find(locationId);
+            return View(model);
         }
 
         /*
@@ -91,25 +92,41 @@ namespace TrackPoint.Controllers
         /*
         *  Add the new location to the database and redirect to the index
         */
-        public IActionResult EditLocation(Location l)
+        public IActionResult EditLocation(LocationEditViewModel l)
         {
+            Location location = l.location;
             // Validate the category. If the string returned isnt empty, return a error message back to the view.
-            string ErrorString = ValidateLocation(l);
+            string ErrorString = ValidateLocation(location);
             if (!ErrorString.Equals(""))
             {
                 TempData["InputError"] = ErrorString;
-                return View("LocationEdit", l);
+                LocationEditViewModel model = new LocationEditViewModel();
+                model.location = location;
+                return View("LocationEdit", model);
             }
 
             // Prepare the data for entry into the database:
             // Make sure the Abbreviation is captialized
-            l.Abbreviation = l.Abbreviation.ToUpper();
+            location.Abbreviation = location.Abbreviation.ToUpper();
             // Add the new Location to database
-            _context.Location.Update(l);
+            _context.Location.Update(location);
+            // If the user selected "Update Asset Tags", find all the assets in this category and update their tags
+            if (l.updateAssetTags)
+            {
+                IEnumerable<Asset> assets = _context.Asset.Where(a => a.LocationId == location.LocationId).ToList();
+                foreach (Asset a in assets)
+                {
+                    // Replace with null location's ID in the future. "Unasigned" is seeded with id 1 by default.
+                    // Assign the Asset an asset tag based on the Category's abbreviation, Location abbreviation and a unique number, padded to 4 digits with leading zeros.
+                    a.AssetTag = $"{_context.Category.Find(a.CategoryId)?.Abbreviation}-{_context.Location.Find(a.LocationId)?.Abbreviation}-{a.AssetTag.Substring(a.AssetTag.Length - 4)}";
+                    _context.Asset.Update(a);
+                    Console.WriteLine($"Asset Tag Updated: {a.AssetTag}");
+                }
+            }
             _context.SaveChanges();
 
             // Log the Location to the console for debugging purposes
-            Console.WriteLine($"Location Edited: {l.Name}, {l.Abbreviation}");
+            Console.WriteLine($"Location Edited: {location.Name}, {location.Abbreviation}");
             return RedirectToAction("ManageLocations");
         }
 
@@ -137,11 +154,13 @@ namespace TrackPoint.Controllers
             Console.WriteLine($"New Location Added: {l.Name}, {l.Abbreviation}");
             return RedirectToAction("Index", "Home");
         }
+
         public IActionResult ManageLocations()
         {
             IEnumerable<Location> locations = _context.Location.ToList();
             return View(locations);
         }
+
         /*
 		 *  Return the view for the Category Add Form
 		 */
@@ -155,8 +174,11 @@ namespace TrackPoint.Controllers
          */
         public IActionResult CategoryEdit(int categoryId)
         {
-            return View(_context.Category.Find(categoryId));
+            CategoryEditViewModel model = new CategoryEditViewModel();
+            model.category = _context.Category.Find(categoryId);
+            return View(model);
         }
+
         public IActionResult ManageCategories()
         {
             IEnumerable<Category> categories = _context.Category.ToList();
@@ -164,26 +186,42 @@ namespace TrackPoint.Controllers
         }
 
         /*
-         *  Return the view for the Categroy Edit form
+         *  Update the category and return to the Managament page
          */
-        public IActionResult EditCategroy(Category c)
+        public IActionResult EditCategory(CategoryEditViewModel c)
         {
+            Category category = c.category;
             // Validate the category. If the string returned isnt empty, return a error message back to the view.
-            string ErrorString = ValidateCategory(c);
+            string ErrorString = ValidateCategory(category);
             if (!ErrorString.Equals(""))
             {
                 TempData["InputError"] = ErrorString;
-                return View("CategoryEdit", c);
+                CategoryEditViewModel model = new CategoryEditViewModel();
+                model.category = category;
+                return View("CategoryEdit", model);
             }
 
             // Prepare the data for entry into the database:
             // Make sure the Abbreviation is captialized
-            c.Abbreviation = c.Abbreviation.ToUpper();
-            // Add the new Category to database and redirect the user to the Index
-            _context.Category.Update(c);
+            category.Abbreviation = category.Abbreviation.ToUpper();
+            // Add the new Category to database
+            _context.Category.Update(category);
+            // If the user selected "Update Asset Tags", find all the assets in this category and update their tags
+            if(c.updateAssetTags)
+            {
+                IEnumerable<Asset> assets = _context.Asset.Where(a => a.CategoryId == category.CategoryId).ToList();
+                foreach (Asset a in assets)
+                {
+                    // Replace with null location's ID in the future. "Unasigned" is seeded with id 1 by default.
+                    // Assign the Asset an asset tag based on the Category's abbreviation, Location abbreviation and the number it had previously
+                    a.AssetTag = $"{_context.Category.Find(a.CategoryId)?.Abbreviation}-{_context.Location.Find(a.LocationId)?.Abbreviation}-{a.AssetTag.Substring(a.AssetTag.Length - 4)}";
+                    _context.Asset.Update(a);
+                    Console.WriteLine($"Asset Tag Updated: {a.AssetTag}");
+                }
+            }
             _context.SaveChanges();
             // Log the category to the console for debugging purposes
-            Console.WriteLine($"Category Updated: {c.Name}, {c.Abbreviation}");
+            Console.WriteLine($"Category Updated: {category.Name}, {category.Abbreviation}");
             return RedirectToAction("ManageCategories");
         }
 
@@ -214,8 +252,6 @@ namespace TrackPoint.Controllers
 
             return RedirectToAction("ManageCategories");
         }
-
-
 
         /*
 		 *  Return the view for the Asset Add Form
@@ -588,7 +624,7 @@ namespace TrackPoint.Controllers
                 return "Error: A category with this name already exists: " + existingCategory.Name + " (" + existingCategory.Abbreviation + ")";
             }
             // Category with same abbreviation already exists
-            if (_context.Category.Any(cat => cat.Abbreviation == c.Abbreviation.ToUpper()))
+            if (_context.Category.Any(cat => cat.Abbreviation == c.Abbreviation.ToUpper() && cat.CategoryId != c.CategoryId))
             {
                 Category existingCategory = _context.Category.First(cat => cat.Name == c.Name && cat.CategoryId != c.CategoryId);
                 return "Error: A category with this abbreviation already exists: " + existingCategory.Name + " (" + existingCategory.Abbreviation + ")";

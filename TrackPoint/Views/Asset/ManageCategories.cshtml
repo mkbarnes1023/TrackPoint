@@ -15,7 +15,7 @@
             if(c.CategoryId != 1) {
                 string modalId = $"confirmModal-{c.CategoryId}"; ;
                 <li class="list-group-item">
-                    @c.Name (@c.Abbreviation) <a class="btn btn-warning" asp-controller="Asset" asp-action="CategoryEdit" asp-route-locationId="@c.CategoryId">Edit</a> <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#@modalId">Delete</a>
+                    @c.Name (@c.Abbreviation) <a class="btn btn-warning" asp-controller="Asset" asp-action="CategoryEdit" asp-route-categoryId="@c.CategoryId">Edit</a> <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#@modalId">Delete</a>
                     <!--Confirmation modal adapted from Matthew's in the AssetBrowser-->
                     <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@($"{modalId}-label")" aria-hidden="true">
                         <div class="modal-dialog">
