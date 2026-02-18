@@ -75,8 +75,8 @@ namespace TrackPoint.Controllers
             IEnumerable<Asset> assets = _context.Asset.Where(l => l.LocationId == locationId);
             foreach (Asset a in assets)
             {
-                // Replace with null location's ID in the future. "Unasigned" is seeded with id 0 by default.
-                a.LocationId = 0;
+                // Replace with null location's ID in the future. "Unasigned" is seeded with id 1 by default.
+                a.LocationId = 1;
                 _context.Update(a);
             }
 
@@ -105,6 +105,18 @@ namespace TrackPoint.Controllers
             if (l.Abbreviation.Length > 10)
             {
                 TempData["InputError"] = "Error: Abbreviation cannot be longer than 10 characters.";
+                return View("LocationEdit", l);
+            }
+            // Location uses reserved name
+            if (l.Name.Equals("Unassigned"))
+            {
+                TempData["InputError"] = "Error: The name \"Unassigned\" is reserved. Please choose a different name.";
+                return View("LocationEdit", l);
+            }
+            // Location uses reserved abbreviation
+            if (l.Abbreviation.ToUpper().Equals("UN"))
+            {
+                TempData["InputError"] = "Error: The abbreviation \"UN\" is reserved. Please choose a different abbreviation.";
                 return View("LocationEdit", l);
             }
             // Location with same name already exists
@@ -151,6 +163,18 @@ namespace TrackPoint.Controllers
             if (l.Abbreviation.Length > 10)
             {
                 TempData["InputError"] = "Error: Abbreviation cannot be longer than 10 characters.";
+                return View("LocationAdd", l);
+            }
+            // Location uses reserved name
+            if (l.Name.Equals("Unassigned"))
+            {
+                TempData["InputError"] = "Error: The name \"Unassigned\" is reserved. Please choose a different name.";
+                return View("LocationAdd", l);
+            }
+            // Location uses reserved abbreviation
+            if (l.Abbreviation.ToUpper().Equals("UN"))
+            {
+                TempData["InputError"] = "Error: The abbreviation \"UN\" is reserved. Please choose a different abbreviation.";
                 return View("LocationAdd", l);
             }
             // Location with same name already exists
@@ -230,6 +254,18 @@ namespace TrackPoint.Controllers
                 TempData["InputError"] = "Error: Abbreviation cannot contain whitespace.";
                 return View("CategoryEdit", c);
             }
+            // Category uses reserved name
+            if (c.Name.Equals("Unassigned"))
+            {
+                TempData["InputError"] = "Error: The name \"Unassigned\" is reserved. Please choose a different name.";
+                return View("CategoryEdit", c);
+            }
+            // Category uses reserved abbreviation
+            if (c.Abbreviation.ToUpper().Equals("UN"))
+            {
+                TempData["InputError"] = "Error: The abbreviation \"UN\" is reserved. Please choose a different abbreviation.";
+                return View("CategoryEdit", c);
+            }
             // Category with same name already exists
             if (_context.Category.Any(cat => cat.Name == c.Name && cat.CategoryId != c.CategoryId))
             {
@@ -277,8 +313,8 @@ namespace TrackPoint.Controllers
             IEnumerable<Asset> assets = _context.Asset.Where(a => a.CategoryId == categoryId);
             foreach (Asset a in assets)
             {
-                // Replace with null category's ID. "Unasigned" is seeded as 0 by default
-                a.CategoryId = 0;
+                // Replace with null category's ID. "Unasigned" is seeded as 1 by default
+                a.CategoryId = 1;
                 _context.Update(a);
             }
             
@@ -328,6 +364,18 @@ namespace TrackPoint.Controllers
             if (c.Abbreviation.Any(char.IsWhiteSpace))
             {
                 TempData["InputError"] = "Error: Abbreviation cannot contain whitespace.";
+                return View("CategoryAdd", c);
+            }
+            // Category uses reserved name
+            if (c.Name.Equals("Unassigned"))
+            {
+                TempData["InputError"] = "Error: The name \"Unassigned\" is reserved. Please choose a different name.";
+                return View("CategoryAdd", c);
+            }
+            // Category uses reserved abbreviation
+            if (c.Abbreviation.ToUpper().Equals("UN"))
+            {
+                TempData["InputError"] = "Error: The abbreviation \"UN\" is reserved. Please choose a different abbreviation.";
                 return View("CategoryAdd", c);
             }
             // Category with same name already exists

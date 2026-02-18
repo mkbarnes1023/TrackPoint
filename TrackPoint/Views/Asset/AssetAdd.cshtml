@@ -62,7 +62,8 @@
 				{
 					<option value="@c.CategoryId" selected>@c.Name</option>
 				}
-				else
+				// Exclude the null category
+				else if(c.CategoryId != 1)
 				{
 					<option value="@c.CategoryId">@c.Name</option>
 				}
@@ -83,7 +84,8 @@
 				{
 					<option value="@l.LocationId" selected>@l.Name</option>
 				}
-				else
+				// Exclude the null location
+				else if(l.LocationId != 1)
 				{
 					<option value="@l.LocationId">@l.Name</option>
 				}

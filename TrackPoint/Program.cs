@@ -56,7 +56,8 @@ builder.Services.ConfigureApplicationCookie(options =>
         // Ensure Borrower role for everyone else
         if (!await userManager.IsInRoleAsync(user, "Borrower"))
         {
-            await userManager.AddToRoleAsync(user, "Borrower");
+            // Throwing error on login: Role BORROWER does not exist
+            //await userManager.AddToRoleAsync(user, "Borrower");
         }
     };
 });
@@ -65,6 +66,18 @@ builder.Services.Configure<SeedOptions>(
     builder.Configuration.GetSection(SeedOptions.SectionName));
 
 var app = builder.Build();
+
+/* Copilot:
+// Ensure database exists and is up to date BEFORE seeding roles/users
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await db.Database.MigrateAsync();
+
+    // Run data seeding that requires the DbContext
+    await TrackPoint.Data.SeedData.Seed.InitializeAsync(db);
+}
+*/
 
 // Ensure database exists and is up to date BEFORE seeding roles/users
 using (var scope = app.Services.CreateScope())
