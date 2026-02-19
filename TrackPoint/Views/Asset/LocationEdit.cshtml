@@ -8,21 +8,31 @@
 		@TempData["InputError"]
 	</div>
 }
-<form>
-	<input type="hidden" asp-for="location.LocationId">
-	<div>
-		<label asp-for="location.Name">Name</label>
-		<input type="text" asp-for="location.Name" value="@Model.location.Name">
-	</div>
 
-	<div>
-		<label asp-for="location.Abbreviation">Abbreviation</label>
-		<input type="text" asp-for="location.Abbreviation" value="@Model.location.Abbreviation">
-	</div>
-	<div>
-		<label>Update Asset Tags</label>
-		<input type="checkbox" asp-for="updateAssetTags">
-	</div>
+<!-- Make sure the location exists before populating the form. This is to prevent errors by using the browser's back button -->
+@if(Model.location == null)
+{
+	<h1>The location you wish to edit no longer exists</h1>
+	<a class="btn btn-primary" asp-controller="Asset" asp-action="ManageLocations">Return to location list</a>
+}
+else
+{
+	<form>
+		<input type="hidden" asp-for="location.LocationId">
+		<div>
+			<label asp-for="location.Name">Name</label>
+			<input type="text" asp-for="location.Name" value="@Model.location.Name">
+		</div>
 
-	<input type="submit" value="Submit" asp-action="EditLocation">
-</form>
+		<div>
+			<label asp-for="location.Abbreviation">Abbreviation</label>
+			<input type="text" asp-for="location.Abbreviation" value="@Model.location.Abbreviation">
+		</div>
+		<div>
+			<label>Update Asset Tags</label>
+			<input type="checkbox" asp-for="updateAssetTags">
+		</div>
+
+		<input type="submit" value="Submit" asp-action="EditLocation">
+	</form>
+}

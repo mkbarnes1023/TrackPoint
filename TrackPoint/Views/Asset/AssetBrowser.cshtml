@@ -143,8 +143,8 @@
                     
                     @if (User.IsInRole("Admin"))
                     {
-                        <a class="btn btn-sm btn-warning" asp-controller="Asset" asp-action="AssetEdit" asp-route-assetTag="@asset.AssetTag">Edit</a>
-                        <a class="btn btn-sm btn-danger" asp-controller="Asset" asp-action="DeleteAsset" asp-route-assetTag="@asset.AssetTag">Delete</a>
+                        <a class="btn btn-sm btn-warning" asp-controller="Asset" asp-action="AssetEdit" asp-route-AssetId="@asset.AssetId">Edit</a>
+                        <a class="btn btn-sm btn-danger" asp-controller="Asset" asp-action="DeleteAsset" asp-route-AssetId="@asset.AssetId">Delete</a>
                     }
                 </td>
             </tr>

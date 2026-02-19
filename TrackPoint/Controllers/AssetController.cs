@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QRCoder;
+using System.Linq;
 using System.Net.NetworkInformation;
 using System.Security.Claims;
 using System.Security.Cryptography.Xml;
@@ -11,7 +13,6 @@ using System.Threading;
 using TrackPoint.Data;
 using TrackPoint.Models;
 using TrackPoint.Views.Asset;
-using QRCoder;
 
 namespace TrackPoint.Controllers
 {
@@ -322,7 +323,7 @@ namespace TrackPoint.Controllers
             model._assets = assets.ToList();
             model._categories = categories.ToList();
             model._locations = locations.ToList();
-            return View("AssetBrowser", model);
+            return RedirectToAction("AssetBrowser", model);
         }
 
         /**
@@ -332,33 +333,29 @@ namespace TrackPoint.Controllers
          * rather than for when they are done with an asset. Assets they are finished with should
          * have their status changed to "Retired", to preserve their history in the logs.
          */
-        public IActionResult DeleteAsset(string AssetTag)
+        public IActionResult DeleteAsset(int AssetId)
         {
-            Asset asset = _context.Asset.First(a => a.AssetTag == AssetTag);
+            Asset asset = _context.Asset.Find(AssetId);
 
             _context.Asset.Remove(asset);
             _context.SaveChanges();
 
             // Log deleted asset
-            Console.WriteLine($"Asset Deleted: {AssetTag}");
+            Console.WriteLine($"Asset Deleted: {AssetId}");
             // Pack the information for the AssetBrowser
             AssetBrowserViewModel model = new AssetBrowserViewModel();
             model._assets = assets.ToList();
             model._categories = categories.ToList();
             model._locations = locations.ToList();
-            return View("AssetBrowser", model);
+            return RedirectToAction("AssetBrowser", model);
         }
 
         /**
          * Return the view for editing assets with the selected asset passed as the model
          */
-        public IActionResult AssetEdit(string AssetTag)
+        public IActionResult AssetEdit(int AssetId)
         {
-            Asset asset = _context.Asset.First(a => a.AssetTag == AssetTag);
-            if (asset == null)
-            {
-                return NotFound();
-            }
+            Asset asset = _context.Asset.Find(AssetId);
             AssetAddViewModel model = new AssetAddViewModel();
             model._categories = categories.ToList();
             model._locations = locations.ToList();
@@ -402,7 +399,7 @@ namespace TrackPoint.Controllers
             model._assets = assets.ToList();
             model._categories = categories.ToList();
             model._locations = locations.ToList();
-            return View("AssetBrowser", model);
+            return RedirectToAction("AssetBrowser", model);
         }
 
         /**
