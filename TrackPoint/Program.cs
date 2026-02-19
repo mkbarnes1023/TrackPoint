@@ -73,7 +73,6 @@ builder.Services.Configure<SeedOptions>(
 
 var app = builder.Build();
 
-// Copilot:
 // Ensure database exists and is up to date BEFORE seeding roles/users
 using (var scope = app.Services.CreateScope())
 {
@@ -82,14 +81,6 @@ using (var scope = app.Services.CreateScope())
 
     // Run data seeding that requires the DbContext
     await TrackPoint.Data.SeedData.Seed.InitializeAsync(db);
-}
-
-
-// Ensure database exists and is up to date BEFORE seeding roles/users
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await db.Database.MigrateAsync();
 }
 
 // Seed admins from appsettings.json using AdminSeedData
