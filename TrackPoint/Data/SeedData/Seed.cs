@@ -22,7 +22,6 @@ namespace TrackPoint.Data.SeedData
                     // Null category, assets are assigned this category when their current category is deleted
                     new Category
                     {
-                        CategoryId = 1,
                         Name = "Unassigned",
                         Abbreviation = "UN",
                         RequiresApproval = true,
@@ -87,7 +86,7 @@ namespace TrackPoint.Data.SeedData
                 var locations = new[]
                 {
                     // Null location, assets are assigned this locaton when their current location is deleted
-                    new Location { LocationId = 1, Name = "Unassigned", Abbreviation = "UN" },
+                    new Location { Name = "Unassigned", Abbreviation = "UN" },
                     new Location { Name = "Jacksonville", Abbreviation = "JAX" },
                     new Location { Name = "Tallahassee", Abbreviation = "TLH" },
                     new Location { Name = "Pensacola", Abbreviation = "PNS" },
