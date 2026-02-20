@@ -225,6 +225,24 @@ namespace TrackPoint.Controllers
             model._assets = assets.ToList();
             model._categories = categories.ToList();
             model._locations = locations.ToList();
+
+            // Create a new Asset Loan for this asset and save it to the AssetLoan table
+            // TODO: Finish this, make sure that this is in the correct order (loan first or asset first?), and perform validation (don't save the loan until we know the asset is valid)
+            AssetLoan assetLoan = new AssetLoan();
+
+            assetLoan.AssetId = asset.AssetId;
+            assetLoan.BorrowerId = asset.IssuedToUserId;
+            assetLoan.CheckedoutDate = DateTime.Now; // TODO: Verify that this time is consistent with StatusDate in Asset, maybe we make StatusDate a FK for CheckedoutDate?
+            assetLoan.DueDate = DateTime.Now.AddDays(_context.Category.Find(asset.CategoryId)?.DefaultLoanPeriodDays ?? 14); // Default to 2 week loan period if category not found for some reason
+            assetLoan.ReturnedDate = null; // This should not be set on creation
+            assetLoan.ExtendedByAdminId = null;
+            assetLoan.ExtendedBy = null; // This is ExtendedById in the table, but different here. May cause issues.
+            assetLoan.ApprovedByUserId = null; // This should be set by an admin when they approve the loan, not on creation
+            assetLoan.ApprovedBy = null; // This is also different from the table
+
+            _context.Assetloan.Add(assetLoan); // Save changes to DB
+            _context.SaveChanges();
+
             return View("AssetBrowser", model);
 		}
 
