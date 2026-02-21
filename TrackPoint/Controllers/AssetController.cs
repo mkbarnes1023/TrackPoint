@@ -216,6 +216,7 @@ namespace TrackPoint.Controllers
 
             // Add the new Asset to database and redirect the user to the AssetBrowser
             _context.Asset.Add(asset);
+            _context.SaveChanges();
 
             // Log the asset to the console for debugging purposes
             Console.WriteLine($"New Asset Added: {asset.AssetTag}, {asset.Make}, {asset.Model}, {asset.Category}, {asset.Location}, {asset.IssuedToUser}, {asset.AssetStatus}, {asset.Notes}");
