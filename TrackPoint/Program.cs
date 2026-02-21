@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web.UI;
 using TrackPoint.Configuration;
 using TrackPoint.Data;
+using TrackPoint.Data.SeedData;
 using TrackPoint.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +33,17 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await db.Database.MigrateAsync();
+}
+
+// Seed admins from appsettings.json using AdminSeedData
+await AdminSeedData.SeedAdminsAsync(app.Services);
+
+// Optionally: additional data seeding spot
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    // app data seeding here
+    //await Seed.InitializeAsync(db);
 }
 
 if (!app.Environment.IsDevelopment())

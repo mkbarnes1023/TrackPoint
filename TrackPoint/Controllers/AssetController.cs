@@ -10,6 +10,7 @@ using TrackPoint.Data;
 using TrackPoint.Models;
 using TrackPoint.Views.Asset;
 using QRCoder;
+using System.Collections.Immutable;
 
 namespace TrackPoint.Controllers
 {
@@ -235,6 +236,7 @@ namespace TrackPoint.Controllers
          * rather than for when they are done with an asset. Assets they are finished with should
          * have their status changed to "Retired", to preserve their history in the logs.
          */
+        // TODO: Update AssetLoan for this as well, likely by deleting the loan
 		public IActionResult DeleteAsset(string AssetTag)
 		{
             Asset asset = _context.Asset.First(a => a.AssetTag == AssetTag);
@@ -255,6 +257,7 @@ namespace TrackPoint.Controllers
         /**
          * Return the view for editing assets with the selected asset passed as the model
          */
+        // TODO: This may need another update for AssetLoan
 		public IActionResult AssetEdit(string AssetTag)
         {
             Asset asset = _context.Asset.First(a => a.AssetTag == AssetTag);
@@ -307,6 +310,7 @@ namespace TrackPoint.Controllers
                 return RedirectToAction("AssetEditFromModel", asset);
             }
             // Update the asset in the database
+            // TODO: Update AssetLoan here if necessary
             _context.Asset.Update(asset);
             _context.SaveChanges();
 
@@ -360,6 +364,7 @@ namespace TrackPoint.Controllers
         public IActionResult checkOut(string AssetTag)
         {
             var asset = _context.Asset.FirstOrDefault(a => a.AssetTag == AssetTag);
+            
             if (asset == null)
             {
                 TempData["Failure"] = $"Error: Asset not found.";
@@ -384,6 +389,14 @@ namespace TrackPoint.Controllers
             //    //Asset = asset
             //});
             
+            // Update AssetLoan for Check Out
+            if (asset != null)
+            {
+                // TODO: Update this for full Check Out process. This should work for now, but just be wary
+                // of whether ApprovedByUserId should be set by the Borrower or Admin depending on context.
+                var assetLoan = UpdateLoanStatus(asset.AssetId, asset.IssuedToUserId, "InUse", 0);
+                _context.Assetloan.Update(assetLoan);
+            }
             _context.SaveChanges();
 
             // Prevent duplicate form submissions on page refresh
@@ -400,6 +413,8 @@ namespace TrackPoint.Controllers
         public IActionResult checkIn(string AssetTag)
         {
             var asset = _context.Asset.FirstOrDefault(a => a.AssetTag == AssetTag);
+            var assetLoan = _context.Assetloan.Where(al => al.AssetId == asset.AssetId).OrderByDescending(al => al.CheckedoutDate).FirstOrDefault();
+            
             if (asset == null)
             {
                 TempData["Failure"] = $"Error: Asset not found.";
@@ -408,6 +423,13 @@ namespace TrackPoint.Controllers
             asset.IssuedToUserId = null;
             asset.StatusDate = DateTime.Now;
             asset.AssetStatus = "InStorage";
+            
+            // Update AssetLoan for Check In
+            if (assetLoan != null)
+            {
+                //UpdateLoanStatus(asset.AssetId, null, null, 2);
+                _context.Assetloan.Remove(assetLoan);
+            }
             _context.SaveChanges();
 
             // Prevent duplicate form submissions on page refresh
@@ -461,6 +483,78 @@ namespace TrackPoint.Controllers
                 return RedirectToAction("AssetBrowser", "Asset");
             }
             return View();
+        }
+
+        // Update the AssetLoan status of an Asset
+        public AssetLoan UpdateLoanStatus(int AssetId, string borrowerId, string newStatus, int updateType)
+        {
+            var asset = _context.Asset.FirstOrDefault(a => a.AssetId == AssetId);
+            var currentUserId = _userManager.GetUserId(User);
+            var currentUser = _userManager.Users.FirstOrDefault(u => u.Id == currentUserId);
+
+            if (asset == null)
+            {
+                Console.WriteLine($"Error: Asset with ID {AssetId} not found.");
+                return null;
+            }
+
+            // Create a new Asset Loan for this asset and save it to the AssetLoan table
+            // TODO: Perform validation/error handling and don't create this if we're checking in an asset (unnecessary since it's unused in that case)
+            AssetLoan assetLoan = new AssetLoan();
+
+            // Update the Asset Loan based on the update type, such as initial AssetLoan creation, check in/check out, retirement, etc.
+            // TODO: Avoid magic numbers by making an enum for update types
+            switch(updateType)
+            {
+                case 0: // Asset Transfer (Check Out)
+                    // TODO: Check Out can potentially become desynchronized with Asset Status, such as a loan existing even if the asset is InStorage. 
+                    assetLoan.AssetId = asset.AssetId;
+                    assetLoan.BorrowerId = borrowerId;
+                    assetLoan.CheckedoutDate = DateTime.Now; // TODO: Verify that this time is consistent with StatusDate in Asset, maybe we make StatusDate a FK for CheckedoutDate?
+                    assetLoan.DueDate = DateTime.Now.AddDays(_context.Category.Find(asset.CategoryId)?.DefaultLoanPeriodDays ?? 14); // Default to 2 week loan period if category not found for some reason
+                    assetLoan.ReturnedDate = null; // This should not be set on creation
+                    assetLoan.ExtendedByAdminId = null;
+                    assetLoan.ExtendedBy = null; // This is ExtendedById in the table, but different here. May cause issues.
+                    assetLoan.ApprovedByUserId = _userManager.GetUserId(User) ?? string.Empty; // This should be set by an admin when they approve the loan, not on creation. TODO: This cannot currently be properly nulled since it is required.
+                    assetLoan.ApprovedBy = currentUser; // This is also different from the table
+                    break;
+                
+                case 1: // Asset Transfer (Borrower switched between two people)
+                    // TODO: Write this
+                    break;
+
+                case 2: // Asset Transfer (Check In)
+                    // TODO: Currently I'm just deleting the AssetLoan, may way to keep it (see commented code below).
+                    AssetLoan removeLoan = _context.Assetloan.Where(al => al.AssetId == asset.AssetId).FirstOrDefault();
+                    if (removeLoan != null)
+			        {
+				        //assetLoan = removeLoan;
+				        _context.Assetloan.Remove(removeLoan);
+			        }
+                    
+                    /* assetLoan.AssetId = asset.AssetId;
+                    assetLoan.BorrowerId = null; // Claims to not be nullable, yet it starts as null in the database
+                    // assetLoan.CheckedoutDate = DateTime.Now; // TODO: This doesn't change, not sure whether we should null it
+                    assetLoan.DueDate = null; // Not relevant since the asset is returned
+                    assetLoan.ReturnedDate = DateTime.Now;
+                    assetLoan.ExtendedByAdminId = null;
+                    assetLoan.ExtendedBy = null;
+                    assetLoan.ApprovedByUserId = _userManager.GetUserName(User);
+                    assetLoan.ApprovedBy = currentUser; */
+                    break;
+
+                default:
+                    Console.WriteLine($"Error: Invalid update type {updateType}.");
+                    return null;
+
+            }
+            //if (assetLoan != null) // TODO: Verify if this check works correctly, probably rewrite this later
+            //{
+            //    _context.Assetloan.Add(assetLoan); // Save changes to DB
+            //    //_context.SaveChanges();
+            //}
+            Console.WriteLine("assetLoan AssetId: " + assetLoan.AssetId);
+            return assetLoan;
         }
     }
 }
