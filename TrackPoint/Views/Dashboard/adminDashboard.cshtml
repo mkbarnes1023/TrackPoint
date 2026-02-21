@@ -58,11 +58,48 @@
     .section {
         align-content: center;
         background: white;
-        border-color: red;
         border: 2px;
         padding: 15px;
         border-radius: 10px;
     }
+
+    .primary-btn {
+        width: 100%;
+        margin-top: 28px;
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #fff;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+        .primary-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
+        }
+
+    .secondary-btn {
+        width: 100%;
+        margin-top: 28px;
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #fff;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+        .primary-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
+        }
 
 </style>
 
@@ -73,11 +110,12 @@
         <div class="col-md-6">
             <h1>Home</h1>
         </div>
-
         <div class="col-md-6">
-            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-light btn-sm btn-outline-dark">Personal Dashboard</a>
-            <a asp-controller="Dashboard" asp-action="AdminDashboard" class="btn btn-primary btn-sm btn-outline-light">Admin View</a>
+            <a asp-controller="Report" asp-action="ReportBuilder" class="secondary-btn">
+                Generate A Report
+            </a>
         </div>
+  
         </div>
         <!-- Priority Overview -->
         <div class="section">
