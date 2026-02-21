@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using TrackPoint.Configuration;
 using TrackPoint.Data;
+using TrackPoint.Data.SeedData;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -83,11 +84,12 @@ using (var scope = app.Services.CreateScope())
 await AdminSeedData.SeedAdminsAsync(app.Services);
 
 // Optionally: additional data seeding spot
-// using (var scope = app.Services.CreateScope())
-// {
-//     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-//     // app data seeding here
-// }
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    // app data seeding here
+    //await Seed.InitializeAsync(db);
+}
 
 if (!app.Environment.IsDevelopment())
 {
