@@ -427,8 +427,8 @@ namespace TrackPoint.Controllers
             // Update AssetLoan for Check In
             if (assetLoan != null)
             {
-                UpdateLoanStatus(asset.AssetId, null, null, 2);
-                _context.Assetloan.Update(assetLoan);
+                //UpdateLoanStatus(asset.AssetId, null, null, 2);
+                _context.Assetloan.Remove(assetLoan);
             }
             _context.SaveChanges();
 
@@ -525,10 +525,10 @@ namespace TrackPoint.Controllers
 
                 case 2: // Asset Transfer (Check In)
                     // TODO: Currently I'm just deleting the AssetLoan, may way to keep it (see commented code below).
-                    var removeLoan = _context.Assetloan.Where(al => al.AssetId == asset.AssetId).FirstOrDefault();
+                    AssetLoan removeLoan = _context.Assetloan.Where(al => al.AssetId == asset.AssetId).FirstOrDefault();
                     if (removeLoan != null)
 			        {
-				        assetLoan = removeLoan;
+				        //assetLoan = removeLoan;
 				        _context.Assetloan.Remove(removeLoan);
 			        }
                     
