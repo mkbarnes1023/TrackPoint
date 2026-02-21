@@ -1,26 +1,25 @@
-@using Microsoft.AspNetCore.Identity
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
+@using System.Security.Claims
 
 <ul class="navbar-nav ms-auto">
-@if (SignInManager.IsSignedIn(User))
+@if (User.Identity?.IsAuthenticated == true)
 {
-    var user = await UserManager.GetUserAsync(User);
-    var email = user is not null ? await UserManager.GetEmailAsync(user) : (User.Identity?.Name ?? "Account");
+    var email = User.FindFirstValue(ClaimTypes.Email) 
+                ?? User.FindFirstValue("preferred_username") 
+                ?? User.Identity.Name 
+                ?? "Account";
+    var name = User.FindFirstValue(ClaimTypes.Name) ?? email;
 
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle text-light" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            @email
+            @name
         </a>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
             <li>
-                <a class="dropdown-item" asp-page="/Account/Settings">User Settings</a>
+                <span class="dropdown-item-text small text-muted">@email</span>
             </li>
             <li><hr class="dropdown-divider" /></li>
             <li>
-                <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="~/" method="post">
-                    <button type="submit" class="dropdown-item">Logout</button>
-                </form>
+                <a class="dropdown-item" asp-area="MicrosoftIdentity" asp-controller="Account" asp-action="SignOut">Sign Out</a>
             </li>
         </ul>
     </li>
@@ -28,10 +27,7 @@
 else
 {
     <li class="nav-item">
-        <a class="nav-link text-light" asp-area="Identity" asp-page="/Account/Login">Login</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link text-light" asp-area="Identity" asp-page="/Account/Register">Register</a>
+        <a class="nav-link text-light" asp-area="MicrosoftIdentity" asp-controller="Account" asp-action="SignIn">Sign In</a>
     </li>
 }
 </ul>
