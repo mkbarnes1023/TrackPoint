@@ -372,9 +372,12 @@ namespace TrackPoint.Controllers
             }
 
             // Get the current user's Id
-            string userId = _userManager.GetUserId(User);
-            // alternatively: string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId) || !_userManager.Users.Any(u => u.Id == userId))
+            {
+                TempData["Failure"] = "Error: current user not found.";
+                return RedirectToAction("AssetBrowser");
+            }
             asset.IssuedToUserId = userId;
             asset.StatusDate = DateTime.Now;
             asset.AssetStatus = "InUse";
@@ -394,7 +397,7 @@ namespace TrackPoint.Controllers
             {
                 // TODO: Update this for full Check Out process. This should work for now, but just be wary
                 // of whether ApprovedByUserId should be set by the Borrower or Admin depending on context.
-                var assetLoan = UpdateLoanStatus(asset.AssetId, asset.IssuedToUserId, "InUse", 0);
+                var assetLoan = UpdateLoanStatus(asset.AssetId, userId, "InUse", 0);
                 _context.Assetloan.Update(assetLoan);
             }
             _context.SaveChanges();
@@ -515,7 +518,7 @@ namespace TrackPoint.Controllers
                     assetLoan.ReturnedDate = null; // This should not be set on creation
                     assetLoan.ExtendedByAdminId = null;
                     assetLoan.ExtendedBy = null; // This is ExtendedById in the table, but different here. May cause issues.
-                    assetLoan.ApprovedByUserId = _userManager.GetUserId(User) ?? string.Empty; // This should be set by an admin when they approve the loan, not on creation. TODO: This cannot currently be properly nulled since it is required.
+                    assetLoan.ApprovedByUserId = borrowerId; // This should be set by an admin when they approve the loan, not on creation. TODO: This cannot currently be properly nulled since it is required.
                     assetLoan.ApprovedBy = currentUser; // This is also different from the table
                     break;
                 
