@@ -1,0 +1,71 @@
+﻿@model TrackPoint.Views.Asset.CategoryEditViewModel;
+@{
+}
+<h1>Editing a Category</h1>
+@if(TempData["InputError"] != null)
+{
+	<div class="alert alert-danger" role="alert">
+		@TempData["InputError"]
+	</div>
+}
+
+<!-- Make sure the category exists before populating the form. This is to prevent errors by using the browser's back button -->
+@if(Model.category == null)
+{
+	<h1>The category you wish to edit no longer exists</h1>
+	<a class="btn btn-primary" asp-controller="Asset" asp-action="ManageCategories">Return to categroy list</a>
+} 
+else
+{
+	<form>
+		<input type="hidden" asp-for="category.CategoryId">
+		<div>
+			<label asp-for="category.Name">Name</label>
+			<input type="text" asp-for="category.Name" value="@Model.category.Name">
+		</div>
+
+		<div>
+			<label asp-for="category.Abbreviation">Abbreviation</label>
+			<input type="text" asp-for="category.Abbreviation" value="@Model.category.Abbreviation">
+		</div>
+
+		<div>
+			<textarea asp-for="category.Description" placeholder="Description">@Model.category.Description</textarea>
+		</div>
+
+		<div>
+			<label asp-for="category.RequiresApproval">This category requires approval to check out</label>
+			@if (Model.category.RequiresApproval)
+			{
+				<input type="checkbox" asp-for="category.RequiresApproval" checked>
+			} 
+			else 
+			{
+				<input type="checkbox" asp-for="category.RequiresApproval">
+			}
+		
+		</div>
+
+		<div>
+			<label asp-for="category.DefaultLoanPeriodDays">Default loan period (In days)</label>
+			<input type="number" asp-for="category.DefaultLoanPeriodDays" value="@Model.category.DefaultLoanPeriodDays">
+		</div>
+
+		<div>
+			<label asp-for="category.ContainsConsumables">This category contains consumables that are not individually tracked</label>
+			@if (Model.category.ContainsConsumables)
+			{
+				<input type="checkbox" asp-for="category.ContainsConsumables" checked>
+			} else {
+				<input type="checkbox" asp-for="category.ContainsConsumables">
+			}
+		</div>
+
+		<div>
+			<label>Update Asset Tags</label>
+			<input type="checkbox" asp-for="updateAssetTags">
+		</div>
+
+		<input type="submit" value="Submit" asp-action="EditCategory">
+	</form>
+}
