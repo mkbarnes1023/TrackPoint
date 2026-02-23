@@ -15,9 +15,8 @@ namespace TrackPoint.Models
         public Asset Asset { get; set; }
 
         // Foreign key for Borrower
-        [Required]
-        public string BorrowerId { get; set; }
-        public IdentityUser Borrower { get; set; }
+        public string ?BorrowerId { get; set; }
+        public IdentityUser ?Borrower { get; set; }
 
         
         // Foreign key for Asset Status

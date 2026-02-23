@@ -18,7 +18,7 @@ namespace TrackPoint.Migrations
                     TransferLogId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     AssetId = table.Column<int>(type: "int", nullable: false),
-                    BorrowerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    BorrowerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     NewStatus = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     OldStatus = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     eventType = table.Column<int>(type: "int", nullable: false),
@@ -31,8 +31,7 @@ namespace TrackPoint.Migrations
                         name: "FK_TransferLog_AspNetUsers_BorrowerId",
                         column: x => x.BorrowerId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_TransferLog_Asset_AssetId",
                         column: x => x.AssetId,

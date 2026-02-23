@@ -212,6 +212,7 @@
                     <th>Transfer Date</th>
                 </tr>
             </thead>
+            <!-- TODO: Update the table to have all information (Status, Date, EventType with icon) and implement DataTables -->
             <tbody>
                 @foreach (var tLogEntry in Model)
                 {
@@ -221,16 +222,11 @@
                         <td>@tLogEntry.Asset?.Model</td>
                         <td>@tLogEntry.Asset?.Category</td>
                         <td>@tLogEntry.Asset?.Location</td>
-                        <td>@tLogEntry.Borrower.UserName</td>
+                        <td>@tLogEntry.Borrower?.UserName</td>
                         <td>@tLogEntry.TransferDate.ToString("g")</td>
                     </tr>
                 }
             </tbody>
         </table>
         </div>
-        
-    
 </div>
-
-
-

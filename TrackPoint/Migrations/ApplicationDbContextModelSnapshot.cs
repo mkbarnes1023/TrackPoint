@@ -584,7 +584,6 @@ namespace TrackPoint.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("BorrowerId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("NewStatus")
@@ -824,9 +823,7 @@ namespace TrackPoint.Migrations
 
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Borrower")
                         .WithMany()
-                        .HasForeignKey("BorrowerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BorrowerId");
 
                     b.Navigation("Asset");
 

@@ -12,7 +12,7 @@ using TrackPoint.Data;
 namespace TrackPoint.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260223072637_TransferLogTest")]
+    [Migration("20260223215606_TransferLogTest")]
     partial class TransferLogTest
     {
         /// <inheritdoc />
@@ -587,7 +587,6 @@ namespace TrackPoint.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("BorrowerId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("NewStatus")
@@ -827,9 +826,7 @@ namespace TrackPoint.Migrations
 
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Borrower")
                         .WithMany()
-                        .HasForeignKey("BorrowerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BorrowerId");
 
                     b.Navigation("Asset");
 

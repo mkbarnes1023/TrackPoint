@@ -414,7 +414,11 @@ namespace TrackPoint.Controllers
 
         public IActionResult TransferLog()
         {
-            return View(_context.TransferLog.OrderByDescending(tl => tl.TransferDate).ToList());
+            return View(_context.TransferLog
+                .Include(tl => tl.Asset)
+                .Include(tl => tl.Borrower)
+                .OrderByDescending(tl => tl.TransferDate)
+                .ToList());
         }
 
         /**
@@ -481,7 +485,20 @@ namespace TrackPoint.Controllers
                 var assetLoan = UpdateLoanStatus(asset.AssetId, userId, "InUse", 0);
                 _context.Assetloan.Update(assetLoan);
             }
-            _context.SaveChanges();
+
+            // Update TransferLog for Check Out
+            _context.TransferLog.Add(new TransferLog
+            {
+                AssetId = asset.AssetId,
+                BorrowerId = asset.IssuedToUserId,
+                NewStatus = "InUse",
+                OldStatus = asset.AssetStatus,
+                eventType = Enums.eventType.BorrowerTransfer,
+                TransferDate = DateTime.Now // TODO: Make sure DateTime.Now is synced, save as variable to "freeze" it
+            });
+
+        // Save the changes
+        _context.SaveChanges();
 
             // Prevent duplicate form submissions on page refresh
             if (ModelState.IsValid)
@@ -514,6 +531,18 @@ namespace TrackPoint.Controllers
                 //UpdateLoanStatus(asset.AssetId, null, null, 2);
                 _context.Assetloan.Remove(assetLoan);
             }
+
+            // Update TransferLog for Check In
+            _context.TransferLog.Add(new TransferLog
+            {
+                AssetId = asset.AssetId,
+                BorrowerId = null,
+                NewStatus = "InStorage",
+                OldStatus = asset.AssetStatus,
+                eventType = Enums.eventType.BorrowerTransfer,
+                TransferDate = DateTime.Now // TODO: Make sure DateTime.Now is synced, save as variable to "freeze" it
+            });
+
             _context.SaveChanges();
 
             // Prevent duplicate form submissions on page refresh
