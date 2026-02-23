@@ -459,14 +459,7 @@ namespace TrackPoint.Controllers
             string userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId) || !_userManager.Users.Any(u => u.Id == userId))
             {
-                var usersList = _userManager.Users.ToList();
-                foreach (var user in usersList)
-                {
-                    Console.WriteLine($"Username: {user.UserName} | ID: {user.Id}");
-                }
-                Console.WriteLine($"CurrentUser: {userId}");
-
-                TempData["Failure"] = "Error: current user not found.";
+                TempData["Failure"] = "Error: Current user not found.";
                 return RedirectToAction("AssetBrowser");
             }
             asset.IssuedToUserId = userId;
