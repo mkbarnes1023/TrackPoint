@@ -9,7 +9,7 @@ using System.Security.Cryptography.Xml;
 using TrackPoint.Data;
 using TrackPoint.Models;
 using TrackPoint.Views.Asset;
-using QRCoder;
+using System.Collections.Immutable;
 
 namespace TrackPoint.Controllers
 {
@@ -235,9 +235,10 @@ namespace TrackPoint.Controllers
          * rather than for when they are done with an asset. Assets they are finished with should
          * have their status changed to "Retired", to preserve their history in the logs.
          */
-        public IActionResult DeleteAsset(string AssetTag)
+        // TODO: Update AssetLoan for this as well, likely by deleting the loan
+        public IActionResult DeleteAsset(int AssetId)
         {
-            Asset asset = _context.Asset.First(a => a.AssetTag == AssetTag);
+            Asset asset = _context.Asset.Find(AssetId);
 
             _context.Asset.Remove(asset);
             _context.SaveChanges();
@@ -255,7 +256,8 @@ namespace TrackPoint.Controllers
         /**
          * Return the view for editing assets with the selected asset passed as the model
          */
-        public IActionResult AssetEdit(string AssetTag)
+        // TODO: This may need another update for AssetLoan
+        public IActionResult AssetEdit(int AssetId)
         {
             Asset asset = _context.Asset.First(a => a.AssetTag == AssetTag);
             if (asset == null)
@@ -383,6 +385,15 @@ namespace TrackPoint.Controllers
             //    TransferDate = previousTransferDate,
             //    //Asset = asset
             //});
+            //
+            // Update AssetLoan for Check Out
+            if (asset != null)
+            {
+                // TODO: Update this for full Check Out process. This should work for now, but just be wary
+                // of whether ApprovedByUserId should be set by the Borrower or Admin depending on context.
+                var assetLoan = UpdateLoanStatus(asset.AssetId, asset.IssuedToUserId, "InUse", 0);
+                _context.Assetloan.Update(assetLoan);
+            }
 
             _context.SaveChanges();
 
