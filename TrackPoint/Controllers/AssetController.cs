@@ -1,20 +1,15 @@
-﻿using AspNetCoreGeneratedDocument;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using QRCoder;
-using System.Linq;
 using System.Net.NetworkInformation;
 using System.Security.Claims;
 using System.Security.Cryptography.Xml;
-using System.Threading;
 using TrackPoint.Data;
 using TrackPoint.Models;
 using TrackPoint.Views.Asset;
 using QRCoder;
-using System.Collections.Immutable;
 
 namespace TrackPoint.Controllers
 {
@@ -47,6 +42,7 @@ namespace TrackPoint.Controllers
             return View(model);
         }
 
+
         /*
          *  Return the view for the Location Add Form
          */
@@ -56,94 +52,36 @@ namespace TrackPoint.Controllers
         }
 
         /*
-         *  Return the view for the Location Edit form
-         */
-        public IActionResult LocationEdit(int locationId)
-        {
-            LocationEditViewModel model = new LocationEditViewModel();
-            model.location = _context.Location.Find(locationId);
-            return View(model);
-        }
-
-        /*
-		 *  Try to delete a category
-		 */
-        public IActionResult DeleteLocation(int locationId)
-        {
-            // Check that the location specified corresponds to a real location
-            if (!_context.Location.Any(l => l.LocationId == locationId))
-            {
-                Console.WriteLine($"Couldn't Find location: {locationId}");
-                return RedirectToAction("ManageLocations");
-            }
-            // Set each asset in this location to a "null" location
-            IEnumerable<Asset> assets = _context.Asset.Where(l => l.LocationId == locationId);
-            foreach (Asset a in assets)
-            {
-                // Replace with null location's ID in the future. "Unasigned" is seeded with id 1 by default.
-                a.LocationId = 1;
-                _context.Update(a);
-            }
-
-            // Remove the category
-            Location l = _context.Location.Find(locationId);
-            _context.Location.Remove(l);
-            _context.SaveChanges();
-
-            return RedirectToAction("ManageLocations");
-        }
-
-        /*
-        *  Add the new location to the database and redirect to the index
-        */
-        public IActionResult EditLocation(LocationEditViewModel l)
-        {
-            Location location = l.location;
-            // Validate the category. If the string returned isnt empty, return a error message back to the view.
-            string ErrorString = ValidateLocation(location);
-            if (!ErrorString.Equals(""))
-            {
-                TempData["InputError"] = ErrorString;
-                LocationEditViewModel model = new LocationEditViewModel();
-                model.location = location;
-                return View("LocationEdit", model);
-            }
-
-            // Prepare the data for entry into the database:
-            // Make sure the Abbreviation is captialized
-            location.Abbreviation = location.Abbreviation.ToUpper();
-            // Add the new Location to database
-            _context.Location.Update(location);
-            // If the user selected "Update Asset Tags", find all the assets in this category and update their tags
-            if (l.updateAssetTags)
-            {
-                IEnumerable<Asset> assets = _context.Asset.Where(a => a.LocationId == location.LocationId).ToList();
-                foreach (Asset a in assets)
-                {
-                    // Replace with null location's ID in the future. "Unasigned" is seeded with id 1 by default.
-                    // Assign the Asset an asset tag based on the Category's abbreviation, Location abbreviation and a unique number, padded to 4 digits with leading zeros.
-                    a.AssetTag = $"{_context.Category.Find(a.CategoryId)?.Abbreviation}-{_context.Location.Find(a.LocationId)?.Abbreviation}-{a.AssetTag.Substring(a.AssetTag.Length - 4)}";
-                    _context.Asset.Update(a);
-                    Console.WriteLine($"Asset Tag Updated: {a.AssetTag}");
-                }
-            }
-            _context.SaveChanges();
-
-            // Log the Location to the console for debugging purposes
-            Console.WriteLine($"Location Edited: {location.Name}, {location.Abbreviation}");
-            return RedirectToAction("ManageLocations");
-        }
-
-        /*
          *  Add the new location to the database and redirect to the index
          */
         public IActionResult NewLocation(Location l)
         {
-            // Validate the category. If the string returned isnt empty, return a error message back to the view.
-            string ErrorString = ValidateLocation(l);
-            if (!ErrorString.Equals(""))
+            // Perform input validation. Redirect back to the form with an error message if the input is invalid.
+            // Copilot:
+            // Empty or whitespace name/abbreviation
+            if (string.IsNullOrWhiteSpace(l.Name) || string.IsNullOrWhiteSpace(l.Abbreviation))
             {
-                TempData["InputError"] = ErrorString;
+                TempData["InputError"] = "Error: Name and Abbreviation cannot be empty.";
+                return View("LocationAdd", l);
+            }
+            // Abbreviation too long
+            if (l.Abbreviation.Length > 10)
+            {
+                TempData["InputError"] = "Error: Abbreviation cannot be longer than 10 characters.";
+                return View("LocationAdd", l);
+            }
+            // Location with same name already exists
+            if (_context.Location.Any(loc => loc.Name == l.Name))
+            {
+                Location existingLocation = _context.Location.First(loc => loc.Name == l.Name);
+                TempData["InputError"] = "Error: A location with this name already exists: " + existingLocation.Name + " (" + existingLocation.Abbreviation + ")";
+                return View("LocationAdd", l);
+            }
+            // Location with same abbreviation already exists
+            if (_context.Location.Any(loc => loc.Abbreviation == l.Abbreviation.ToUpper()))
+            {
+                Location existingLocation = _context.Location.First(loc => loc.Name == l.Name);
+                TempData["InputError"] = "Error: A location with this abbreviation already exists: " + existingLocation.Name + " (" + existingLocation.Abbreviation + ")";
                 return View("LocationAdd", l);
             }
 
@@ -156,105 +94,14 @@ namespace TrackPoint.Controllers
 
             // Log the Location to the console for debugging purposes
             Console.WriteLine($"New Location Added: {l.Name}, {l.Abbreviation}");
-            return RedirectToAction("Index", "Home");
+            return View("../Home/Index");
         }
-
-        public IActionResult ManageLocations()
-        {
-            IEnumerable<Location> locations = _context.Location.ToList();
-            return View(locations);
-        }
-
         /*
 		 *  Return the view for the Category Add Form
 		 */
         public IActionResult CategoryAdd()
         {
             return View(new Category());
-        }
-
-        /*
-         *  Return the view for the Categroy Edit form
-         */
-        public IActionResult CategoryEdit(int categoryId)
-        {
-            CategoryEditViewModel model = new CategoryEditViewModel();
-            model.category = _context.Category.Find(categoryId);
-            return View(model);
-        }
-
-        public IActionResult ManageCategories()
-        {
-            IEnumerable<Category> categories = _context.Category.ToList();
-            return View(categories);
-        }
-
-        /*
-         *  Update the category and return to the Managament page
-         */
-        public IActionResult EditCategory(CategoryEditViewModel c)
-        {
-            Category category = c.category;
-            // Validate the category. If the string returned isnt empty, return a error message back to the view.
-            string ErrorString = ValidateCategory(category);
-            if (!ErrorString.Equals(""))
-            {
-                TempData["InputError"] = ErrorString;
-                CategoryEditViewModel model = new CategoryEditViewModel();
-                model.category = category;
-                return View("CategoryEdit", model);
-            }
-
-            // Prepare the data for entry into the database:
-            // Make sure the Abbreviation is captialized
-            category.Abbreviation = category.Abbreviation.ToUpper();
-            // Add the new Category to database
-            _context.Category.Update(category);
-            // If the user selected "Update Asset Tags", find all the assets in this category and update their tags
-            if(c.updateAssetTags)
-            {
-                IEnumerable<Asset> assets = _context.Asset.Where(a => a.CategoryId == category.CategoryId).ToList();
-                foreach (Asset a in assets)
-                {
-                    // Replace with null location's ID in the future. "Unasigned" is seeded with id 1 by default.
-                    // Assign the Asset an asset tag based on the Category's abbreviation, Location abbreviation and the number it had previously
-                    a.AssetTag = $"{_context.Category.Find(a.CategoryId)?.Abbreviation}-{_context.Location.Find(a.LocationId)?.Abbreviation}-{a.AssetTag.Substring(a.AssetTag.Length - 4)}";
-                    _context.Asset.Update(a);
-                    Console.WriteLine($"Asset Tag Updated: {a.AssetTag}");
-                }
-            }
-            _context.SaveChanges();
-            // Log the category to the console for debugging purposes
-            Console.WriteLine($"Category Updated: {category.Name}, {category.Abbreviation}");
-            return RedirectToAction("ManageCategories");
-        }
-
-        /*
-		 *  Try to delete a category
-		 */
-        public IActionResult DeleteCategory(int categoryId)
-        {
-            // Check that the category specified corresponds to a real category
-            if (!_context.Category.Any(c => c.CategoryId == categoryId))
-            {
-                Console.WriteLine($"Couldn't Find category: {categoryId}");
-                return RedirectToAction("ManageCategories");
-            }
-            // Set each asset in this category to a "null" category
-            IEnumerable<Asset> assets = _context.Asset.Where(a => a.CategoryId == categoryId);
-            foreach (Asset a in assets)
-            {
-                // Replace with null category's ID. "Unasigned" is seeded as 1 by default
-                a.CategoryId = 1;
-                _context.Update(a);
-            }
-
-            // Remove the category
-            Category c = _context.Category.Find(categoryId);
-            _context.Category.Remove(c);
-            _context.SaveChanges();
-
-            return RedirectToAction("ManageCategories");
         }
 
         /*
@@ -275,14 +122,47 @@ namespace TrackPoint.Controllers
 	    */
         public IActionResult NewCategory(Category c)
         {
-            // Validate the category. If the string returned isnt empty, return a error message back to the view.
-            string ErrorString = ValidateCategory(c);
-            if (!ErrorString.Equals(""))
+            // Perform input validation. Redirect back to the form with an error message if the input is invalid.
+            // Copilot:
+            // Empty or whitespace name/abbreviation
+            if (string.IsNullOrWhiteSpace(c.Name) || string.IsNullOrWhiteSpace(c.Abbreviation))
             {
-                TempData["InputError"] = ErrorString;
+                TempData["InputError"] = "Error: Name and Abbreviation cannot be empty.";
                 return View("CategoryAdd", c);
             }
-            
+            // Abbreviation too long
+            if (c.Abbreviation.Length > 10)
+            {
+                TempData["InputError"] = "Error: Abbreviation cannot be longer than 10 characters.";
+                return View("CategoryAdd", c);
+            }
+            // Abbreviation contains whitespace
+            if (c.Abbreviation.Any(char.IsWhiteSpace))
+            {
+                TempData["InputError"] = "Error: Abbreviation cannot contain whitespace.";
+                return View("CategoryAdd", c);
+            }
+            // Category with same name already exists
+            if (_context.Category.Any(cat => cat.Name == c.Name))
+            {
+                Category existingCategory = _context.Category.First(cat => cat.Name == c.Name);
+                TempData["InputError"] = "Error: A category with this name already exists: " + existingCategory.Name + " (" + existingCategory.Abbreviation + ")";
+                return View("CategoryAdd", c);
+            }
+            // Category with same abbreviation already exists
+            if (_context.Category.Any(cat => cat.Abbreviation == c.Abbreviation.ToUpper()))
+            {
+                Category existingCategory = _context.Category.First(cat => cat.Name == c.Name);
+                TempData["InputError"] = "Error: A category with this abbreviation already exists: " + existingCategory.Name + " (" + existingCategory.Abbreviation + ")";
+                return View("CategoryAdd", c);
+            }
+            // Negative default loan period
+            if (c.DefaultLoanPeriodDays < 0)
+            {
+                TempData["InputError"] = "Error: Default Loan Period cannot be negative.";
+                return View("CategoryAdd", c);
+            }
+
             // Prepare the data for entry into the database:
             // Make sure the Abbreviation is captialized
             c.Abbreviation = c.Abbreviation.ToUpper();
@@ -291,7 +171,7 @@ namespace TrackPoint.Controllers
             _context.SaveChanges();
             // Log the category to the console for debugging purposes
             Console.WriteLine($"New Category Added: {c.Name}, {c.Abbreviation}");
-            return RedirectToAction("Index", "Home");
+            return View("../Home/Index");
         }
 
         /* 
@@ -299,11 +179,31 @@ namespace TrackPoint.Controllers
 		 */
         public IActionResult NewAsset(Asset asset)
         {
-            // Validate the asset. If the string returned isnt empty, return a error message back to the view.
-            string ErrorString = ValidateAsset(asset);
-            if (!ErrorString.Equals(""))
+            // Perform input validation. Redirect back to the form with an error message if the input is invalid.
+            // Copilot:
+            // Empty or whitespace make/model
+            if (string.IsNullOrWhiteSpace(asset.Make) || string.IsNullOrWhiteSpace(asset.Model))
             {
-                TempData["InputError"] = ErrorString;
+                TempData["InputError"] = "Error: Make and Model cannot be empty.";
+                return RedirectToAction("AssetAdd", asset);
+            }
+            // Category is empty or invalid
+            if (!_context.Category.Any(c => c.CategoryId == asset.CategoryId))
+            {
+                TempData["InputError"] = "Error: Invalid category selected.";
+                return RedirectToAction("AssetAdd", asset);
+            }
+            // Location is empty or invalid
+            if (!_context.Location.Any(l => l.LocationId == asset.LocationId))
+            {
+                TempData["InputError"] = "Error: Invalid location selected.";
+                return RedirectToAction("AssetAdd", asset);
+            }
+
+            // Check if IssuedToUser is valid if not null (TODO: Currently broken.)
+            if (asset.IssuedToUser != null && !_userManager.Users.Any(u => u.Id == asset.IssuedToUserId))
+            {
+                TempData["InputError"] = $"Error: User '{asset.IssuedToUser}' not found.";
                 return RedirectToAction("AssetAdd", asset);
             }
 
@@ -325,7 +225,7 @@ namespace TrackPoint.Controllers
             model._assets = assets.ToList();
             model._categories = categories.ToList();
             model._locations = locations.ToList();
-            return RedirectToAction("AssetBrowser", model);
+            return View("AssetBrowser", model);
         }
 
         /**
@@ -335,36 +235,33 @@ namespace TrackPoint.Controllers
          * rather than for when they are done with an asset. Assets they are finished with should
          * have their status changed to "Retired", to preserve their history in the logs.
          */
-        public IActionResult DeleteAsset(int AssetId)
+        public IActionResult DeleteAsset(string AssetTag)
         {
-            Asset asset = _context.Asset.Find(AssetId);
-        // TODO: Update AssetLoan for this as well, likely by deleting the loan
-		public IActionResult DeleteAsset(string AssetTag)
-		{
             Asset asset = _context.Asset.First(a => a.AssetTag == AssetTag);
 
             _context.Asset.Remove(asset);
             _context.SaveChanges();
 
             // Log deleted asset
-            Console.WriteLine($"Asset Deleted: {AssetId}");
+            Console.WriteLine($"Asset Deleted: {AssetTag}");
             // Pack the information for the AssetBrowser
             AssetBrowserViewModel model = new AssetBrowserViewModel();
             model._assets = assets.ToList();
             model._categories = categories.ToList();
             model._locations = locations.ToList();
-            return RedirectToAction("AssetBrowser", model);
+            return View("AssetBrowser", model);
         }
 
         /**
          * Return the view for editing assets with the selected asset passed as the model
          */
-        public IActionResult AssetEdit(int AssetId)
-
-        // TODO: This may need another update for AssetLoan
-		public IActionResult AssetEdit(string AssetTag)
+        public IActionResult AssetEdit(string AssetTag)
         {
-            Asset asset = _context.Asset.Find(AssetId);
+            Asset asset = _context.Asset.First(a => a.AssetTag == AssetTag);
+            if (asset == null)
+            {
+                return NotFound();
+            }
             AssetAddViewModel model = new AssetAddViewModel();
             model._categories = categories.ToList();
             model._locations = locations.ToList();
@@ -389,16 +286,27 @@ namespace TrackPoint.Controllers
 
         public IActionResult UpdateAsset(Asset asset)
         {
-            // Validate the asset. If the string returned isnt empty, return a error message back to the view.
-            string ErrorString = ValidateAsset(asset);
-            if (!ErrorString.Equals(""))
+            // Perform input validation. Redirect back to the form with an error message if the input is invalid.
+            // Copilot:
+            // Empty or whitespace make/model
+            if (string.IsNullOrWhiteSpace(asset.Make) || string.IsNullOrWhiteSpace(asset.Model))
             {
-                TempData["InputError"] = ErrorString;
+                TempData["InputError"] = "Error: Make and Model cannot be empty.";
                 return RedirectToAction("AssetEditFromModel", asset);
             }
-
+            // Category is empty or invalid
+            if (!_context.Category.Any(c => c.CategoryId == asset.CategoryId))
+            {
+                TempData["InputError"] = "Error: Invalid category selected.";
+                return RedirectToAction("AssetEditFromModel", asset);
+            }
+            // Location is empty or invalid
+            if (!_context.Location.Any(l => l.LocationId == asset.LocationId))
+            {
+                TempData["InputError"] = "Error: Invalid location selected.";
+                return RedirectToAction("AssetEditFromModel", asset);
+            }
             // Update the asset in the database
-            // TODO: Update AssetLoan here if necessary
             _context.Asset.Update(asset);
             _context.SaveChanges();
 
@@ -409,7 +317,7 @@ namespace TrackPoint.Controllers
             model._assets = assets.ToList();
             model._categories = categories.ToList();
             model._locations = locations.ToList();
-            return RedirectToAction("AssetBrowser", model);
+            return View("AssetBrowser", model);
         }
 
         /**
@@ -452,7 +360,6 @@ namespace TrackPoint.Controllers
         public IActionResult checkOut(string AssetTag)
         {
             var asset = _context.Asset.FirstOrDefault(a => a.AssetTag == AssetTag);
-            
             if (asset == null)
             {
                 TempData["Failure"] = $"Error: Asset not found.";
@@ -476,19 +383,7 @@ namespace TrackPoint.Controllers
             //    TransferDate = previousTransferDate,
             //    //Asset = asset
             //});
-<<<<<<< Category-Location-Management
 
-=======
-            
-            // Update AssetLoan for Check Out
-            if (asset != null)
-            {
-                // TODO: Update this for full Check Out process. This should work for now, but just be wary
-                // of whether ApprovedByUserId should be set by the Borrower or Admin depending on context.
-                var assetLoan = UpdateLoanStatus(asset.AssetId, asset.IssuedToUserId, "InUse", 0);
-                _context.Assetloan.Update(assetLoan);
-            }
->>>>>>> main
             _context.SaveChanges();
 
             // Prevent duplicate form submissions on page refresh
@@ -505,8 +400,6 @@ namespace TrackPoint.Controllers
         public IActionResult checkIn(string AssetTag)
         {
             var asset = _context.Asset.FirstOrDefault(a => a.AssetTag == AssetTag);
-            var assetLoan = _context.Assetloan.Where(al => al.AssetId == asset.AssetId).OrderByDescending(al => al.CheckedoutDate).FirstOrDefault();
-            
             if (asset == null)
             {
                 TempData["Failure"] = $"Error: Asset not found.";
@@ -515,13 +408,6 @@ namespace TrackPoint.Controllers
             asset.IssuedToUserId = null;
             asset.StatusDate = DateTime.Now;
             asset.AssetStatus = "InStorage";
-            
-            // Update AssetLoan for Check In
-            if (assetLoan != null)
-            {
-                //UpdateLoanStatus(asset.AssetId, null, null, 2);
-                _context.Assetloan.Remove(assetLoan);
-            }
             _context.SaveChanges();
 
             // Prevent duplicate form submissions on page refresh
@@ -534,140 +420,6 @@ namespace TrackPoint.Controllers
             return View();
         }
 
-        /*
-         * Validate a given asset. 
-         * Returns an empty string if all checks passed
-         * Return an error string if a check fails
-         */
-        public string ValidateAsset(Asset a)
-        {
-            // Perform input validation. Redirect back to the form with an error message if the input is invalid.
-            // Copilot:
-            // Empty or whitespace make/model
-            if (string.IsNullOrWhiteSpace(a.Make) || string.IsNullOrWhiteSpace(a.Model))
-            {
-                return "Error: Make and Model cannot be empty.";
-            }
-            // Category is empty or invalid
-            if (!_context.Category.Any(c => c.CategoryId == a.CategoryId))
-            {
-                return "Error: Invalid category selected.";
-
-            }
-            // Location is empty or invalid
-            if (!_context.Location.Any(l => l.LocationId == a.LocationId))
-            {
-
-                return "Error: Invalid location selected.";
-            }
-            // Check if IssuedToUser is valid if not null (TODO: Currently broken.)
-            if (a.IssuedToUser != null && !_userManager.Users.Any(u => u.Id == a.IssuedToUserId))
-            {
-                return $"Error: User '{a.IssuedToUser}' not found.";
-            }
-
-            // If all checks pass, return empty string
-            return "";
-        }
-
-        /*
-         * Validate a given location. 
-         * Returns an empty string if all checks passed
-         * Return an error string if a check fails
-         */
-        public string ValidateLocation(Location l)
-        {
-            // Perform input validation. Redirect back to the form with an error message if the input is invalid.
-            // Copilot:
-            // Empty or whitespace name/abbreviation
-            if (string.IsNullOrWhiteSpace(l.Name) || string.IsNullOrWhiteSpace(l.Abbreviation))
-            {
-                return "Error: Name and Abbreviation cannot be empty.";
-            }
-            // Abbreviation too long
-            if (l.Abbreviation.Length > 10)
-            {
-                return "Error: Abbreviation cannot be longer than 10 characters.";
-            }
-            // Location uses reserved name
-            if (l.Name.Equals("Unassigned"))
-            {
-                return "Error: The name \"Unassigned\" is reserved. Please choose a different name.";
-            }
-            // Location uses reserved abbreviation
-            if (l.Abbreviation.ToUpper().Equals("UN"))
-            {
-                return "Error: The abbreviation \"UN\" is reserved. Please choose a different abbreviation.";
-            }
-            // Location with same name already exists
-            if (_context.Location.Any(loc => loc.Name == l.Name && loc.LocationId != l.LocationId))
-            {
-                Location existingLocation = _context.Location.First(loc => loc.Name == l.Name);
-                return "Error: A location with this name already exists: " + existingLocation.Name + " (" + existingLocation.Abbreviation + ")";
-            }
-            // Location with same abbreviation already exists
-            if (_context.Location.Any(loc => loc.Abbreviation == l.Abbreviation.ToUpper() && loc.LocationId != l.LocationId))
-            {
-                Location existingLocation = _context.Location.First(loc => loc.Name == l.Name);
-                return "Error: A location with this abbreviation already exists: " + existingLocation.Name + " (" + existingLocation.Abbreviation + ")";
-            }
-
-            return "";
-        }
-        /*
-         * Validate a given category. 
-         * Returns an empty string if all checks passed
-         * Return an error string if a check fails
-         */
-        public string ValidateCategory(Category c)
-        {
-            // Perform input validation. Redirect back to the form with an error message if the input is invalid.
-            // Copilot:
-            // Empty or whitespace name/abbreviation
-            if (string.IsNullOrWhiteSpace(c.Name) || string.IsNullOrWhiteSpace(c.Abbreviation))
-            {
-                return "Error: Name and Abbreviation cannot be empty.";
-            }
-            // Abbreviation too long
-            if (c.Abbreviation.Length > 10)
-            {
-                return "Error: Abbreviation cannot be longer than 10 characters.";
-            }
-            // Abbreviation contains whitespace
-            if (c.Abbreviation.Any(char.IsWhiteSpace))
-            {
-                return "Error: Abbreviation cannot contain whitespace.";
-            }
-            // Category uses reserved name
-            if (c.Name.Equals("Unassigned"))
-            {
-                return "Error: The name \"Unassigned\" is reserved. Please choose a different name.";
-            }
-            // Category uses reserved abbreviation
-            if (c.Abbreviation.ToUpper().Equals("UN"))
-            {
-                return "Error: The abbreviation \"UN\" is reserved. Please choose a different abbreviation.";
-            }
-            // Category with same name already exists
-            if (_context.Category.Any(cat => cat.Name == c.Name && cat.CategoryId != c.CategoryId))
-            {
-                Category existingCategory = _context.Category.First(cat => cat.Name == c.Name);
-                return "Error: A category with this name already exists: " + existingCategory.Name + " (" + existingCategory.Abbreviation + ")";
-            }
-            // Category with same abbreviation already exists
-            if (_context.Category.Any(cat => cat.Abbreviation == c.Abbreviation.ToUpper() && cat.CategoryId != c.CategoryId))
-            {
-                Category existingCategory = _context.Category.First(cat => cat.Name == c.Name && cat.CategoryId != c.CategoryId);
-                return "Error: A category with this abbreviation already exists: " + existingCategory.Name + " (" + existingCategory.Abbreviation + ")";
-            }
-            // Negative default loan period
-            if (c.DefaultLoanPeriodDays < 0)
-            {
-                return "Error: Default Loan Period cannot be negative.";
-            }
-
-            return "";
-        }
         // Generate QR Code for Asset
         // TODO: Fix the URL and integrate this into the Check Out flow later
         [HttpPost]
@@ -709,78 +461,6 @@ namespace TrackPoint.Controllers
                 return RedirectToAction("AssetBrowser", "Asset");
             }
             return View();
-        }
-
-        // Update the AssetLoan status of an Asset
-        public AssetLoan UpdateLoanStatus(int AssetId, string borrowerId, string newStatus, int updateType)
-        {
-            var asset = _context.Asset.FirstOrDefault(a => a.AssetId == AssetId);
-            var currentUserId = _userManager.GetUserId(User);
-            var currentUser = _userManager.Users.FirstOrDefault(u => u.Id == currentUserId);
-
-            if (asset == null)
-            {
-                Console.WriteLine($"Error: Asset with ID {AssetId} not found.");
-                return null;
-            }
-
-            // Create a new Asset Loan for this asset and save it to the AssetLoan table
-            // TODO: Perform validation/error handling and don't create this if we're checking in an asset (unnecessary since it's unused in that case)
-            AssetLoan assetLoan = new AssetLoan();
-
-            // Update the Asset Loan based on the update type, such as initial AssetLoan creation, check in/check out, retirement, etc.
-            // TODO: Avoid magic numbers by making an enum for update types
-            switch(updateType)
-            {
-                case 0: // Asset Transfer (Check Out)
-                    // TODO: Check Out can potentially become desynchronized with Asset Status, such as a loan existing even if the asset is InStorage. 
-                    assetLoan.AssetId = asset.AssetId;
-                    assetLoan.BorrowerId = borrowerId;
-                    assetLoan.CheckedoutDate = DateTime.Now; // TODO: Verify that this time is consistent with StatusDate in Asset, maybe we make StatusDate a FK for CheckedoutDate?
-                    assetLoan.DueDate = DateTime.Now.AddDays(_context.Category.Find(asset.CategoryId)?.DefaultLoanPeriodDays ?? 14); // Default to 2 week loan period if category not found for some reason
-                    assetLoan.ReturnedDate = null; // This should not be set on creation
-                    assetLoan.ExtendedByAdminId = null;
-                    assetLoan.ExtendedBy = null; // This is ExtendedById in the table, but different here. May cause issues.
-                    assetLoan.ApprovedByUserId = _userManager.GetUserId(User) ?? string.Empty; // This should be set by an admin when they approve the loan, not on creation. TODO: This cannot currently be properly nulled since it is required.
-                    assetLoan.ApprovedBy = currentUser; // This is also different from the table
-                    break;
-                
-                case 1: // Asset Transfer (Borrower switched between two people)
-                    // TODO: Write this
-                    break;
-
-                case 2: // Asset Transfer (Check In)
-                    // TODO: Currently I'm just deleting the AssetLoan, may way to keep it (see commented code below).
-                    AssetLoan removeLoan = _context.Assetloan.Where(al => al.AssetId == asset.AssetId).FirstOrDefault();
-                    if (removeLoan != null)
-			        {
-				        //assetLoan = removeLoan;
-				        _context.Assetloan.Remove(removeLoan);
-			        }
-                    
-                    /* assetLoan.AssetId = asset.AssetId;
-                    assetLoan.BorrowerId = null; // Claims to not be nullable, yet it starts as null in the database
-                    // assetLoan.CheckedoutDate = DateTime.Now; // TODO: This doesn't change, not sure whether we should null it
-                    assetLoan.DueDate = null; // Not relevant since the asset is returned
-                    assetLoan.ReturnedDate = DateTime.Now;
-                    assetLoan.ExtendedByAdminId = null;
-                    assetLoan.ExtendedBy = null;
-                    assetLoan.ApprovedByUserId = _userManager.GetUserName(User);
-                    assetLoan.ApprovedBy = currentUser; */
-                    break;
-
-                default:
-                    Console.WriteLine($"Error: Invalid update type {updateType}.");
-                    return null;
-
-            }
-            //if (assetLoan != null) // TODO: Verify if this check works correctly, probably rewrite this later
-            //{
-            //    _context.Assetloan.Add(assetLoan); // Save changes to DB
-            //    //_context.SaveChanges();
-            //}
-            Console.WriteLine("assetLoan AssetId: " + assetLoan.AssetId);
-            return assetLoan;
         }
     }
 }
