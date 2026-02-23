@@ -13,47 +13,220 @@
     }
 }
 
-<h1>Allocate Asset</h1>
-<p>Please enter the tag and new borrower for the asset you want to reassign.</p>
+<style>
+    body {
+        background: aliceblue;
+        font-family: 'DM Sans', system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+    }
 
-<form asp-controller="Admin" asp-action="Allocate">
-   <div class="form-group">
-        <label for="AssetTag">Asset Tag:</label>
-        <input type="text" id="AssetTag" name="AssetTag" class="form-control" />
-    </div>
-    <br/>
-    <div class="form-group">
-        <label for="IssuedTo">Allocate To:</label>
-        <input type="text" id="IssuedTo" name="IssuedTo" class="form-control" />
-    </div>
-    <br/>
+    h1 {
+        font-weight: 700;
+        font-size: 45px;
+        color: #064973;
+    }
 
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmModal">
-        Allocate Asset
-    </button>
+    .page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+    }
 
-    @* Confirmation Popup 
+    .card {
+        background: #fff;
+        width: 520px;
+        padding: 36px;
+        border-radius: 14px;
+        box-shadow: 0 20px 40px rgba(15, 42, 68, 0.15), 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
+
+        .card h1 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 28px;
+            text-align: center;
+        }
+
+    .field {
+        margin-bottom: 22px;
+    }
+
+    label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #475569;
+        margin: 26px 0 14px;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        font-size: 14px;
+        transition: border 0.2s, box-shadow 0.2s;
+    }
+
+        input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+    textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        font-size: 14px;
+        transition: border 0.2s, box-shadow 0.2s;
+    }
+
+
+    select {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        font-size: 14px;
+        transition: border 0.2s, box-shadow 0.2s;
+    }
+
+        select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+    .section-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #475569;
+        margin: 26px 0 14px;
+    }
+
+    .toggle-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 14px;
+        font-size: 14px;
+        color: #334155;
+    }
+
+    /* Toggle Switch */
+    .switch {
+        position: relative;
+        width: 44px;
+        height: 24px;
+    }
+
+        .switch input {
+            display: none;
+        }
+
+    .slider {
+        position: absolute;
+        inset: 0;
+        background: #d1d5db;
+        border-radius: 999px;
+        transition: background 0.2s;
+    }
+
+        .slider::before {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            top: 3px;
+            left: 3px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+
+    .switch input:checked + .slider {
+        background: #7c3aed;
+    }
+
+        .switch input:checked + .slider::before {
+            transform: translateX(20px);
+        }
+
+    .primary-btn {
+        width: 100%;
+        margin-top: 28px;
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #fff;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+        .primary-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
+        }
+</style>
+<div class="page">
+    <div class="card">
+        <h1>Allocate Asset</h1>
+        
+        <form asp-controller="Admin" asp-action="Allocate">
+            <div class="section">
+                <div class="form-group">
+                    <label for="AssetTag">Asset Tag:</label>
+                    <input type="text" id="AssetTag" name="AssetTag" class="form-control" />
+                </div>
+                
+                <div class="form-group">
+                    <label for="IssuedTo">Allocate To:</label>
+                    <input type="text" id="IssuedTo" name="IssuedTo" class="form-control" />
+                </div>
+                 
+                
+            </div>
+            <div class="section">
+                <button type="button" class="primary-btn" data-bs-toggle="modal" data-bs-target="#confirmModal">
+                    Allocate Asset
+                </button>
+            </div>
+            
+
+            @* Confirmation Popup 
         TODO: Refactor this (along with the Borrow button itself) into a partial view or component for reuse
               and fix the button so it can properly redirect instead of having to click the link inside the button.
     *@
-    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="confirmModalLabel">Reallocate Asset</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to reallocate this asset?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">
-                        Confirm
-                    </button>
+            <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="confirmModalLabel">Reallocate Asset</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to reallocate this asset?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">
+                                Confirm
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+            @* <button type="submit" class="btn btn-primary">Allocate Asset</button> *@
+        </form>
     </div>
-    @* <button type="submit" class="btn btn-primary">Allocate Asset</button> *@
-</form>
+
+</div>
+
+
+
+
