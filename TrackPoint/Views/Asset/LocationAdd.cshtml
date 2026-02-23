@@ -1,24 +1,194 @@
 ﻿@model TrackPoint.Models.Location;
 @{
 }
-<h1>Register a Location</h1>
+
 @if(TempData["InputError"] != null)
 {
 	<div class="alert alert-danger" role="alert">
 		@TempData["InputError"]
 	</div>
 }
-<form>
-	<input type="hidden" asp-for="LocationId">
-	<div>
-		<label asp-for="Name">Name</label>
-		<input type="text" asp-for="Name" value="@Model.Name">
-	</div>
 
-	<div>
-		<label asp-for="Abbreviation">Abbreviation</label>
-		<input type="text" asp-for="Abbreviation" value="@Model.Abbreviation">
-	</div>
+<style>
+    body {
+        background: aliceblue;
+        font-family: 'DM Sans', system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+    }
 
-	<input type="submit" value="Submit" asp-action="NewLocation">
-</form>
+    h1 {
+        font-weight: 700;
+        font-size: 45px;
+        color: #064973;
+    }
+
+    .page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+    }
+
+    .card {
+        background: #fff;
+        width: 520px;
+        padding: 36px;
+        border-radius: 14px;
+        box-shadow: 0 20px 40px rgba(15, 42, 68, 0.15), 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
+
+        .card h1 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 28px;
+            text-align: center;
+        }
+
+    .field {
+        margin-bottom: 22px;
+    }
+
+    label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #475569;
+        margin: 26px 0 14px;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        font-size: 14px;
+        transition: border 0.2s, box-shadow 0.2s;
+    }
+
+        input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+    textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        font-size: 14px;
+        transition: border 0.2s, box-shadow 0.2s;
+    }
+
+
+    select {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        font-size: 14px;
+        transition: border 0.2s, box-shadow 0.2s;
+    }
+
+        select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+    .section-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #475569;
+        margin: 26px 0 14px;
+    }
+
+    .toggle-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 14px;
+        font-size: 14px;
+        color: #334155;
+    }
+
+    /* Toggle Switch */
+    .switch {
+        position: relative;
+        width: 44px;
+        height: 24px;
+    }
+
+        .switch input {
+            display: none;
+        }
+
+    .slider {
+        position: absolute;
+        inset: 0;
+        background: #d1d5db;
+        border-radius: 999px;
+        transition: background 0.2s;
+    }
+
+        .slider::before {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            top: 3px;
+            left: 3px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+
+    .switch input:checked + .slider {
+        background: #7c3aed;
+    }
+
+        .switch input:checked + .slider::before {
+            transform: translateX(20px);
+        }
+
+    .primary-btn {
+        width: 100%;
+        margin-top: 28px;
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #fff;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+        .primary-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
+        }
+</style>
+<div class="page">
+	<div class="card">
+		<h1>Register a Location</h1>
+
+		<form>
+			<input type="hidden" asp-for="LocationId">
+			<div class="section">
+                <div>
+                    <label asp-for="Name">Name</label>
+                    <input type="text" asp-for="Name" value="@Model.Name">
+                </div>
+
+                <div>
+                    <label asp-for="Abbreviation">Abbreviation</label>
+                    <input type="text" asp-for="Abbreviation" value="@Model.Abbreviation">
+                </div>
+
+            </div>
+			<input type="submit" value="Submit" asp-action="NewLocation" class="primary-btn">
+		</form>
+	</div>
+</div>
+
