@@ -1,28 +1,39 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web.UI;
+using System.ComponentModel.DataAnnotations;
 using TrackPoint.Configuration;
 using TrackPoint.Data;
-using TrackPoint.Data.SeedData;
-using TrackPoint.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ?? Database ??????????????????????????????????????????????????????????????????
+// DB context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("StevenVM")));
 
-// ?? Authentication / Authorization ???????????????????????????????????????????
-// Entra ID (OIDC), Identity Core (user/role storage), provisioning, authorization.
-// See TrackPoint/Extensions/AuthenticationExtensions.cs for full documentation.
-builder.Services.AddTrackPointAuthentication(builder.Configuration);
+// Identity with roles enabled
+builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;
+})
+.AddRoles<IdentityRole>() // enable roles
+.AddDefaultUI()
+.AddEntityFrameworkStores<ApplicationDbContext>();
 
-// ?? MVC / Razor Pages ?????????????????????????????????????????????????????????
-// AddMicrosoftIdentityUI registers the /MicrosoftIdentity/Account/SignIn|SignOut
-// controller endpoints used by _LoginPartial and the root redirect.
-builder.Services.AddControllersWithViews()
-    .AddMicrosoftIdentityUI();
+// Authorization (no restrictive policies here)
+builder.Services.AddAuthorization();
 
-<<<<<<< Category-Location-Management
+builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages(options =>
+{
+    options.Conventions.AuthorizeFolder("/Account"); // OK
+});
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    options.ReturnUrlParameter = "returnUrl";
+
     // Auto-assign Borrower to any non-admin user on first sign-in
     options.Events.OnSignedIn = async ctx =>
     {
@@ -56,15 +67,13 @@ builder.Services.AddControllersWithViews()
         }
     };
 });
-=======
-builder.Services.AddRazorPages();
->>>>>>> main
 
 builder.Services.Configure<SeedOptions>(
     builder.Configuration.GetSection(SeedOptions.SectionName));
 
 var app = builder.Build();
 
+// Ensure database exists and is up to date BEFORE seeding roles/users
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -78,12 +87,11 @@ using (var scope = app.Services.CreateScope())
 await AdminSeedData.SeedAdminsAsync(app.Services);
 
 // Optionally: additional data seeding spot
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    // app data seeding here
-    //await Seed.InitializeAsync(db);
-}
+// using (var scope = app.Services.CreateScope())
+// {
+//     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+//     // app data seeding here
+// }
 
 if (!app.Environment.IsDevelopment())
 {
@@ -106,7 +114,7 @@ app.MapGet("/", async context =>
     }
     else
     {
-        context.Response.Redirect("/MicrosoftIdentity/Account/SignIn");
+        context.Response.Redirect("/Identity/Account/Login?returnUrl=/");
     }
     await Task.CompletedTask;
 });

@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,35 +10,82 @@ namespace TrackPoint.Pages.Account;
 public class SettingsModel : PageModel
 {
     private readonly UserManager<IdentityUser> _userManager;
+    private readonly SignInManager<IdentityUser> _signInManager;
 
-    public SettingsModel(UserManager<IdentityUser> userManager)
+    public SettingsModel(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
     {
         _userManager = userManager;
+        _signInManager = signInManager;
     }
 
+    // Display-only account info
     public string? UserName { get; private set; }
     public string? Email { get; private set; }
-    public bool IsEntraUser { get; private set; }
-    public IList<string> Roles { get; private set; } = new List<string>();
+
+    [BindProperty]
+    public ChangePasswordInput Input { get; set; } = new();
+
+    public class ChangePasswordInput
+    {
+        [Required]
+        [DataType(DataType.Password)]
+        [Display(Name = "Current password")]
+        public string CurrentPassword { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(100, ErrorMessage = "{0} must be at least {2} characters.", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        [Display(Name = "New password")]
+        public string NewPassword { get; set; } = string.Empty;
+
+        [Required]
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirm new password")]
+        [Compare(nameof(NewPassword), ErrorMessage = "The new password and confirmation do not match.")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+    }
 
     public async Task<IActionResult> OnGetAsync()
     {
-        // Get user info from claims (Entra provides these)
-        Email = User.FindFirstValue(ClaimTypes.Email) 
-                ?? User.FindFirstValue("preferred_username");
-        UserName = User.FindFirstValue(ClaimTypes.Name) ?? Email;
-        
-        // Check if this is an Entra user (has oid claim)
-        IsEntraUser = User.FindFirstValue("oid") != null 
-                      || User.FindFirstValue("http://schemas.microsoft.com/identity/claims/objectidentifier") != null;
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return Challenge(); // Not logged in
 
-        // Get roles from claims (Entra provides these in "roles" claim)
-        Roles = User.FindAll("roles").Select(c => c.Value).ToList();
-        if (!Roles.Any())
+        UserName = await _userManager.GetUserNameAsync(user);
+        Email = await _userManager.GetEmailAsync(user);
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPostChangePasswordAsync()
+    {
+        if (!ModelState.IsValid)
         {
-            Roles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+            await LoadUserInfoAsync();
+            return Page();
         }
 
-        return Page();
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return Challenge();
+
+        var result = await _userManager.ChangePasswordAsync(user, Input.CurrentPassword, Input.NewPassword);
+        if (!result.Succeeded)
+        {
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(string.Empty, error.Description);
+
+            await LoadUserInfoAsync();
+            return Page();
+        }
+
+        // Re-sign in to refresh security stamp
+        await _signInManager.RefreshSignInAsync(user);
+        TempData["StatusMessage"] = "Your password has been changed.";
+        return RedirectToPage();
+    }
+
+    private async Task LoadUserInfoAsync()
+    {
+        var user = await _userManager.GetUserAsync(User);
+        UserName = user != null ? await _userManager.GetUserNameAsync(user) : null;
+        Email = user != null ? await _userManager.GetEmailAsync(user) : null;
     }
 }
