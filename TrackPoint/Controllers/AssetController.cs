@@ -3,14 +3,15 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using QRCoder;
+using System.Collections.Immutable;
 using System.Net.NetworkInformation;
 using System.Security.Claims;
 using System.Security.Cryptography.Xml;
 using TrackPoint.Data;
 using TrackPoint.Models;
 using TrackPoint.Views.Asset;
-using QRCoder;
-using System.Collections.Immutable;
 
 namespace TrackPoint.Controllers
 {
@@ -372,9 +373,16 @@ namespace TrackPoint.Controllers
             }
 
             // Get the current user's Id
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId) || !_userManager.Users.Any(u => u.Id == userId))
             {
+                var usersList = _userManager.Users.ToList();
+                foreach (var user in usersList)
+                {
+                    Console.WriteLine($"Username: {user.UserName} | ID: {user.Id}");
+                }
+                Console.WriteLine($"CurrentUser: {userId}");
+
                 TempData["Failure"] = "Error: current user not found.";
                 return RedirectToAction("AssetBrowser");
             }
