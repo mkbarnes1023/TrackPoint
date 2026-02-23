@@ -409,15 +409,12 @@ namespace TrackPoint.Controllers
         }
 
         /**
-         * Return the view for the Transfer Log with the sample data sorted by TransferDate descending as the 
+         * Return the view for the Transfer Log sorted by TransferDate in descending order.
          */
-        // TODO: This is not a real transfer log since it's just sorting the assets by transfer date, it does not give a detailed history.
-        // Create a transfer log model in the future to properly track asset transfers.
 
         public IActionResult TransferLog()
         {
-            var sorted = _context.Asset.OrderByDescending(a => a.StatusDate).ToList();
-            return View(sorted);
+            return View(_context.TransferLog.OrderByDescending(tl => tl.TransferDate).ToList());
         }
 
         /**

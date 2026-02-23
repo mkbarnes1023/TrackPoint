@@ -1,5 +1,6 @@
-﻿@model IEnumerable<TrackPoint.Models.Asset>
+﻿@model IEnumerable<TrackPoint.Models.TransferLog>
 @{
+        ViewData["Title"] = "Transfer Log";
 }
 <style>
     body {
@@ -212,16 +213,16 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var asset in Model)
+                @foreach (var tLogEntry in Model)
                 {
                     <tr>
-                        <td>@asset.AssetTag</td>
-                        <td>@asset.Make</td>
-                        <td>@asset.Model</td>
-                        <td>@asset.Category</td>
-                        <td>@asset.Location</td>
-                        <td>@asset.IssuedToUser</td>
-                        <td>@asset.StatusDate.ToString("g")</td>
+                        <td>@tLogEntry.Asset?.AssetTag</td>
+                        <td>@tLogEntry.Asset?.Make</td>
+                        <td>@tLogEntry.Asset?.Model</td>
+                        <td>@tLogEntry.Asset?.Category</td>
+                        <td>@tLogEntry.Asset?.Location</td>
+                        <td>@tLogEntry.Borrower.UserName</td>
+                        <td>@tLogEntry.TransferDate.ToString("g")</td>
                     </tr>
                 }
             </tbody>
