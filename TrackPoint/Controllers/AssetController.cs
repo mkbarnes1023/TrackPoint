@@ -13,11 +13,8 @@ using System.Threading;
 using TrackPoint.Data;
 using TrackPoint.Models;
 using TrackPoint.Views.Asset;
-<<<<<<< Category-Location-Management
-=======
 using QRCoder;
 using System.Collections.Immutable;
->>>>>>> main
 
 namespace TrackPoint.Controllers
 {
@@ -338,16 +335,13 @@ namespace TrackPoint.Controllers
          * rather than for when they are done with an asset. Assets they are finished with should
          * have their status changed to "Retired", to preserve their history in the logs.
          */
-<<<<<<< Category-Location-Management
         public IActionResult DeleteAsset(int AssetId)
         {
             Asset asset = _context.Asset.Find(AssetId);
-=======
         // TODO: Update AssetLoan for this as well, likely by deleting the loan
 		public IActionResult DeleteAsset(string AssetTag)
 		{
             Asset asset = _context.Asset.First(a => a.AssetTag == AssetTag);
->>>>>>> main
 
             _context.Asset.Remove(asset);
             _context.SaveChanges();
@@ -365,12 +359,10 @@ namespace TrackPoint.Controllers
         /**
          * Return the view for editing assets with the selected asset passed as the model
          */
-<<<<<<< Category-Location-Management
         public IActionResult AssetEdit(int AssetId)
-=======
+
         // TODO: This may need another update for AssetLoan
 		public IActionResult AssetEdit(string AssetTag)
->>>>>>> main
         {
             Asset asset = _context.Asset.Find(AssetId);
             AssetAddViewModel model = new AssetAddViewModel();
