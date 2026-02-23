@@ -1,7 +1,8 @@
 ﻿@model TrackPoint.Models.Category;
 @{
 }
-@if (TempData["InputError"] != null)
+<h1>Register a Category</h1>
+@if(TempData["InputError"] != null)
 {
 	<div class="alert alert-danger" role="alert">
 		@TempData["InputError"]
