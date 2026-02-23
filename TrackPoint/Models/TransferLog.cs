@@ -14,7 +14,7 @@ namespace TrackPoint.Models
         public int AssetId { get; set; }
         public Asset Asset { get; set; }
 
-        // Foreign key to IdentityUser for issuedTo
+        // Foreign key for Borrower
         [Required]
         public string BorrowerId { get; set; }
         public IdentityUser Borrower { get; set; }
@@ -22,7 +22,7 @@ namespace TrackPoint.Models
         
         // Foreign key for Asset Status
         public string NewStatus { get; set; }
-        public Asset AssetStatus { get; set; }
+        //public Asset AssetStatus { get; set; } // TODO: This gave me FK errors, fix later. Maybe it shouldn't be a FK?
         public string OldStatus { get; set; } // Status before the change, if applicable
     
         [Required]
