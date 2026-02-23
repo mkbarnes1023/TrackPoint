@@ -23,6 +23,50 @@
         color: #064973;
     }
 
+<<<<<<< Category-Location-Management
+	<div>
+		<label asp-for="asset.CategoryId">Category</label>
+		<select asp-for="asset.CategoryId">
+			<option value="">Select Category</option>
+			<!--Populate the dropdown with available categories-->
+			@foreach (Category c in Model._categories)
+			{
+				// If the editing asset's category matches the current category, mark it as selected
+				if (c.CategoryId == Model.asset.CategoryId)
+				{
+					<option value="@c.CategoryId" selected>@c.Name</option>
+				}
+				// Exclude the null category
+				else if(c.CategoryId != 1)
+				{
+					<option value="@c.CategoryId">@c.Name</option>
+				}
+
+			}
+		</select>
+	</div>
+
+	<div>
+		<label asp-for="asset.LocationId">Location</label>
+		<select asp-for="asset.LocationId">
+			<option value="">Select Location</option>
+			<!--Populate the dropdown with available locations-->
+			@foreach (Location l in Model._locations)
+			{
+				// If the editing asset's location matches the current location, mark it as selected
+				if (l.LocationId == Model.asset.LocationId)
+				{
+					<option value="@l.LocationId" selected>@l.Name</option>
+				}
+				// Exclude the null location
+				else if(l.LocationId != 1)
+				{
+					<option value="@l.LocationId">@l.Name</option>
+				}
+			}
+		</select>
+	</div>
+=======
     .page {
         min-height: 100vh;
         display: flex;
@@ -38,6 +82,7 @@
         border-radius: 14px;
         box-shadow: 0 20px 40px rgba(15, 42, 68, 0.15), 0 4px 8px rgba(0, 0, 0, 0.05);
     }
+>>>>>>> main
 
         .card h1 {
             font-size: 22px;
