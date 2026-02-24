@@ -316,6 +316,22 @@ namespace TrackPoint.Controllers
 
             // Add the new Asset to database and redirect the user to the AssetBrowser
             _context.Asset.Add(asset);
+            
+            // Save changes to the database
+            _context.SaveChanges();    
+
+            // Update TransferLog for Asset Creation
+            _context.TransferLog.Add(new TransferLog
+            {
+                AssetId = asset.AssetId,
+                OldBorrowerId = null,
+                NewStatus = asset.AssetStatus,
+                OldStatus = null,
+                eventType = Enums.eventType.Creation,
+                TransferDate = DateTime.Now // TODO: Make sure DateTime.Now is synced, save as variable to "freeze" it
+            });
+
+            // Save the Transfer Log changes to the database
             _context.SaveChanges();
 
             // Log the asset to the console for debugging purposes
@@ -342,6 +358,19 @@ namespace TrackPoint.Controllers
             Asset asset = _context.Asset.Find(AssetId);
 
             _context.Asset.Remove(asset);
+
+            // Update TransferLog for Asset Deletion
+            // TODO: This currently does nothing since the asset being deleted also deletes all of its transfer logs due to the
+            //       Foreign Key fo AssetID. We should implement the system of retiring assets instead of deleting their entry.
+            
+            _context.TransferLog.Add(new TransferLog
+            {
+                AssetId = asset.AssetId,
+                NewStatus = "Retired",
+                eventType = Enums.eventType.Deletion,
+                TransferDate = DateTime.Now
+            });
+
             _context.SaveChanges();
 
             // Log deleted asset
