@@ -1,4 +1,6 @@
-﻿@model IEnumerable<TrackPoint.Models.TransferLog>
+﻿@using Microsoft.AspNetCore.Identity
+@model IEnumerable<TrackPoint.Models.TransferLog>
+@inject UserManager<IdentityUser> UserManager
 @{
         ViewData["Title"] = "Transfer Log";
 }
@@ -206,7 +208,7 @@
         }
         else
         {
-            <table class="table">
+            <table class="table" id="tlog">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -235,21 +237,20 @@
                                     <td>Asset @tLogEntry.Asset.AssetTag created</td>
                                     break;
                                 case Enums.eventType.BorrowerTransfer:
-                                    Console.WriteLine($"\n\n\n ID: {tLogEntry.TransferLogId} | OldBorrowerID is Null: {tLogEntry.OldBorrowerId == null} \n\n\n");
                                     @if (tLogEntry.OldBorrowerId == null) @* Check Out *@
                                     {
                                         <td>Check Out</td>
-                                        <td>Storage -> @tLogEntry.NewBorrowerId</td>
+                                        <td>Storage -> @UserManager.FindByIdAsync(tLogEntry.NewBorrowerId).GetAwaiter().GetResult()</td>
                                     }
                                     else if (tLogEntry.NewBorrowerId == null) @* Check In *@
                                     {
                                         <td>Check In</td>
-                                        <td>@tLogEntry.OldBorrowerId -> Storage</td>
+                                        <td>@UserManager.FindByIdAsync(tLogEntry.OldBorrowerId).GetAwaiter().GetResult() -> Storage</td>
                                     }
                                     else @* Borrower Transfer *@
                                     {
                                         <td>Borrower Transfer</td>
-                                        <td>@tLogEntry.OldBorrowerId -> @tLogEntry.NewBorrowerId</td>
+                                        <td>@UserManager.FindByIdAsync(tLogEntry.OldBorrowerId).GetAwaiter().GetResult() -> @UserManager.FindByIdAsync(tLogEntry.NewBorrowerId).GetAwaiter().GetResult()</td>
                                     }
                                     break;
                                 case Enums.eventType.StatusChange:
@@ -270,3 +271,22 @@
 
         </div>
 </div>
+
+<!-- DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#tlog').DataTable({
+            "order": [[ 7, "desc" ]],
+            "columnDefs":
+            [
+                {
+                    "orderable": false, "targets": [1, 4, 6],
+                    "searchable": false, "targets": [1, 4]
+                }
+            ]
+        });
+    });
+</script>
