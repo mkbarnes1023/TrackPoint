@@ -68,6 +68,21 @@ namespace TrackPoint.Controllers
             //    //Asset = asset
             //});
             
+            // TODO: Implement AssetLoan functionality, but only after we move this to the admin dashboard
+
+            // Update TransferLog for Admin Asset Allocation
+            _context.TransferLog.Add(new TransferLog
+            {
+                AssetId = asset.AssetId,
+                OldBorrowerId = previousIssuedTo,
+                NewBorrowerId = asset.IssuedToUserId,
+                NewStatus = asset.AssetStatus, // TODO: What if the asset also changes status during allocation? Handle this later.
+                OldStatus = asset.AssetStatus, // In this instance, these are both effectively "InUse"
+                eventType = Enums.eventType.BorrowerTransfer,
+                TransferDate = DateTime.Now
+            });
+            _context.SaveChanges();
+
             // Prevent duplicate form submissions on page refresh
             if (ModelState.IsValid)
             {
