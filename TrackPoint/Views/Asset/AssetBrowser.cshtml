@@ -264,7 +264,8 @@
                 statusColorClass = "";
             }
 
-            var modalId = $"confirmModal-{asset.AssetId}";
+            var borrowModalId = $"confirmModal-{asset.AssetId}";
+            var deleteModalId = $"confirmDeleteModal-{asset.AssetId}";
             <tr>
                 <td>
                     <a asp-controller="Asset" asp-action="AssetView" asp-route-assetTag="@asset.AssetTag">@asset.AssetTag</a>
@@ -286,15 +287,15 @@
                     *@
                     @if (statusKey == "instorage" || statusKey == "transfered" || statusKey == "transferred")
                     {
-                        <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#@modalId">
+                        <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#@borrowModalId">
                             Borrow
                         </button>
 
-                        <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@($"{modalId}-label")" aria-hidden="true">
+                        <div class="modal fade" id="@borrowModalId" tabindex="-1" aria-labelledby="@($"{borrowModalId}-label")" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="@($"{modalId}-label")">Borrow Asset</h5>
+                                        <h5 class="modal-title" id="@($"{borrowModalId}-label")">Borrow Asset</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
@@ -310,14 +311,14 @@
                     }
                     else if (statusKey == "inuse" && asset.IssuedToUserId == UserManager.GetUserId(User))
                     {
-                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#@modalId">
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#@borrowModalId">
                             Return
                         </button>
-                         <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@($"{modalId}-label")" aria-hidden="true">
+                         <div class="modal fade" id="@borrowModalId" tabindex="-1" aria-labelledby="@($"{borrowModalId}-label")" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="@($"{modalId}-label")">Return Asset</h5>
+                                        <h5 class="modal-title" id="@($"{borrowModalId}-label")">Return Asset</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
@@ -339,7 +340,25 @@
                     @if (User.IsInRole("Admin"))
                     {
                         <a class="btn btn-sm btn-warning" asp-controller="Asset" asp-action="AssetEdit" asp-route-AssetId="@asset.AssetId">Edit</a>
-                        <a class="btn btn-sm btn-danger" asp-controller="Asset" asp-action="DeleteAsset" asp-route-AssetId="@asset.AssetId">Delete</a>
+                        <a class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#@deleteModalId">Delete</a>
+                        <!--Confirmation modal adapted from Matthew's in the AssetBrowser-->
+                        <div class="modal fade" id="@deleteModalId" tabindex="-1" aria-labelledby="@($"{deleteModalId}-label")" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="@($"{deleteModalId}-label")">Delete @asset.AssetTag</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete this asset? <strong>All record of this asset will be deleted, including Audit Trail and Transfer Log.</strong><br /><br /><strong>If this asset is no longer in circulation, you should change its status to "Retired" instead of deleting it.</strong>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <a asp-controller="Asset" asp-action="DeleteAsset" asp-route-assetId="@asset.AssetId" class="btn btn-danger">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     }
                 </td>
             </tr>
