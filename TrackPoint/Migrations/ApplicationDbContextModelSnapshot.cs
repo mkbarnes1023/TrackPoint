@@ -586,12 +586,17 @@ namespace TrackPoint.Migrations
                     b.Property<string>("BorrowerId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("NewBorrowerId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("NewStatus")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("OldBorrowerId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("OldStatus")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("TransferDate")

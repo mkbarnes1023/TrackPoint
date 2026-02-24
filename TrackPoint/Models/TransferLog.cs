@@ -15,17 +15,17 @@ namespace TrackPoint.Models
         public Asset Asset { get; set; }
 
         // Foreign key for Borrower
-        public string ?BorrowerId { get; set; }
+        public string ?NewBorrowerId { get; set; }
         public IdentityUser ?Borrower { get; set; }
-
+        public string ?OldBorrowerId  { get; set; }
         
         // Foreign key for Asset Status
         public string NewStatus { get; set; }
         //public Asset AssetStatus { get; set; } // TODO: This gave me FK errors, fix later. Maybe it shouldn't be a FK?
-        public string OldStatus { get; set; } // Status before the change, if applicable
+        public string ?OldStatus { get; set; } // Status before the change, if applicable
     
         [Required]
         public eventType eventType { get; set; } // TODO: Confirm that this works with Enums.cs
         public DateTime TransferDate { get; set; }
-}
+    }
 }

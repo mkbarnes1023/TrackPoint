@@ -490,9 +490,10 @@ namespace TrackPoint.Controllers
             _context.TransferLog.Add(new TransferLog
             {
                 AssetId = asset.AssetId,
-                BorrowerId = asset.IssuedToUserId,
+                OldBorrowerId = null,
+                NewBorrowerId = asset.IssuedToUserId,
                 NewStatus = "InUse",
-                OldStatus = asset.AssetStatus,
+                OldStatus = null,
                 eventType = Enums.eventType.BorrowerTransfer,
                 TransferDate = DateTime.Now // TODO: Make sure DateTime.Now is synced, save as variable to "freeze" it
             });
@@ -536,7 +537,7 @@ namespace TrackPoint.Controllers
             _context.TransferLog.Add(new TransferLog
             {
                 AssetId = asset.AssetId,
-                BorrowerId = null,
+                OldBorrowerId = asset.IssuedToUserId,
                 NewStatus = "InStorage",
                 OldStatus = asset.AssetStatus,
                 eventType = Enums.eventType.BorrowerTransfer,

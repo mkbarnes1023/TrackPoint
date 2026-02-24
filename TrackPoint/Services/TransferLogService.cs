@@ -19,9 +19,10 @@ namespace TrackPoint.Services
             var tLogEntry = new TransferLog
             {
                 AssetId = assetId,
-                BorrowerId = borrowerId,
+                OldBorrowerId = asset?.IssuedToUserId,
+                NewBorrowerId = borrowerId = null,
                 OldStatus = asset.AssetStatus,
-                NewStatus = assetStatus, // TODO: Should be an enum
+                NewStatus = assetStatus = null, // TODO: Should be an enum
                 eventType = (Enums.eventType)eventType, // TODO: Is this cast really necessary?
                 TransferDate = transferDate
             };

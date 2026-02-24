@@ -12,7 +12,7 @@ using TrackPoint.Data;
 namespace TrackPoint.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260223215606_TransferLogTest")]
+    [Migration("20260224012827_TransferLogTest")]
     partial class TransferLogTest
     {
         /// <inheritdoc />
@@ -589,12 +589,17 @@ namespace TrackPoint.Migrations
                     b.Property<string>("BorrowerId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("NewBorrowerId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("NewStatus")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("OldBorrowerId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("OldStatus")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("TransferDate")

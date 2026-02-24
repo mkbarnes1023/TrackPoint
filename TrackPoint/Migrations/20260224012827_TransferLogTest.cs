@@ -18,9 +18,11 @@ namespace TrackPoint.Migrations
                     TransferLogId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     AssetId = table.Column<int>(type: "int", nullable: false),
+                    NewBorrowerId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     BorrowerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    OldBorrowerId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NewStatus = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    OldStatus = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OldStatus = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     eventType = table.Column<int>(type: "int", nullable: false),
                     TransferDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
