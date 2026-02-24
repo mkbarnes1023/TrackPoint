@@ -446,6 +446,7 @@ namespace TrackPoint.Controllers
             return View(_context.TransferLog
                 .Include(tl => tl.Asset)
                 .Include(tl => tl.Borrower)
+                .Include(tl => tl.Asset.Category)
                 .OrderByDescending(tl => tl.TransferDate)
                 .ToList());
         }
@@ -551,7 +552,6 @@ namespace TrackPoint.Controllers
                 TempData["Failure"] = $"Error: Asset not found.";
                 return RedirectToAction("AssetBrowser");
             }
-            asset.IssuedToUserId = null;
             asset.StatusDate = DateTime.Now;
             asset.AssetStatus = "InStorage";
             
@@ -567,12 +567,13 @@ namespace TrackPoint.Controllers
             {
                 AssetId = asset.AssetId,
                 OldBorrowerId = asset.IssuedToUserId,
+                NewBorrowerId = null,
                 NewStatus = "InStorage",
                 OldStatus = asset.AssetStatus,
                 eventType = Enums.eventType.BorrowerTransfer,
                 TransferDate = DateTime.Now // TODO: Make sure DateTime.Now is synced, save as variable to "freeze" it
             });
-
+            asset.IssuedToUserId = null; // Move this here, otherwise the Transfer Log Table cannot recognize Checked In assets
             _context.SaveChanges();
 
             // Prevent duplicate form submissions on page refresh
