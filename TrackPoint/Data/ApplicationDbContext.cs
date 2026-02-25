@@ -27,7 +27,7 @@ namespace TrackPoint.Data
         public DbSet<UserPreferences> UserPreferences { get; set; }
         public DbSet<AssetLoan> Assetloan { get; set; }
         public DbSet<AuditTrail> AuditTrail { get; set; }
-
+        public DbSet<TransferLog> TransferLog { get; set; }
 
     } 
 }

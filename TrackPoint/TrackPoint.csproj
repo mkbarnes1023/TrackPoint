@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <Compile Include="Services\EntraUserProvisioningService.cs" />
+    <Compile Include="Services\TransferLogService.cs" />
   </ItemGroup>
 
   <ItemGroup>

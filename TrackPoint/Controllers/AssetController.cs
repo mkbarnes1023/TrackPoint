@@ -316,6 +316,22 @@ namespace TrackPoint.Controllers
 
             // Add the new Asset to database and redirect the user to the AssetBrowser
             _context.Asset.Add(asset);
+            
+            // Save changes to the database
+            _context.SaveChanges();    
+
+            // Update TransferLog for Asset Creation
+            _context.TransferLog.Add(new TransferLog
+            {
+                AssetId = asset.AssetId,
+                OldBorrowerId = null,
+                NewStatus = asset.AssetStatus,
+                OldStatus = null,
+                eventType = Enums.eventType.Creation,
+                TransferDate = DateTime.Now // TODO: Make sure DateTime.Now is synced, save as variable to "freeze" it
+            });
+
+            // Save the Transfer Log changes to the database
             _context.SaveChanges();
 
             // Log the asset to the console for debugging purposes
@@ -342,6 +358,19 @@ namespace TrackPoint.Controllers
             Asset asset = _context.Asset.Find(AssetId);
 
             _context.Asset.Remove(asset);
+
+            // Update TransferLog for Asset Deletion
+            // TODO: This currently does nothing since the asset being deleted also deletes all of its transfer logs due to the
+            //       Foreign Key fo AssetID. We should implement the system of retiring assets instead of deleting their entry.
+            
+            _context.TransferLog.Add(new TransferLog
+            {
+                AssetId = asset.AssetId,
+                NewStatus = "Retired",
+                eventType = Enums.eventType.Deletion,
+                TransferDate = DateTime.Now
+            });
+
             _context.SaveChanges();
 
             // Log deleted asset
@@ -409,15 +438,17 @@ namespace TrackPoint.Controllers
         }
 
         /**
-         * Return the view for the Transfer Log with the sample data sorted by TransferDate descending as the 
+         * Return the view for the Transfer Log sorted by TransferDate in descending order.
          */
-        // TODO: This is not a real transfer log since it's just sorting the assets by transfer date, it does not give a detailed history.
-        // Create a transfer log model in the future to properly track asset transfers.
 
         public IActionResult TransferLog()
         {
-            var sorted = _context.Asset.OrderByDescending(a => a.StatusDate).ToList();
-            return View(sorted);
+            return View(_context.TransferLog
+                .Include(tl => tl.Asset)
+                .Include(tl => tl.Borrower)
+                .Include(tl => tl.Asset.Category)
+                .OrderByDescending(tl => tl.TransferDate)
+                .ToList());
         }
 
         /**
@@ -459,14 +490,7 @@ namespace TrackPoint.Controllers
             string userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId) || !_userManager.Users.Any(u => u.Id == userId))
             {
-                var usersList = _userManager.Users.ToList();
-                foreach (var user in usersList)
-                {
-                    Console.WriteLine($"Username: {user.UserName} | ID: {user.Id}");
-                }
-                Console.WriteLine($"CurrentUser: {userId}");
-
-                TempData["Failure"] = "Error: current user not found.";
+                TempData["Failure"] = "Error: Current user not found.";
                 return RedirectToAction("AssetBrowser");
             }
             asset.IssuedToUserId = userId;
@@ -491,7 +515,21 @@ namespace TrackPoint.Controllers
                 var assetLoan = UpdateLoanStatus(asset.AssetId, userId, "InUse", 0);
                 _context.Assetloan.Update(assetLoan);
             }
-            _context.SaveChanges();
+
+            // Update TransferLog for Check Out
+            _context.TransferLog.Add(new TransferLog
+            {
+                AssetId = asset.AssetId,
+                OldBorrowerId = null,
+                NewBorrowerId = asset.IssuedToUserId,
+                NewStatus = "InUse",
+                OldStatus = null,
+                eventType = Enums.eventType.BorrowerTransfer,
+                TransferDate = DateTime.Now // TODO: Make sure DateTime.Now is synced, save as variable to "freeze" it
+            });
+
+        // Save the changes
+        _context.SaveChanges();
 
             // Prevent duplicate form submissions on page refresh
             if (ModelState.IsValid)
@@ -514,7 +552,6 @@ namespace TrackPoint.Controllers
                 TempData["Failure"] = $"Error: Asset not found.";
                 return RedirectToAction("AssetBrowser");
             }
-            asset.IssuedToUserId = null;
             asset.StatusDate = DateTime.Now;
             asset.AssetStatus = "InStorage";
             
@@ -524,6 +561,19 @@ namespace TrackPoint.Controllers
                 //UpdateLoanStatus(asset.AssetId, null, null, 2);
                 _context.Assetloan.Remove(assetLoan);
             }
+
+            // Update TransferLog for Check In
+            _context.TransferLog.Add(new TransferLog
+            {
+                AssetId = asset.AssetId,
+                OldBorrowerId = asset.IssuedToUserId,
+                NewBorrowerId = null,
+                NewStatus = "InStorage",
+                OldStatus = asset.AssetStatus,
+                eventType = Enums.eventType.BorrowerTransfer,
+                TransferDate = DateTime.Now // TODO: Make sure DateTime.Now is synced, save as variable to "freeze" it
+            });
+            asset.IssuedToUserId = null; // Move this here, otherwise the Transfer Log Table cannot recognize Checked In assets
             _context.SaveChanges();
 
             // Prevent duplicate form submissions on page refresh
