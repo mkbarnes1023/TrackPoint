@@ -21,9 +21,13 @@
 
     h1 {
         font-weight: 700;
-        font-size: 45px;
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
         color: #064973;
     }
+
+    
 
     .page {
         min-height: 100vh;
@@ -49,33 +53,42 @@
             text-align: center;
         }
 
-    .table {
-        width: 100%;
-        border-collapse: collapse;
+    .table.dataTable {
         font-size: 14px;
+        border-collapse: seprate;
+        border-spacing: 0;
+        width: 100%;
     }
 
         .table thead {
-            background: #f9fafb;
+            background-color: #344054; /* dark slate */
         }
 
-        .table th {
-            text-align: left;
-            padding: 14px 16px;
+        /* Ensure the header styling applies to the #asset table (DataTables adds .dataTable),
+           plus fall back to general table.dataTable selector. */
+        #asset.dataTable thead th,
+        #asset thead th,
+        table.dataTable thead th {
+            background-color: #f3f6fa;
+            color: #6b7280;
             font-weight: 600;
-            color: #344054;
-            border-bottom: 1px solid #eaecf0;
-            text-transform: uppercase;
-            font-size: 12px;
-            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 12px 16px;
+            text-align: left;
         }
 
         /* Body cells */
-        .table td {
-            padding: 16px;
-            border-bottom: 1px solid #f2f4f7;
-            color: #475467;
+        #asset.dataTable tbody td,
+        #asset tbody td,
+        table.dataTable tbody td{
+            padding: 14px 16px;
+            border-bottom: 1px solid #eef2f7;
+            
         }
+    table.dataTable.stripe tbody tr.odd,
+    table.dataTable.display tbody tr.odd {
+        background-color: #ffffff;
+    }
 
         /* Row hover */
         .table tbody tr:hover {
@@ -207,152 +220,404 @@
             transform: translateY(-1px);
             box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
         }
+    .secondary-btn {
+        width: 110px;
+        height: 50px;
+        padding: 10px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #fff;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .secondary-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
+    }
+    .btn{
+        color: #4f46e5;
+    }
+
+    .actions-cell {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        white-space: nowrap;
+        min-width: 180px;
+    }
+
+    /* Remove default button styling */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        background: none !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 4px 8px;
+        margin: 0 6px;
+        color: #6b7280 !important; /* soft gray */
+        font-size: 14px;
+    }
+
+        /* Remove hover box */
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: none !important;
+            border: none !important;
+            color: #111827 !important; /* darker on hover */
+        }
+
+        /* Active page number */
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: none !important;
+            border: none !important;
+            color: #2563eb !important; /* blue active */
+            font-weight: 600;
+        }
+
+        /* Remove focus outline */
+        .dataTables_wrapper .dataTables_paginate .paginate_button:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+    .badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #fff;
+        display: inline-block;
+    }
+
+    /* Red - InUse */
+    .badge-red {
+        background-color: #FF2B2B;
+        color: white;
+    }
+
+    /* Orange - Retired */
+    .badge-orange {
+        background-color: #FF6D1A;
+        color: white;
+    }
+
+    /* Green - InStorage */
+    .badge-green {
+        background-color: #00C964;
+        color: white;
+    }
+
+    /* Blue -CheckedOut */
+    .badge-blue {
+        background-color: #009EFF;
+        color: white; /* readable on yellow */
+    }
+
+    /* Orange - UnderMaintenance */
+    .badge-yellow {
+        background-color: #FFD300;
+        color: black;
+    }
+
+    .badge-grey {
+        background-color: gray;
+        color: black;
+    }
 </style>
 
-<h1>Browse Available Assets</h1>
 
-<table class="table" id="asset">
-    <thead>
-        <tr>
-            <th>Asset Tag</th>
-            <th>Make</th>
-            <th>Model</th>
-            <th>Category</th>
-            <th>Location</th>
-            <th>Issued To</th>
-            <th>Status</th>
-            <th>Notes</th> <!-- TODO: This can become too long, either truncate, make it openable, or remove this. -->
-            <th>Audit Trail</th> <!-- TODO: Move the audit trail to Actions instead of its own tab, it makes no sense to be able to sort by Audit Trail in the DataTable. -->
-            <th>Actions</th> <!-- TODO: This is also sortable for no particular reason, figure out how to prevent sorting in DataTables. -->
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var asset in Model._assets)
-        {
-            // Model.IssuedToUser.UserName currently does not work, so look up their username by their Id instead.
-            var issuedToName = "—";
-            if (!string.IsNullOrWhiteSpace(asset.IssuedToUser?.UserName))
-            {
-                issuedToName = asset.IssuedToUser.UserName;
-            }
-            else if (!string.IsNullOrWhiteSpace(asset.IssuedToUserId))
-            {
-                // Lookup user by Id in dbo.AspNetUsers
-                var user = UserManager.FindByIdAsync(asset.IssuedToUserId).GetAwaiter().GetResult();
-                issuedToName = user?.UserName ?? "Unassigned";
-            }
-            var categoryName = Model._categories?.FirstOrDefault(c => c.CategoryId == asset.CategoryId)?.Name ?? "-";
-            var locationName = Model._locations?.FirstOrDefault(c => c.LocationId == asset.LocationId)?.Name ?? "-";
-            var statusRaw = (asset.AssetStatus ?? "").ToString().Trim();
-            var statusKey = statusRaw.ToLowerInvariant();
 
-            string statusColorClass;
-            if (statusKey == "inuse" || statusKey == "undermaintenance")
-            {
-                statusColorClass = "text-danger"; // red
-            }
-            else if (statusKey == "instorage" || statusKey == "transfered" || statusKey == "transferred")
-            {
-                statusColorClass = "text-success"; // green
-            }
-            else if (statusKey == "retired" || statusKey == "lost")
-            {
-                statusColorClass = "text-secondary"; // grey
-            }
-            else
-            {
-                statusColorClass = "";
-            }
+<div class="page">
+    <div class="card">
+        <h1>Browse Available Assets</h1>
+        <div class="row" style="text-align:left;">
+            <div class="col-md-3">
+                <button class="secondary-btn"></><i class="bi bi-funnel fs-6"></i> Filter Data</button>
+                @* customize table *@
+                <button class="secondary-btn" data-bs-toggle="modal" data-bs-target="#columnToggleModal"><i class="bi bi-gear fs-6"></i> Customize</button>
+                <!-- Modal -->
+                <div class="modal fade" id="columnToggleModal" tabindex="-1" aria-labelledby="columnToggleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
 
-            var modalId = $"confirmModal-{asset.AssetId}";
-            <tr>
-                <td>
-                    <a asp-controller="Asset" asp-action="AssetView" asp-route-assetTag="@asset.AssetTag">@asset.AssetTag</a>
-                </td>
-                <td>@asset.Make</td>
-                <td>@asset.Model</td>
-                <td>@categoryName</td>
-                <td>@locationName</td>
-                <td>@issuedToName</td>
-                <td class="@statusColorClass">@statusRaw</td>
-                <td>@asset.Notes</td>
-                <td>
-                    <a asp-controller="Asset" asp-action="AuditTrail" asp-route-assetTag="@asset.AssetTag" class="btn btn-primary">View Audit Trail</a>
-                </td>
-                <td>
-                    @* Borrow flow: Show button only when asset is available/in storage/transfered
+                            <!-- Modal Header -->
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="columnToggleModalLabel">Select Columns to Display</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+
+                            <!-- Modal Body -->
+                            <div class="modal-body d-flex flex-column align-items-center">
+                                <ul class="list-unstyled p-3 m-0 w-100" style="max-width: 300px;">
+                                    <li>
+                                        <label class="dropdown-item d-flex align-items-center">
+                                            <input type="checkbox" class="toggle-vis me-2" data-column="0" checked> Asset Tag
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="dropdown-item d-flex align-items-center">
+                                            <input type="checkbox" class="toggle-vis me-2" data-column="1" checked> Make
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="dropdown-item d-flex align-items-center">
+                                            <input type="checkbox" class="toggle-vis me-2" data-column="2" checked> Model
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="dropdown-item d-flex align-items-center">
+                                            <input type="checkbox" class="toggle-vis me-2" data-column="3" checked> Category
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="dropdown-item d-flex align-items-center">
+                                            <input type="checkbox" class="toggle-vis me-2" data-column="4" checked> Location
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="dropdown-item d-flex align-items-center">
+                                            <input type="checkbox" class="toggle-vis me-2" data-column="5" checked> Issued To
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="dropdown-item d-flex align-items-center">
+                                            <input type="checkbox" class="toggle-vis me-2" data-column="6" checked> Status
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="dropdown-item d-flex align-items-center">
+                                            <input type="checkbox" class="toggle-vis me-2" data-column="7" checked> Notes
+                                        </label>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Modal Footer -->
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3"></div>
+            <div class="col-md-3"></div>
+            <div class="col-md-3">
+                <div class="d-flex justify-content-end mb-2" id="top-right">
+                </div>
+            </div>
+
+        </div>
+
+        <table class="table w-100" id="asset">
+            <thead>
+                <tr>
+                    <th>Asset Tag</th>
+                    <th>Make</th>
+                    <th>Model</th>
+                    <th>Category</th>
+                    <th>Location</th>
+                    <th>Issued To</th>
+                    <th>Status</th>
+                    <th>Notes</th> <!-- TODO: This can become too long, either truncate, make it openable, or remove this. -->
+                    <th>Actions</th> <!-- TODO: This is also sortable for no particular reason, figure out how to prevent sorting in DataTables. -->
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var asset in Model._assets)
+                {
+                    // Model.IssuedToUser.UserName currently does not work, so look up their username by their Id instead.
+                    var issuedToName = "—";
+                    if (!string.IsNullOrWhiteSpace(asset.IssuedToUser?.UserName))
+                    {
+                        issuedToName = asset.IssuedToUser.UserName;
+                    }
+                    else if (!string.IsNullOrWhiteSpace(asset.IssuedToUserId))
+                    {
+                        // Lookup user by Id in dbo.AspNetUsers
+                        var user = UserManager.FindByIdAsync(asset.IssuedToUserId).GetAwaiter().GetResult();
+                        issuedToName = user?.UserName ?? "Unassigned";
+                    }
+                    var categoryName = Model._categories?.FirstOrDefault(c => c.CategoryId == asset.CategoryId)?.Name ?? "-";
+                    var locationName = Model._locations?.FirstOrDefault(c => c.LocationId == asset.LocationId)?.Name ?? "-";
+                    var statusRaw = (asset.AssetStatus ?? "").ToString().Trim();
+                    var statusKey = statusRaw.ToLowerInvariant();
+
+
+
+                    var modalId = $"confirmModal-{asset.AssetId}";
+                    <tr>
+                        <td>
+                            <a asp-controller="Asset" asp-action="AssetView" asp-route-assetTag="@asset.AssetTag">@asset.AssetTag</a>
+                        </td>
+                        <td>@asset.Make</td>
+                        <td>@asset.Model</td>
+                        <td>@categoryName</td>
+                        <td>@locationName</td>
+                        <td>@issuedToName</td>
+                        <td>@statusRaw</td>
+                        <td>@asset.Notes</td>
+                        <td class="actions-cell">
+                            @* Borrow flow: Show button only when asset is available/in storage/transfered
                        Temporary change: Show the "Return" button if user currently borrows the asset.
                        TODO: Discuss if we want to keep this or relegate it to only the personal dashboard.
                     *@
-                    @if (statusKey == "instorage" || statusKey == "transfered" || statusKey == "transferred")
-                    {
-                        <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#@modalId">
-                            Borrow
-                        </button>
+                            @if (statusKey == "instorage" || statusKey == "transfered" || statusKey == "transferred")
+                            {
+                                <button type="button"
+                                        class="btn btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#@modalId"
+                                        aria-label="Borrow asset"
+                                        title="Borrow">
+                                    <i class="bi bi-check-circle-fill fs-4"></i>
+                                </button>
 
-                        <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@($"{modalId}-label")" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="@($"{modalId}-label")">Borrow Asset</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        Are you sure you want to check out asset <strong>@asset.AssetTag</strong>?
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        <a asp-controller="Asset" asp-action="checkOut" asp-route-assetTag="@asset.AssetTag" class="btn btn-primary">Confirm</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                    else if (statusKey == "inuse" && asset.IssuedToUserId == UserManager.GetUserId(User))
-                    {
-                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#@modalId">
-                            Return
-                        </button>
-                         <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@($"{modalId}-label")" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="@($"{modalId}-label")">Return Asset</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        Are you sure you want to the asset <strong>@asset.AssetTag</strong> back into the system?
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        <a asp-controller="Asset" asp-action="checkIn" asp-route-assetTag="@asset.AssetTag" class="btn btn-primary">Confirm</a>
+                                <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@($"{modalId}-label")" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="@($"{modalId}-label")">Borrow Asset</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Are you sure you want to check out asset <strong>@asset.AssetTag</strong>?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <a asp-controller="Asset" asp-action="checkOut" asp-route-assetTag="@asset.AssetTag" class="btn btn-primary">Confirm</a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
-                        <button class="btn btn-sm btn-outline-success disabled" aria-disabled="true">Borrow</button>
-                    }
-                    
-                    @if (User.IsInRole("Admin"))
-                    {
-                        <a class="btn btn-sm btn-warning" asp-controller="Asset" asp-action="AssetEdit" asp-route-AssetId="@asset.AssetId">Edit</a>
-                        <a class="btn btn-sm btn-danger" asp-controller="Asset" asp-action="DeleteAsset" asp-route-AssetId="@asset.AssetId">Delete</a>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                            }
+                            else if (statusKey == "inuse" && asset.IssuedToUserId == UserManager.GetUserId(User))
+                            {
+                                <button type="button"
+                                        class="btn btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#@modalId"
+                                        aria-label="Return asset"
+                                        title="Return">
+                                    <i class="bi bi-check-circle fs-4"></i>
+                                </button>
+
+                                <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@($"{modalId}-label")" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="@($"{modalId}-label")">Return Asset</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Are you sure you want to the asset <strong>@asset.AssetTag</strong> back into the system?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <a asp-controller="Asset" asp-action="checkIn" asp-route-assetTag="@asset.AssetTag" class="btn btn-primary">Confirm</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-sm" aria-disabled="true"><i class="bi bi-check-circle fs-4"></i></button>
+                            }
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a class="btn btn-sm"
+                                   asp-controller="Asset"
+                                   asp-action="AssetEdit"
+                                   asp-route-AssetId="@asset.AssetId"
+                                   aria-label="Edit asset"
+                                   title="Edit">
+                                    <i class="bi bi-pencil-fill fs-4"></i>
+                                </a>
+
+                                <a class="btn btn-sm"
+                                   asp-controller="Asset"
+                                   asp-action="DeleteAsset"
+                                   asp-route-AssetId="@asset.AssetId"
+                                   aria-label="Delete asset"
+                                   title="Delete">
+                                    <i class="bi bi-trash-fill fs-4"></i>
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+</div>
 
 <!-- DataTables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" />
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.colresizable/1.6.0/colResizable-1.6.min.js"></script>
 <script>
     $(document).ready(function () {
-        $('#asset').DataTable();
+        // Keep the DataTable instance in a variable so column toggles can access it.
+        const table = $('#asset').DataTable({
+            dom:'ltp',
+            pagingType: 'full_numbers',
+            columnDefs: [
+                {
+                    targets: 6,
+                    render: function (data) {
+                        const clean = (data || "").toString().trim().toLowerCase();
+
+                        const map = {
+                            "inuse": "red",
+                            "instorage": "green",
+                            "undermaintenance": "yellow",
+                            "pendingdeployment": "orange",
+                            "checkedout": "blue",
+                            "retired": "grey"
+                        };
+
+                        const slug = map[clean] || "blue";
+                        return `<span class="badge badge-${slug}">${data}</span>`;
+                    }
+                }
+            ],
+        });
+
+        // When the modal opens, sync checkbox states with the current column visibility.
+        const columnModal = document.getElementById('columnToggleModal');
+        if (columnModal) {
+            columnModal.addEventListener('show.bs.modal', function () {
+                document.querySelectorAll('input.toggle-vis').forEach((checkbox) => {
+                    const colIndex = Number(checkbox.getAttribute('data-column'));
+                    // guard against invalid indices
+                    if (!Number.isNaN(colIndex) && table.column(colIndex) !== undefined) {
+                        checkbox.checked = table.column(colIndex).visible();
+                    }
+                });
+            });
+        }
+
+        // Attach change handlers to toggle column visibility.
+        document.querySelectorAll('input.toggle-vis').forEach((checkbox) => {
+            checkbox.addEventListener('change', function (e) {
+                const colIndex = Number(e.target.getAttribute('data-column'));
+                if (!Number.isNaN(colIndex)) {
+                    const column = table.column(colIndex);
+                    column.visible(e.target.checked);
+                }
+            });
+        });
+
+        // Move length into your custom top container
+        $('#top-right').append($('.dataTables_length'));
+    
     });
 </script>
