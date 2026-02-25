@@ -73,7 +73,97 @@ namespace TrackPoint.Data.SeedData
                         DefaultLoanPeriodDays = 7,
                         Description = "External speaker bar",
                         ContainsConsumables = false
-                    }
+                    },
+                    new Category
+{
+    Name = "Vehicle",
+    Abbreviation = "VEH",
+    RequiresApproval = true,
+    DefaultLoanPeriodDays = 3,
+    Description = "Company vehicle for transportation",
+    ContainsConsumables = false
+},
+new Category
+{
+    Name = "Outreach Supplies",
+    Abbreviation = "OUT",
+    RequiresApproval = true,
+    DefaultLoanPeriodDays = 7,
+    Description = "Materials used for outreach events and activities",
+    ContainsConsumables = true
+},
+new Category
+{
+    Name = "Keyboard",
+    Abbreviation = "KEY",
+    RequiresApproval = false,
+    DefaultLoanPeriodDays = 14,
+    Description = "Computer input keyboard",
+    ContainsConsumables = false
+},
+new Category
+{
+    Name = "Mouse",
+    Abbreviation = "MOU",
+    RequiresApproval = false,
+    DefaultLoanPeriodDays = 14,
+    Description = "Computer pointing device",
+    ContainsConsumables = false
+},
+new Category
+{
+    Name = "AV System",
+    Abbreviation = "AVS",
+    RequiresApproval = true,
+    DefaultLoanPeriodDays = 3,
+    Description = "Audio-visual equipment system",
+    ContainsConsumables = false
+},
+new Category
+{
+    Name = "Printer",
+    Abbreviation = "PRN",
+    RequiresApproval = true,
+    DefaultLoanPeriodDays = 7,
+    Description = "Printing device",
+    ContainsConsumables = false
+},
+new Category
+{
+    Name = "Furniture",
+    Abbreviation = "FUR",
+    RequiresApproval = true,
+    DefaultLoanPeriodDays = 30,
+    Description = "Office or facility furniture",
+    ContainsConsumables = false
+},
+new Category
+{
+    Name = "Dock",
+    Abbreviation = "DOC",
+    RequiresApproval = false,
+    DefaultLoanPeriodDays = 14,
+    Description = "Laptop docking station",
+    ContainsConsumables = false
+},
+new Category
+{
+    Name = "Charger",
+    Abbreviation = "CHR",
+    RequiresApproval = false,
+    DefaultLoanPeriodDays = 14,
+    Description = "Power adapter or charging device",
+    ContainsConsumables = false
+},
+new Category
+{
+    Name = "Webcam",
+    Abbreviation = "WBC",
+    RequiresApproval = false,
+    DefaultLoanPeriodDays = 14,
+    Description = "External video camera for computers",
+    ContainsConsumables = false
+},
                 };
 
                 context.Category.AddRange(categories);
