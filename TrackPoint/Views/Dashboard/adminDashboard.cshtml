@@ -110,7 +110,7 @@
         <div class="col-md-6">
             <h1>Home</h1>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6" style="text-align:right">
             <a asp-controller="Report" asp-action="ReportBuilder" class="secondary-btn">
                 Generate A Report
             </a>
@@ -121,21 +121,21 @@
         <div class="section">
             <h4>Priority Overview</h4>
             <div class="d-flex justify-content-between flex-wrap" style="gap: 20px; margin-top: 15px;">
-                <div class="custom-background" style="flex: 1 1 220px; border:1px solid #D3D3D3; border-radius:10px; padding:10px;">
-                    <div class="display-4">0</div>
-                    <h6>Needs Attention</h6>
+            <div class="custom-background" style="flex: 1 1 220px; border:1px solid #f472b6; border-radius:10px; padding:10px; background-color:rgba(244, 114, 182, 0.25)">
+                <div class="display-4" style="color:#f472b6">0</div>
+                <h6 style="color:#f472b6">Needs Attention</h6>
                 </div>
-                <div class="custom-background" style="flex: 1 1 220px; border:1px solid #D3D3D3; border-radius:10px; padding:10px;">
-                    <div class="display-4">0</div>
-                    <h6>Overdue</h6>
+            <div class="custom-background" style="flex: 1 1 220px; border:1px solid #d8b4fe; border-radius:10px; padding:10px; background-color: rgba(216, 180, 254,0.25)">
+                <div class="display-4" style="color:#d8b4fe">0</div>
+                <h6 style="color:#d8b4fe">Overdue</h6>
                 </div>
-                <div class="custom-background" style="flex: 1 1 220px; border:1px solid #D3D3D3; border-radius:10px; padding:10px;">
-                    <div class="display-4">@Model.ExpiringSoonCount</div>
-                    <h6>Warranty Expiring</h6>
+            <div class="custom-background" style="flex: 1 1 220px; border:1px solid #14b8a6; border-radius:10px; padding:10px; background-color: rgba(20, 184, 166,0.25)">
+                <div class="display-4" style="color:#14b8a6">@Model.ExpiringSoonCount</div>
+                <h6 style="color:#14b8a6">Warranty Expiring</h6>
                 </div>
-                <div class="custom-background" style="flex: 1 1 220px; border:1px solid #D3D3D3; border-radius:10px; padding:10px;">
-                    <div class="display-4">@Model.UnassignedCount</div>
-                    <h6>Unassigned</h6>
+            <div class="custom-background" style="flex: 1 1 220px; border:1px solid #3b82f6; border-radius:10px; padding:10px; background-color: rgba(59, 131, 246,0.25)">
+                <div class="display-4" style="color:#3b82f6">@Model.UnassignedCount</div>
+                <h6 style="color:#3b82f6">Unassigned</h6>
                 </div>
             </div>
         </div>
@@ -180,45 +180,66 @@
     DrawAssetChart();
     DrawWarrantyChart();
 
-    function DrawAssetChart(){
+            function DrawAssetChart() {
+        // Labels and data from server
         const labels = @Html.Raw(JsonSerializer.Serialize(Model.StatusCounts.Select(s => s.Label)));
-        const Data = @Html.Raw(JsonSerializer.Serialize(Model.StatusCounts.Select(s => s.Count)));
-        const ctx = document.getElementById('statusChart');
-        const statusChart = new Chart (ctx, {
+        const data = @Html.Raw(JsonSerializer.Serialize(Model.StatusCounts.Select(s => s.Count)));
+
+        const ctx = document.getElementById('statusChart').getContext('2d');
+
+        // Purple-centric SaaS palette
+        const backgroundColors = [
+            '#14b8a6', // Teal
+            '#7c3aed', // Purple
+            '#3b82f6', // Blue
+            '#6366f1', // Indigo
+            '#9333ea', // Darker Purple
+            '#f472b6', // Pink
+            '#facc15', // Amber
+            '#ec4899'  // Magenta
+        ];
+
+        new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: labels,
                 datasets: [{
-                   
-                    data: Data,
-                    backgroundColor: [
-
-                    ],
-                    borderWidth: 1
+                    data: data,
+                    backgroundColor: backgroundColors.slice(0, data.length),
+                    borderColor: '#ffffff',
+                    borderWidth: 2
                 }]
             },
             options: {
                 responsive: true,
                 plugins: {
-         
-                },
-            scales:{
-               
-            }
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            boxWidth: 15,
+                            padding: 20,
+                            font: { size: 14 }
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: '#1F2937',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        padding: 10
+                    }
+                }
             }
         });
-
     }
 
-    function DrawWarrantyChart(){
-        // Values provided by the AdminDashboard controller
+    function DrawWarrantyChart() {
+        // Values from server
         const expired = @Html.Raw(JsonSerializer.Serialize(Model.ExpiredCount));
         const zeroToThirty = @Html.Raw(JsonSerializer.Serialize(Model.ZeroToThirty));
         const thirtyOneToNinety = @Html.Raw(JsonSerializer.Serialize(Model.ThirtyOneToNinety));
         const ninetyPlus = @Html.Raw(JsonSerializer.Serialize(Model.NinetyPlus));
-        // total assets from status counts (grouped by status) -> used to infer "No Warranty"
         const totalAssets = @Html.Raw(JsonSerializer.Serialize(Model.StatusCounts.Sum(s => s.Count)));
-
         const noWarranty = Math.max(0, totalAssets - (expired + zeroToThirty + thirtyOneToNinety + ninetyPlus));
 
         const labels = ['No Warranty', 'Expired', '0-30 days', '31-90 days', '90+ days'];
@@ -226,13 +247,13 @@
 
         const ctx = document.getElementById('warranty').getContext('2d');
 
-        // simple color palette
+        // Purple/teal SaaS palette
         const backgroundColors = [
-            'rgba(201, 203, 207, 0.8)', // grey - no warranty
-            'rgba(255, 99, 132, 0.8)',  // red - expired
-            'rgba(255, 205, 86, 0.8)',  // yellow - 0-30
-            'rgba(54, 162, 235, 0.8)',  // blue - 31-90
-            'rgba(75, 192, 192, 0.8)'   // green - 90+
+            '#d8b4fe', // Light Purple - No Warranty
+            '#7c3aed', // Purple - Expired
+            '#9333ea', // Darker Purple - 0-30
+            '#14b8a6', // Teal - 31-90
+            '#f472b6'  // Pink - 90+
         ];
 
         new Chart(ctx, {
@@ -242,12 +263,25 @@
                 datasets: [{
                     data: data,
                     backgroundColor: backgroundColors,
-                    borderColor: backgroundColors.map(c => c.replace('0.8', '1')),
-                    borderWidth: 1
+                    borderColor: '#ffffff',
+                    borderWidth: 2
                 }]
             },
             options: {
                 responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { boxWidth: 15, padding: 20, font: { size: 14 } }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: '#1F2937',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        padding: 10
+                    }
+                }
             }
         });
     }

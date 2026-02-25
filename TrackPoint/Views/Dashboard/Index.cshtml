@@ -1,248 +1,168 @@
-﻿@{
+﻿@using System.Linq
+@using System.Text.Json
+@inject TrackPoint.Data.ApplicationDbContext Db
+@inject Microsoft.AspNetCore.Identity.UserManager<Microsoft.AspNetCore.Identity.IdentityUser> UserManager
+
+@{
     ViewData["Title"] = "Dashboard";
     bool isAdmin = User.IsInRole("Admin");
+
+    var currentUserId = UserManager.GetUserId(User);
+    var assetsForUser = Db.Asset
+        .Where(a => a.IssuedToUserId == currentUserId)
+        .ToList();
+
+    var myAssets = assetsForUser
+        .Select(a => new {
+            a.AssetId,
+            a.AssetTag,
+            Category = Db.Category.FirstOrDefault(c => c.CategoryId == a.CategoryId)?.Name ?? "",
+            DueDate = (DateTime?)null
+        })
+        .ToList();
 }
 
 <style>
+    canvas {
+        width: 260px !important;
+        height: 260px !important;
+    }
+
+    .col-md-3 {
+        align-content: center;
+        width: 300px;
+        height: 180px;
+    }
+
+    .page {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+        padding: 20px;
+    }
+
+    h1 {
+        font-weight: 700;
+        font-size: 40px;
+        color: #064973;
+        letter-spacing: -1px;
+    }
+
+    .display-4 {
+        text-align: center;
+    }
+
     h6 {
         text-align: center;
-        font-size: 20px;
+        font-weight: 700;
     }
-    canvas {
-        width: 180px !important;
-        height: 180px !important;
-    }    
-    text {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+    body {
+        background: #f2f2f2;
+        font-family: 'DM Sans', system-ui, -apple-system, "Segoe UI", Roboto, Arial;
     }
+
+    h4 {
+        font-family: 'DM Sans', system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+        font-weight: 700;
+        font-size: 22px;
+        color: dimgrey;
+        letter-spacing: -1px;
+    }
+
+    .section {
+        align-content: center;
+        background: white;
+        border: 2px;
+        padding: 15px;
+        border-radius: 10px;
+    }
+
+    .primary-btn {
+        width: 100%;
+        margin-top: 28px;
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #fff;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+        .primary-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
+        }
+
+    .secondary-btn {
+        width: 100%;
+        margin-top: 28px;
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #fff;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .primary-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
+    }
+
 </style>
-<div class="container mt-4 custom-background">
 
-    @* <h2 class="mb-3">Personal Dashboard</h2>  *@
-    
-
-    @if (isAdmin)
-    {
-        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-light btn-sm btn-outline-dark">Personal Dashboard</a>
-        <a asp-controller="Dashboard" asp-action="adminDashboard" class="btn btn-light btn-outline-dark btn-sm">Admin View</a>
-    }
-
-    <div class="container" style="padding: 18px">
-        <div class="row g-4">
-
-            <div class="col-md-4" >
-                <div style="border: 1px solid #D3D3D3;border-radius:10px; padding:10px;">       
-                    <canvas id="location"></canvas>
-                    <h6>My Assets</h6>
-                </div>
+<div class="page">
+    <div class="row g-1">
+        <div class="col-md-6">
+            <h1>Home</h1>
+        </div>
+    </div>
+    <div class="section">
+        <h4>Priority Overview</h4>
+        <div class="d-flex justify-content-between flex-wrap" style="gap: 20px; margin-top: 15px;">
+            <div class="custom-background" style="flex: 1 1 220px; border:1px solid #f472b6; border-radius:10px; padding:10px; background-color:rgba(244, 114, 182, 0.25);">
+                <div class="display-4" style="color:#f472b6">0</div>
+                <h6 style="color:#f472b6">My Assets</h6>
+             </div>   
+            <div class="custom-background" style="flex: 1 1 220px; border:1px solid #d8b4fe; border-radius:10px; padding:10px;  background-color: rgba(216, 180, 254,0.25);">
+                <div class="display-4" style="color:#d8b4fe">0</div>
+                <h6 style="color:#d8b4fe">Action Required</h6>
+            </div>
+            <div class="custom-background" style="flex: 1 1 220px; border:1px solid #14b8a6; border-radius:10px; padding:10px;  background-color: rgba(20, 184, 166,0.25);">
+                <div class="display-4" style="color:#14b8a6">0</div>
+                <h6 style="color:#14b8a6">Action Required</h6>
             </div>
 
-            <div class="col-md-4">
-                <div style="border: 1px solid #D3D3D3;border-radius:10px; padding:10px">                   
-                    <canvas id="status"></canvas>
-                    <h6>Action Required</h6>
+        </div>
+    </div>
+    <!-- Action Center -->
+    <div class="section">
+        <h4>Action Center</h4>
+        <div class="d-flex flex-column" style="gap: 20px; margin-top: 15px;">
+            <div class="custom-background" style="border:1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                <div id="myAssets">
+                    <!-- JS will render user's assigned assets here -->
                 </div>
+                <h6>My assets</h6>
             </div>
-
-            <div class="col-md-4">
-                <div style="border: 1px solid #D3D3D3;border-radius:10px; padding:10px">
-                    <canvas id="make"></canvas>
-                    <h6>Needs Maintenance</h6>
-                </div>
+            <div class="custom-background" style="border:1px solid #D3D3D3; border-radius:10px; padding:10px;">
+                <canvas id="make"></canvas>
+                <h6>Alerts</h6>
             </div>
         </div>
     </div>
-  
-    <div class="container" style="padding: 18px">
-        <div class="row g-4" style="border: 1px solid #D3D3D3;border-radius:10px; padding:10px;">
-            <h6>My Assets</h6>
-        </div>
-    </div>
+</div>
 
-    <div class="container" style="padding: 18px">
-        <div class="row g-4" style="border: 1px solid #D3D3D3;border-radius:10px; padding:10px;">
-            <h6>Alerts</h6>
-        </div>
-    </div>
+<!-- Embed asset data for the frontend script to consume -->
+<script id="my-assets-data" type="application/json">@Html.Raw(JsonSerializer.Serialize(myAssets))</script>
 
-
-
-
-
-
-        
-
-<script>
-    
-        // create charts
-        createLocationChart();
-        createStatusChart();
-        createMakeChart();
-
-    function createLocationChart() {
-        const dt = $('#assetTable').DataTable();
-        const locationData = dt.column(4).data().toArray();
-
-           // Count occurrences of each location
-        const locationCounts = {};
-        locationData.forEach(location => {
-        locationCounts[location] = (locationCounts[location] || 0) + 1;
-    });
-
-    // Sort by count descending and keep top 5
-    const top5 = Object.entries(locationCounts)
-        .sort((a, b) => b[1] - a[1]) // highest first
-        .slice(0, 5);                 // only top 5
-
-    // Convert back to labels and values
-    const labels = top5.map(item => item[0]);
-    const values = top5.map(item => item[1]);
-
-    console.log(labels, values);
-
-        console.log(labels, values);
-
-        const ctx = document.getElementById('location');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Assets by Location',
-                    data: values,
-                    borderWidth: 0,
-                    backgroundColor: [
-                     '#FFD700',  // vibrant yellow/gold
-                    '#FF9500', // vibrant orange
-                    '#34C759', // vibrant green
-                    '#0A84FF', // vibrant blue
-                    '#AF52DE'  // vibrant purple
-]                   
-            
-                }]
-            },
-            options: {
-                    plugins: {
-                        legend: {
-                        display: false, 
-                    }
-                },
-                    scales: {
-                        x: { display: false },
-                        y: { display: false }
-                    }
-                }
-        });
-    }
-
-     function createStatusChart() {
-        const dt = $('#assetTable').DataTable();
-        const statusData = dt.column(6).data().toArray();
-
-        // assets available vs assets not available
-            const statusCounts = {
-                Available: 0,
-                Unavailable: 0
-            };
-
-            statusData.forEach(status => {
-                if (status === "InStorage") {
-                    statusCounts.Available++;
-                } else {
-                    statusCounts.Unavailable++;
-                }
-            });
-
-            const labels = Object.keys(statusCounts);
-            const values = Object.values(statusCounts);
-
-            const ctx = document.getElementById('status');
-            new Chart(ctx, {
-                type: 'doughnut',
-                    data: {
-                        labels: labels,
-                    datasets: [{
-                    label: 'Assets by status',
-                    data: values,
-                    borderWidth: 0,
-                    backgroundColor: [
-                    '#00C964', // vibrant green (Available)
-                    '#FF2B2B', // vibrant red (Unavailable)
-                    '#009EFF', // vibrant blue
-                    '#FFD300', // vibrant yellow
-                    '#FF6D1A'  // vibrant orange],
-                    ],
-                  
-                }]
-            },
-            options: {
-                    plugins: {
-                        legend: {
-                        display: false, 
-                    }
-                },
-                    scales: {
-                        x: { display: false },
-                        y: { display: false }
-                    }
-                }
-        });
-    }
-     function createMakeChart() {
-        const dt = $('#assetTable').DataTable();
-        const makeData = dt.column(1).data().toArray();
-
-    // Count occurrences of each make
-    const makeCounts = {};
-    makeData.forEach(make => {
-        makeCounts[make] = (makeCounts[make] || 0) + 1;
-    });
-
-    // Sort by count descending and keep top 5
-    const top5 = Object.entries(makeCounts)
-        .sort((a, b) => b[1] - a[1]) // highest first
-        .slice(0, 5);                 // only top 5
-
-    // Convert back to labels and values
-    const labels = top5.map(item => item[0]);
-    const values = top5.map(item => item[1]);
-
-    console.log(labels, values);
-
-        console.log(labels, values);
-
-        const ctx = document.getElementById('make');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Assets by Make',
-                    data: values,
-                    borderWidth: 0,
-                    backgroundColor: [
-                    '#00C964', // vibrant green
-                    '#007BFF', // vibrant blue
-                    '#FFD300', // vibrant yellow
-                    '#FF2B2B', // vibrant red
-                    '#9B59B6'  // vibrant purple
-                ],
-                }]
-            },
-             options: {
-                    plugins: {
-                        legend: {
-                        display: false, 
-                    }
-                },
-                    scales: {
-                        x: { display: false },
-                        y: { display: false }
-                    }
-                }
-        });
-    }
-</script>
-
-
+<!-- Load renderer: use Url.Content to ensure correct URL resolution -->
+<script src="@Url.Content("~/js/myAssets.js")"></script>
 
