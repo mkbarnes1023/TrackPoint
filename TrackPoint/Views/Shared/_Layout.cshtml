@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
 
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     
     <style>
         /* Sidebar fixed layout */
@@ -22,7 +23,7 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 280px;
+            width: 200px;
             height: 100vh;
             overflow-y: auto;
             background: #064973;
@@ -33,7 +34,7 @@
 
         /* Push main content to the right of the fixed sidebar */
         .main-with-sidebar {
-            margin-left: 280px;
+            margin-left: 200px;
             min-height: 100vh;
         }
 
@@ -95,7 +96,7 @@
                                       color:#334155;"
                                    asp-controller="Dashboard"
                                    asp-action="Index">
-                                    Personal
+                                <i class="bi bi-clipboard-data-fill fs-6"></i> Borrower
                                 </a>
                             </li>
                             <li>
@@ -106,7 +107,7 @@
                                       color:#334155;"
                                    asp-controller="Dashboard"
                                    asp-action="adminDashboard">
-                                    Admin
+                                <i class="bi bi-shield-shaded fs-6"></i> Admin
                                 </a>
                             </li>
                         </ul>
@@ -133,7 +134,9 @@
                                     color:#334155;"
                                    asp-controller="Asset"
                                    asp-action="AssetBrowser">                                
-                                Browse Assets</a></li>
+                                <i class="bi bi-basket-fill fs-6"></i> Browse Assets
+                            </a>
+                        </li>
                             <li>
                                 <a class="nav-link text-light"
                                 style="border-radius:8px;
@@ -142,7 +145,9 @@
                                 color:#334155;"
                                 asp-controller="Asset"
                                 asp-action="AssetAdd">                                                              
-                                Register Asset</a></li>
+                                <i class="bi bi-plus-square-fill fs-6"></i> Register Asset
+                            </a>
+                        </li>
                             <li>
                                 <a class="nav-link text-light"
                                 style="border-radius:8px;
@@ -152,7 +157,7 @@
                                 asp-controller="Asset"
                                 asp-action="TransferLog">
                                     
-                                Transfer Log</a></li>
+                                <i class="bi bi-journal fs-6"></i> Transfer Log</a></li>
                         </ul>
                     </li>
 
@@ -168,9 +173,9 @@
                         </span>
 
                         <ul class="nav flex-column" style="gap:6px;">
-                            <li><a class="nav-link text-light" style="border-radius:8px;padding:8px 12px;font-weight:500;color:#334155;" asp-controller="Admin" asp-action="AllocateDemo">Admin Allocation</a></li>
-                            <li><a class="nav-link text-light" style="border-radius:8px;padding:8px 12px;font-weight:500;color:#334155;" asp-controller="Asset" asp-action="CategoryAdd">Register Category</a></li>
-                            <li><a class="nav-link text-light" style="border-radius:8px;padding:8px 12px;font-weight:500;color:#334155;" asp-controller="Asset" asp-action="LocationAdd">Register Location</a></li>
+                        <li><a class="nav-link text-light" style="border-radius:8px;padding:8px 12px;font-weight:500;color:#334155;" asp-controller="Admin" asp-action="AllocateDemo"><i class="bi bi-clipboard-plus fs-6"></i> Admin Allocation</a></li>
+                        <li><a class="nav-link text-light" style="border-radius:8px;padding:8px 12px;font-weight:500;color:#334155;" asp-controller="Asset" asp-action="ManageCategories"><i class="bi bi-box-seam-fill fs-6"></i> Category</a></li>
+                        <li><a class="nav-link text-light" style="border-radius:8px;padding:8px 12px;font-weight:500;color:#334155;" asp-controller="Asset" asp-action="ManageLocations"><i class="bi bi-building-fill fs-6"></i> Location</a></li>
                         </ul>
                     </li>
 
@@ -198,8 +203,8 @@
         <!-- ===== Main Content ===== -->
         <div class="main-with-sidebar d-flex flex-column">
 
-            <div class="container-fluid">
-                <main role="main" style="padding:24px;">
+            <div>
+                <main role="main">
                     @RenderBody()
                 </main>
             </div>

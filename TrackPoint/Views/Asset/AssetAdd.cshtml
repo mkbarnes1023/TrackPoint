@@ -23,48 +23,6 @@
         color: #064973;
     }
 
-	<div>
-		<label asp-for="asset.CategoryId">Category</label>
-		<select asp-for="asset.CategoryId">
-			<option value="">Select Category</option>
-			<!--Populate the dropdown with available categories-->
-			@foreach (Category c in Model._categories)
-			{
-				// If the editing asset's category matches the current category, mark it as selected
-				if (c.CategoryId == Model.asset.CategoryId)
-				{
-					<option value="@c.CategoryId" selected>@c.Name</option>
-				}
-				// Exclude the null category
-				else if(c.CategoryId != 1)
-				{
-					<option value="@c.CategoryId">@c.Name</option>
-				}
-
-			}
-		</select>
-	</div>
-
-	<div>
-		<label asp-for="asset.LocationId">Location</label>
-		<select asp-for="asset.LocationId">
-			<option value="">Select Location</option>
-			<!--Populate the dropdown with available locations-->
-			@foreach (Location l in Model._locations)
-			{
-				// If the editing asset's location matches the current location, mark it as selected
-				if (l.LocationId == Model.asset.LocationId)
-				{
-					<option value="@l.LocationId" selected>@l.Name</option>
-				}
-				// Exclude the null location
-				else if(l.LocationId != 1)
-				{
-					<option value="@l.LocationId">@l.Name</option>
-				}
-			}
-		</select>
-	</div>
     .page {
         min-height: 100vh;
         display: flex;
@@ -99,7 +57,7 @@
         margin: 26px 0 14px;
     }
 
-   input {
+    input {
         width: 100%;
         padding: 12px 14px;
         border-radius: 8px;
@@ -107,11 +65,13 @@
         font-size: 14px;
         transition: border 0.2s, box-shadow 0.2s;
     }
-    input:focus {
-        outline: none;
-        border-color: #6366f1;
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
-    }
+
+        input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
     textarea {
         width: 100%;
         padding: 12px 14px;
@@ -120,7 +80,7 @@
         font-size: 14px;
         transition: border 0.2s, box-shadow 0.2s;
     }
-    
+
 
     select {
         width: 100%;
@@ -212,8 +172,12 @@
         }
 </style>
 
+	
+    
+
 <div class="page">
     <div class="card">
+       
         <h1>Register an Asset</h1>
         <form asp-action="NewAsset" method="post">
             <input type="hidden" asp-for="asset.AssetTag" value="@Model.asset.AssetTag">
@@ -267,7 +231,8 @@
                             {
                                 <option value="@c.CategoryId" selected>@c.Name</option>
                             }
-                            else if (c.CategoryId != 1) // Exclude the null category
+                            // Exclude the null category
+                            else if (c.CategoryId != 1)
                             {
                                 <option value="@c.CategoryId">@c.Name</option>
                             }
@@ -288,7 +253,8 @@
                             {
                                 <option value="@l.LocationId" selected>@l.Name</option>
                             }
-                            else if (l.LocationId != 1) // Exclude the null location
+                            // Exclude the null location
+                            else if (l.LocationId != 1)
                             {
                                 <option value="@l.LocationId">@l.Name</option>
                             }

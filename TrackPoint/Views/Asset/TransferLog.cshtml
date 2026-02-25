@@ -200,16 +200,24 @@
 </style>
 
 <div class="page">
+        
+        <div class="card">
         <h1>Transfer Log</h1>
-        <div class="section">
-        @if (Model == null)
-        {
-            <p>Transfer log is empty.</p>
-        }
-        else
-        {
-            <table class="table" id="tlog">
-                <thead>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Asset Tag</th>
+                    <th>Make</th>
+                    <th>Model</th>
+                    <th>Category</th>
+                    <th>Location</th>
+                    <th>Issued To</th>
+                    <th>Transfer Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var asset in Model)
+                {
                     <tr>
                         <th>ID</th>
                         <th></th> <!-- Divider -->
