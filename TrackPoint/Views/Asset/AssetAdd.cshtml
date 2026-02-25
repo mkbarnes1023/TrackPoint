@@ -177,12 +177,11 @@
 
 <div class="page">
     <div class="card">
-       
         <h1>Register an Asset</h1>
         <form asp-action="NewAsset" method="post">
             <input type="hidden" asp-for="asset.AssetTag" value="@Model.asset.AssetTag">
             <input type="hidden" asp-for="asset.AssetId" value="@Model.asset.AssetId">
-            <input type="hidden" asp-for="asset.IssuedToUserId" value="@Model.asset.IssuedToUserId">
+            @* <input type="hidden" asp-for="asset.IssuedToUserId" value="@Model.asset.IssuedToUserId"> *@
             <input type="hidden" asp-for="asset.StatusDate" value="@Model.asset.StatusDate">
             <div class="section">
                 <div>
@@ -263,8 +262,21 @@
                 </div>
 
                 <div>
-                    <label asp-for="asset.IssuedToUser">Issued To</label>
-                    <input type="text" asp-for="asset.IssuedToUser" value="@Model.asset.IssuedToUser">
+                    <label asp-for="asset.IssuedToUserId">Issued To</label>
+                    <select asp-for="asset.IssuedToUserId">
+                        <option value="">Select User (Optional)</option> @* TODO: This list may get to be too long *@
+                        @foreach (var user in Model._users)
+                        {
+                            if (user.Id == Model.asset.IssuedToUserId)
+                            {
+                                <option value="@user.Id" selected>@user.UserName</option>
+                            }
+                            else
+                            {
+                                <option value="@user.Id">@user.UserName</option>
+                            }
+                        }
+                    </select>
                 </div>
 
                 <div>

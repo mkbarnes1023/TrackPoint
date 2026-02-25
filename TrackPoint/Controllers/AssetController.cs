@@ -263,10 +263,11 @@ namespace TrackPoint.Controllers
 		 */
         public IActionResult AssetAdd(Asset a)
         {
-            // Pass the locations and categories to the view via the AssetAddModel
+            // Pass the locations, categories, and users to the view via the AssetAddViewModel
             AssetAddViewModel model = new AssetAddViewModel();
             model._locations = locations.ToList();
             model._categories = categories.ToList();
+            model._users = _userManager.Users.ToList();
             model.asset = a;
             return View(model);
         }
@@ -310,7 +311,6 @@ namespace TrackPoint.Controllers
 
             // Assign the Asset an asset tag based on the Category's abbreviation, Location abbreviation and a unique number, padded to 4 digits with leading zeros.
             asset.AssetTag = $"{_context.Category.Find(asset.CategoryId)?.Abbreviation}-{_context.Location.Find(asset.LocationId)?.Abbreviation}-{(_context.Asset.Count(a => a.CategoryId == asset.CategoryId && a.LocationId == asset.LocationId) + 1).ToString().PadLeft(4, '0')}";
-
 
             //asset.AssetTag = $"{_context.Category.Find(asset.CategoryId)?.Abbreviation}-{_context.Asset.Count(a => a.CategoryId == asset.CategoryId) + 1}";
 
@@ -393,6 +393,7 @@ namespace TrackPoint.Controllers
             AssetAddViewModel model = new AssetAddViewModel();
             model._categories = categories.ToList();
             model._locations = locations.ToList();
+            model._users = _userManager.Users.ToList();
             model.asset = asset;
             return View(model);
         }
@@ -404,6 +405,7 @@ namespace TrackPoint.Controllers
             AssetAddViewModel model = new AssetAddViewModel();
             model._categories = categories.ToList();
             model._locations = locations.ToList();
+            model._users = _userManager.Users.ToList();
             model.asset = a;
             return View("AssetEdit", model);
         }
@@ -609,13 +611,12 @@ namespace TrackPoint.Controllers
             // Location is empty or invalid
             if (!_context.Location.Any(l => l.LocationId == a.LocationId))
             {
-
                 return "Error: Invalid location selected.";
             }
-            // Check if IssuedToUser is valid if not null (TODO: Currently broken.)
-            if (a.IssuedToUser != null && !_userManager.Users.Any(u => u.Id == a.IssuedToUserId))
+            // Check if IssuedToUserId is valid
+            if (!string.IsNullOrEmpty(a.IssuedToUserId) && !_userManager.Users.Any(u => u.Id == a.IssuedToUserId))
             {
-                return $"Error: User '{a.IssuedToUser}' not found.";
+                return "Error: Selected user not found.";
             }
 
             // If all checks pass, return empty string
