@@ -1,5 +1,8 @@
-﻿@model IEnumerable<TrackPoint.Models.Asset>
+﻿@using Microsoft.AspNetCore.Identity
+@model IEnumerable<TrackPoint.Models.TransferLog>
+@inject UserManager<IdentityUser> UserManager
 @{
+        ViewData["Title"] = "Transfer Log";
 }
 <style>
     body {
@@ -199,37 +202,91 @@
 <div class="page">
         <h1>Transfer Log</h1>
         <div class="section">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Asset Tag</th>
-                    <th>Make</th>
-                    <th>Model</th>
-                    <th>Category</th>
-                    <th>Location</th>
-                    <th>Issued To</th>
-                    <th>Transfer Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var asset in Model)
-                {
+        @if (Model == null)
+        {
+            <p>Transfer log is empty.</p>
+        }
+        else
+        {
+            <table class="table" id="tlog">
+                <thead>
                     <tr>
-                        <td>@asset.AssetTag</td>
-                        <td>@asset.Make</td>
-                        <td>@asset.Model</td>
-                        <td>@asset.Category</td>
-                        <td>@asset.Location</td>
-                        <td>@asset.IssuedToUser</td>
-                        <td>@asset.StatusDate.ToString("g")</td>
+                        <th>ID</th>
+                        <th></th> <!-- Divider -->
+                        <th>Asset Tag</th>
+                        <th>Make & Model</th>
+                        <th></th> <!-- Divider -->
+                        <th>Transfer Type</th>
+                        <th>Transfer Details</th>
+                        <th>Date</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var tLogEntry in Model)
+                    {
+                        <tr>
+                            <td>@tLogEntry.TransferLogId</td>
+                            <td>·</td>
+                            <td>@tLogEntry.Asset.AssetTag</td>
+                            <td>@tLogEntry.Asset.Make @tLogEntry.Asset.Model</td>
+                            <td>·</td>
+                            @switch (tLogEntry.eventType)
+                            {
+                                case Enums.eventType.Creation:
+                                    <td>Asset Creation</td>
+                                    <td>Asset @tLogEntry.Asset.AssetTag created</td>
+                                    break;
+                                case Enums.eventType.BorrowerTransfer:
+                                    @if (tLogEntry.OldBorrowerId == null) @* Check Out *@
+                                    {
+                                        <td>Check Out</td>
+                                        <td>Storage -> @UserManager.FindByIdAsync(tLogEntry.NewBorrowerId).GetAwaiter().GetResult()</td>
+                                    }
+                                    else if (tLogEntry.NewBorrowerId == null) @* Check In *@
+                                    {
+                                        <td>Check In</td>
+                                        <td>@UserManager.FindByIdAsync(tLogEntry.OldBorrowerId).GetAwaiter().GetResult() -> Storage</td>
+                                    }
+                                    else @* Borrower Transfer *@
+                                    {
+                                        <td>Borrower Transfer</td>
+                                        <td>@UserManager.FindByIdAsync(tLogEntry.OldBorrowerId).GetAwaiter().GetResult() -> @UserManager.FindByIdAsync(tLogEntry.NewBorrowerId).GetAwaiter().GetResult()</td>
+                                    }
+                                    break;
+                                case Enums.eventType.StatusChange:
+                                    <td>Status Change</td>
+                                    <td>@tLogEntry.OldStatus -> @tLogEntry.NewStatus</td>
+                                    break;
+                                default:
+                                    <td>Unhandled Case</td>
+                                    <td></td> @* TODO: Finish the other cases so they don't redirect here *@
+                                    break;
+                            }
+                            <td>@tLogEntry.TransferDate.ToString("g")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
         </div>
-        
-    
 </div>
 
-
-
+<!-- DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#tlog').DataTable({
+            "order": [[ 7, "desc" ]],
+            "columnDefs":
+            [
+                {
+                    "orderable": false, "targets": [1, 4, 6],
+                    "searchable": false, "targets": [1, 4]
+                }
+            ]
+        });
+    });
+</script>

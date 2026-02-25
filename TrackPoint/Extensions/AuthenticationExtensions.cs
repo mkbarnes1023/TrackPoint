@@ -114,6 +114,11 @@ public static class AuthenticationExtensions
                 .GetRequiredService<ILogger<TrackPointAuth>>();
 
             // ?? Role gate ?????????????????????????????????????????????????????
+            // App roles are assigned in the Entra Enterprise Application.
+            // Users with only "Default Access" (no custom role) have an empty
+            // ClaimTypes.Role collection and are blocked here before any local
+            // record is created. "Assignment required = Yes" in the Enterprise
+            // Application properties blocks unassigned users at the Entra level.
             var roleClaims = context.Principal!
                 .FindAll(ClaimTypes.Role)
                 .Select(c => c.Value)
@@ -135,6 +140,10 @@ public static class AuthenticationExtensions
             }
 
             // ?? Local user provisioning ???????????????????????????????????????
+            // Looks up the local AspNetUsers record by Entra OID (via AspNetUserLogins),
+            // falling back to email, and creates it on first sign-in if not found.
+            // The local ID is injected into the principal so controllers can resolve
+            // it via User.FindFirstValue(ClaimTypes.NameIdentifier).
             var provisioningService = context.HttpContext.RequestServices
                 .GetRequiredService<IEntraUserProvisioningService>();
 

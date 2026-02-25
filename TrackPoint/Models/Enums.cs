@@ -21,5 +21,15 @@
 			Stationary			// Communal, doesn't get loaned out, Unavailable
 		}
 
-	}
+        // Event types for Transfer Log entries
+        // TODO: Confirm if these are correct and if we need more
+        public enum eventType
+        {
+            Creation,
+            BorrowerTransfer,
+            StatusChange,
+            Archival,
+            Deletion
+        }
+    }
 }
