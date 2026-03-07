@@ -602,11 +602,30 @@ namespace TrackPoint.Controllers
             {
                 return "Error: Make and Model cannot be empty.";
             }
+            // Empty or whitespace serial number
+            if (string.IsNullOrWhiteSpace(a.SerialNumber))
+            {
+                return "Error: Serial Number cannot be empty.";
+            }
+            // Empty or whitespace vendor
+            if (string.IsNullOrWhiteSpace(a.Vendor))
+            {
+                return "Error: Vendor cannot be empty.";
+            }
+            // Empty or whitespace condition
+            if (string.IsNullOrWhiteSpace(a.Condition))
+            {
+                return "Error: Condition cannot be empty.";
+            }
+            // Empty or whitespace status
+            if (string.IsNullOrWhiteSpace(a.AssetStatus))
+            {
+                return "Error: Asset Status cannot be empty.";
+            }
             // Category is empty or invalid
             if (!_context.Category.Any(c => c.CategoryId == a.CategoryId))
             {
                 return "Error: Invalid category selected.";
-
             }
             // Location is empty or invalid
             if (!_context.Location.Any(l => l.LocationId == a.LocationId))
