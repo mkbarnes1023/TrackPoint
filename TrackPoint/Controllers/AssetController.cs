@@ -61,20 +61,31 @@ namespace TrackPoint.Controllers
          */
         public IActionResult LocationEdit(int locationId)
         {
+            // If you are trying to edit the "Unassigned" location, which has an ID of 1 by default, redirect back to the management page.
+            if (locationId == 1)
+            {
+                return RedirectToAction("ManageLocations");
+            }
             LocationEditViewModel model = new LocationEditViewModel();
             model.location = _context.Location.Find(locationId);
             return View(model);
         }
 
         /*
-		 *  Try to delete a category
+		 *  Try to delete a Location
 		 */
         public IActionResult DeleteLocation(int locationId)
         {
             // Check that the location specified corresponds to a real location
-            if (!_context.Location.Any(l => l.LocationId == locationId))
+            if(!_context.Location.Any(l => l.LocationId == locationId))
             {
                 Console.WriteLine($"Couldn't Find location: {locationId}");
+                return RedirectToAction("ManageLocations");
+            }
+            // Check that the location is not the "null" location used for unassigned assets, which cannot be deleted
+            if(locationId == 1)
+            {
+                Console.WriteLine($"You can't delete the Unassigned location!");
                 return RedirectToAction("ManageLocations");
             }
             // Set each asset in this location to a "null" location
@@ -179,6 +190,11 @@ namespace TrackPoint.Controllers
          */
         public IActionResult CategoryEdit(int categoryId)
         {
+            // If you are trying to edit the "Unassigned" category, which has an ID of 1 by default, redirect back to the management page.
+            if (categoryId == 1)
+            {
+                return RedirectToAction("ManageCategories");
+            }
             CategoryEditViewModel model = new CategoryEditViewModel();
             model.category = _context.Category.Find(categoryId);
             return View(model);
@@ -239,6 +255,12 @@ namespace TrackPoint.Controllers
             if (!_context.Category.Any(c => c.CategoryId == categoryId))
             {
                 Console.WriteLine($"Couldn't Find category: {categoryId}");
+                return RedirectToAction("ManageCategories");
+            }
+            // Check that the category is not the "null" category used for unassigned assets, which cannot be deleted
+            if (categoryId == 1)
+            {
+                Console.WriteLine($"You can't delete the Unassigned category!");
                 return RedirectToAction("ManageCategories");
             }
             // Set each asset in this category to a "null" category
@@ -683,6 +705,11 @@ namespace TrackPoint.Controllers
                 Location existingLocation = _context.Location.First(loc => loc.Name == l.Name);
                 return "Error: A location with this abbreviation already exists: " + existingLocation.Name + " (" + existingLocation.Abbreviation + ")";
             }
+            // Location is the Unasigned location, which can't be edited
+            if (l.LocationId == 1)
+            {
+                return "Error: The Unassigned location cannot be edited.";
+            }
 
             return "";
         }
@@ -736,6 +763,11 @@ namespace TrackPoint.Controllers
             if (c.DefaultLoanPeriodDays < 0)
             {
                 return "Error: Default Loan Period cannot be negative.";
+            }
+            // Category is the Unasigned category, which can't be edited
+            if (c.CategoryId == 1)
+            {
+                return "Error: The Unassigned category cannot be edited.";
             }
 
             return "";
