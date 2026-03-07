@@ -1,0 +1,58 @@
+﻿@model TrackPoint.Views.Approvals.ApprovalsTestViewModel
+@{
+    ViewData["Title"] = "Approvals Test";
+}
+<h1>Approvals Test</h1>
+
+@if (Model == null)
+{
+    <p>No approvals found.</p>
+}
+else
+{
+    <table class="table" id="asset">
+        <thead>
+            <tr>
+                <td>ApprovalId</td>
+                <td>ReasonId</td>
+                <td>ApprovalReason</td>
+                <td>RequestorId</td>
+                <td>AssetId</td>
+                <td>RequestDate</td>
+                <td>ApprovalStatus</td>
+                <td>ApproverId</td>
+                <td>ResolvedDate</td>
+                <td>Comments</td>
+                <td>ApprovalRelatedStatus</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var approval in Model._approvals)
+            {
+                <tr>
+                    <td>@approval.ApprovalId</td>
+                    <td>@approval.ReasonId</td>
+                    <td>@approval.ApprovalReason</td>
+                    <td>@approval.RequestorId</td>
+                    <td>@approval.AssetId</td>
+                    <td>@approval.RequestDate</td>
+                    <td>@approval.ApprovalStatus</td>
+                    <td>@approval.ApproverId</td>
+                    <td>@approval.ResolvedDate</td>
+                    <td>@approval.Comments</td>
+                    <td>@approval.ApprovalRelatedStatus</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<!-- DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#asset').DataTable();
+    });
+</script>
