@@ -1,4 +1,6 @@
-﻿@{
+﻿@model TrackPoint.Models.ReportRequestViewModel
+
+@{
     ViewData["Title"] = "Report Builder";
 }
 
@@ -9,9 +11,10 @@
         background: aliceblue;
         font-family: 'DM Sans', system-ui, -apple-system, "Segoe UI", Roboto, Arial;
     }
+
     h1 {
-        font-weight:700;
-        font-size:45px;
+        font-weight: 700;
+        font-size: 45px;
         color: #064973;
     }
 
@@ -81,7 +84,6 @@
         color: #334155;
     }
 
-    /* Toggle Switch */
     .switch {
         position: relative;
         width: 44px;
@@ -138,31 +140,36 @@
             transform: translateY(-1px);
             box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
         }
+
+    .validation {
+        color: #dc2626;
+        font-size: 13px;
+        margin-top: 6px;
+    }
 </style>
 
 <div class="page">
     <div class="card">
         <h1>Generate a Report</h1>
 
-        <form method="post">
-            <!-- Report Type -->
+        <form asp-action="ReportBuilder" asp-controller="Report" method="post">
             <div class="field">
                 <div class="section-title">Report Type</div>
-                <select id="reportType" name="reportType">
-                    <option selected disabled>Please select one</option>
+                <select asp-for="ReportType">
+                    <option value="">Please select one</option>
                     <option value="Category">Category Report</option>
                     <option value="Location">Location Report</option>
                     <option value="Status">Status Report</option>
                 </select>
+                <span asp-validation-for="ReportType" class="validation"></span>
             </div>
 
-            <!-- Include Section -->
             <div class="section-title">Include in Report</div>
 
             <div class="toggle-row">
                 <span>Generate KPI Summary Page</span>
                 <label class="switch">
-                    <input type="checkbox" name="visualization" />
+                    <input asp-for="Visualization" type="checkbox" />
                     <span class="slider"></span>
                 </label>
             </div>
@@ -170,19 +177,19 @@
             <div class="toggle-row">
                 <span>Generate Table Summary</span>
                 <label class="switch">
-                    <input type="checkbox" name="table" />
+                    <input asp-for="Table" type="checkbox" />
                     <span class="slider"></span>
                 </label>
             </div>
 
-            <!-- Export Type -->
             <div class="field">
                 <div class="section-title">Export Type</div>
-                <select id="exportType" name="exportType">
-                    <option selected disabled>Please select one</option>
+                <select asp-for="ExportType">
+                    <option value="">Please select one</option>
                     <option value="Excel">Excel</option>
                     <option value="PDF">PDF</option>
                 </select>
+                <span asp-validation-for="ExportType" class="validation"></span>
             </div>
 
             <button type="submit" class="primary-btn">
@@ -191,3 +198,7 @@
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
