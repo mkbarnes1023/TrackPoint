@@ -500,6 +500,13 @@ namespace TrackPoint.Controllers
             // Redirect to Asset Browser if asset requires administrator approval
             if (_context.Category.Find(asset.CategoryId)?.RequiresApproval == true)
             {
+                if (_context.Approvals.FirstOrDefault(ap => ap.AssetId == asset.AssetId) != null)
+                {
+                    TempData["Success"] = $"A request already exists for this asset"; // TODO: Complete this check, maybe change the status for assets pending approval
+                    return RedirectToAction("AssetBrowser");
+                }
+
+                // Create a new Approval
                 var approval = new Approvals
                 {
                     ReasonId = 1, // TODO: Do ReasonId and ApprovalReason do the same thing?
