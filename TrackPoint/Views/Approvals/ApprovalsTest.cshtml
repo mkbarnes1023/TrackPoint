@@ -1,7 +1,16 @@
 ﻿@model TrackPoint.Views.Approvals.ApprovalsTestViewModel
 @{
     ViewData["Title"] = "Approvals Test";
+    var msg = TempData["Success"] as string;
 }
+
+@if (!string.IsNullOrEmpty(msg))
+{
+    <div class="alert alert-success" role="alert">
+        @msg
+    </div>
+}
+
 <h1>Approvals Test</h1>
 
 @if (Model == null)
@@ -24,6 +33,7 @@ else
                 <td>ResolvedDate</td>
                 <td>Comments</td>
                 <td>ApprovalRelatedStatus</td>
+                <td>Actions</td>
             </tr>
         </thead>
         <tbody>
@@ -41,6 +51,10 @@ else
                     <td>@approval.ResolvedDate</td>
                     <td>@approval.Comments</td>
                     <td>@approval.ApprovalRelatedStatus</td>
+                    <td>
+                        <a asp-controller="Approvals" asp-action="ApproveAsset" asp-route-ApprovalId="@approval.ApprovalId" class="btn btn-success">Approve</a>
+                        <a asp-controller="Approvals" asp-action="RejectAsset" asp-route-ApprovalId="@approval.ApprovalId" class="btn btn-danger">Deny</a>
+                    </td>
                 </tr>
             }
         </tbody>

@@ -4,7 +4,7 @@
 
 @{
     ViewData["Title"] = "Browse Available Assets";
-    var msg = TempData["Success"] as string;
+    var msg = TempData["Success"] as string; // TODO: This will always have the success conditional, add support for Failure (red) and Warning (yellow)
 }
 
 @if (!string.IsNullOrEmpty(msg))
@@ -464,7 +464,8 @@
                             @* Borrow flow: Show button only when asset is available/in storage/transfered
                        Temporary change: Show the "Return" button if user currently borrows the asset.
                        TODO: Discuss if we want to keep this or relegate it to only the personal dashboard.
-                    *@
+                            *@
+                            @* Check Out *@
                             @if (statusKey == "instorage" || statusKey == "transfered" || statusKey == "transferred")
                             {
                                 <button type="button"
@@ -485,6 +486,13 @@
                                             </div>
                                             <div class="modal-body">
                                                 Are you sure you want to check out asset <strong>@asset.AssetTag</strong>?
+                                                @* Show dialog if asset requires admin approval 
+                                                   TODO: Individual assets may also require approval regardless of category
+                                                *@
+                                                @if (asset.Category.RequiresApproval)
+                                                {
+                                                    <br/><p><strong>Disclaimer:</strong> This asset requires admin approval to check out.</p>
+                                                }
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -513,7 +521,7 @@
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
-                                                Are you sure you want to the asset <strong>@asset.AssetTag</strong> back into the system?
+                                                Are you sure you want to check the asset <strong>@asset.AssetTag</strong> back into the system?
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
