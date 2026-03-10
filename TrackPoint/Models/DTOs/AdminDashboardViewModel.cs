@@ -14,6 +14,8 @@ namespace TrackPoint.Models.DTOs
         public int NeedsAttention { get; set; }
         public List<Asset> Attention { get; set; } = new List<Asset>();
 
+        public IEnumerable<TrackPoint.Models.Approvals> _approvals;
+
         // Count of assets with warranty/expiration within the next 6 months
         public int WarrantyExpiringWithin6MonthsCount { get; set; }
 
