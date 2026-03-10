@@ -71,6 +71,8 @@ namespace TrackPoint.Controllers
 
             var needsAttention = attentionAssets.Count;
 
+            var approvals = await _context.Approvals.ToListAsync();
+
             var viewModel = new AdminDashboardViewModel
             {
                 StatusCounts = statusCounts,
@@ -81,7 +83,8 @@ namespace TrackPoint.Controllers
                 ThirtyOneToNinety = thirtyOneToNinety,
                 NinetyPlus = ninetyPlus,
                 NeedsAttention = needsAttention,
-                Attention = attentionAssets
+                Attention = attentionAssets,
+                _approvals = approvals,
             };
 
             return View(viewModel);
