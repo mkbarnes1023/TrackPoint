@@ -44,6 +44,7 @@
     <PackageReference Include="Microsoft.Identity.Web" Version="3.3.0" />
     <PackageReference Include="Microsoft.Identity.Web.UI" Version="3.3.0" />
     <PackageReference Include="QRCoder" Version="1.7.0" />
+    <PackageReference Include="QuestPDF" Version="2026.2.3" />
   </ItemGroup>
 
   <ItemGroup>

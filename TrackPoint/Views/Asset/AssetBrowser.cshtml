@@ -1,5 +1,6 @@
 ﻿@model TrackPoint.Views.Asset.AssetBrowserViewModel;
 @using Microsoft.AspNetCore.Identity
+@using System.Linq
 @inject UserManager<IdentityUser> UserManager // TODO: Needed to get username of borrower, consider replacing this later so injection is not needed.
 
 @{
@@ -27,7 +28,7 @@
         color: #064973;
     }
 
-    
+
 
     .page {
         min-height: 100vh;
@@ -60,41 +61,41 @@
         width: 100%;
     }
 
-        .table thead {
-            background-color: #344054; /* dark slate */
-        }
+    .table thead {
+        background-color: #344054; /* dark slate */
+    }
 
-        /* Ensure the header styling applies to the #asset table (DataTables adds .dataTable),
-           plus fall back to general table.dataTable selector. */
-        #asset.dataTable thead th,
-        #asset thead th,
-        table.dataTable thead th {
-            background-color: #f3f6fa;
-            color: #6b7280;
-            font-weight: 600;
-            border-bottom: 1px solid #e5e7eb;
-            padding: 12px 16px;
-            text-align: left;
-        }
+    /* Ensure the header styling applies to the #asset table (DataTables adds .dataTable),
+               plus fall back to general table.dataTable selector. */
+    #asset.dataTable thead th,
+    #asset thead th,
+    table.dataTable thead th {
+        background-color: #f3f6fa;
+        color: #6b7280;
+        font-weight: 600;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 12px 16px;
+        text-align: left;
+    }
 
-        /* Body cells */
-        #asset.dataTable tbody td,
-        #asset tbody td,
-        table.dataTable tbody td{
-            padding: 14px 16px;
-            border-bottom: 1px solid #eef2f7;
-            
-        }
+    /* Body cells */
+    #asset.dataTable tbody td,
+    #asset tbody td,
+    table.dataTable tbody td {
+        padding: 14px 16px;
+        border-bottom: 1px solid #eef2f7;
+    }
+
     table.dataTable.stripe tbody tr.odd,
     table.dataTable.display tbody tr.odd {
         background-color: #ffffff;
     }
 
-        /* Row hover */
-        .table tbody tr:hover {
-            background: #f9fafb;
-            transition: 0.2s ease;
-        }
+    /* Row hover */
+    .table tbody tr:hover {
+        background: #f9fafb;
+        transition: 0.2s ease;
+    }
 
     .field {
         margin-bottom: 22px;
@@ -220,6 +221,7 @@
             transform: translateY(-1px);
             box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
         }
+
     .secondary-btn {
         width: 110px;
         height: 50px;
@@ -234,11 +236,12 @@
         transition: transform 0.15s, box-shadow 0.15s;
     }
 
-    .secondary-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
-    }
-    .btn{
+        .secondary-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
+        }
+
+    .btn {
         color: #4f46e5;
     }
 
@@ -334,10 +337,10 @@
         <h1>Browse Available Assets</h1>
         <div class="row" style="text-align:left;">
             <div class="col-md-3">
-                <button class="secondary-btn"></><i class="bi bi-funnel fs-6"></i> Filter Data</button>
+                <button class="secondary-btn" data-bs-toggle="modal" data-bs-target="#filterModal"><i class="bi bi-funnel fs-6"></i> Filter Data</button>
                 @* customize table *@
                 <button class="secondary-btn" data-bs-toggle="modal" data-bs-target="#columnToggleModal"><i class="bi bi-gear fs-6"></i> Customize</button>
-                <!-- Modal -->
+                <!-- Column toggle Modal -->
                 <div class="modal fade" id="columnToggleModal" tabindex="-1" aria-labelledby="columnToggleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -402,6 +405,87 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Filter Modal (copied from customize modal and extended) -->
+                <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="filterModalLabel">Filter Assets</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="section-title">Asset Tag</label>
+                                        <input id="filter-assetTag" class="form-control" placeholder="Exact or partial asset tag">
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label class="section-title">Make</label>
+                                        <input id="filter-make" class="form-control" placeholder="Make">
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label class="section-title">Model</label>
+                                        <input id="filter-model" class="form-control" placeholder="Model">
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label class="section-title">Category</label>
+                                        <select id="filter-category" class="form-select">
+                                            <option value="">Any</option>
+                                            @foreach (var l in Model._categories ?? Enumerable.Empty<Category>())
+                                            {
+                                                <option value="@l.Name">@l.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label class="section-title">Location</label>
+                                        <select id="filter-location" class="form-select">
+                                            <option value="">Any</option>
+                                            @foreach (var l in Model._locations ?? Enumerable.Empty<Location>())
+                                            {
+                                                <option value="@l.Name">@l.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label class="section-title">Issued To (username)</label>
+                                        <input id="filter-issuedTo" class="form-control" placeholder="Username">
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label class="section-title">Status</label>
+                                        <select id="filter-status" class="form-select">
+                                            <option value="">Any</option>
+                                            @{
+                                                // build distinct statuses
+                                                var statuses = (Model._assets ?? Enumerable.Empty<dynamic>()).Select(a => (a.AssetStatus ?? "").ToString().Trim()).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct();
+                                            }
+                                            @foreach (var s in statuses)
+                                            {
+                                                <option value="@s">@s</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" id="clearFiltersBtn" class="btn btn-secondary">Clear Filters</button>
+                                <button type="button" id="applyFiltersBtn" class="btn btn-primary">Apply Filters</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
             </div>
             <div class="col-md-3"></div>
             <div class="col-md-3"></div>
@@ -565,7 +649,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.colresizable/1.6.0/colResizable-1.6.min.js"></script>
 <script>
     $(document).ready(function () {
-        // Keep the DataTable instance in a variable so column toggles can access it.
+        // Keep the DataTable instance in a variable so column toggles and filters can access it.
         const table = $('#asset').DataTable({
             dom:'ltp',
             pagingType: 'full_numbers',
@@ -618,6 +702,65 @@
 
         // Move length into your custom top container
         $('#top-right').append($('.dataTables_length'));
-    
+
+        // Filter modal logic
+        const filterModalEl = document.getElementById('filterModal');
+        if (filterModalEl) {
+            // Populate modal inputs with active search when opening
+            filterModalEl.addEventListener('show.bs.modal', function () {
+                // column indexes: 0: Asset Tag, 1: Make, 2: Model, 3: Category, 4: Location, 5: Issued To, 6: Status
+                $('#filter-assetTag').val(table.column(0).search() || '');
+                $('#filter-make').val(table.column(1).search() || '');
+                $('#filter-model').val(table.column(2).search() || '');
+                $('#filter-category').val(table.column(3).search() || '');
+                $('#filter-location').val(table.column(4).search() || '');
+                $('#filter-issuedTo').val(table.column(5).search() || '');
+                $('#filter-status').val(table.column(6).search() || '');
+            });
+        }
+
+        // Apply filters
+        $('#applyFiltersBtn').on('click', function () {
+            const vTag = $('#filter-assetTag').val() || '';
+            const vMake = $('#filter-make').val() || '';
+            const vModel = $('#filter-model').val() || '';
+            const vCategory = $('#filter-category').val() || '';
+            const vLocation = $('#filter-location').val() || '';
+            const vIssuedTo = $('#filter-issuedTo').val() || '';
+            const vStatus = $('#filter-status').val() || '';
+
+            // use literal search (disable regex/smart)
+            table.column(0).search(vTag, false, false);
+            table.column(1).search(vMake, false, false);
+            table.column(2).search(vModel, false, false);
+            table.column(3).search(vCategory, false, false);
+            table.column(4).search(vLocation, false, false);
+            table.column(5).search(vIssuedTo, false, false);
+            table.column(6).search(vStatus, false, false);
+
+            table.draw();
+
+            // hide modal using bootstrap's modal instance if available
+            try {
+                const modalInstance = bootstrap.Modal.getInstance(filterModalEl);
+                if (modalInstance) modalInstance.hide();
+            } catch (e) {
+                // ignore if bootstrap not available in this scope
+            }
+        });
+
+        // Clear filters
+        $('#clearFiltersBtn').on('click', function () {
+            $('#filter-assetTag').val('');
+            $('#filter-make').val('');
+            $('#filter-model').val('');
+            $('#filter-category').val('');
+            $('#filter-location').val('');
+            $('#filter-issuedTo').val('');
+            $('#filter-status').val('');
+
+            table.columns([0,1,2,3,4,5,6]).search('').draw();
+        });
+
     });
 </script>
