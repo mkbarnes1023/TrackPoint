@@ -1,6 +1,7 @@
 ﻿@model TrackPoint.Models.DTOs.AdminDashboardViewModel
 @using System.Text.Json
-
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
 
 @{
     ViewData["Title"] = "Dashboard";
@@ -255,7 +256,7 @@
                                     <tr>
                                         <td>@approval.AssetId</td>
                                         <td>@approval.ApprovalReason</td>
-                                        <td>@approval.RequestorId</td>
+                                        <td>@UserManager.Users.FirstOrDefault(u => u.Id == approval.RequestorId).UserName</td>
                                         <td>@approval.RequestDate</td>
                                         <td>
                                             <a asp-controller="Approvals" asp-action="ApproveAsset" asp-route-ApprovalId="@approval.ApprovalId" class="btn-sm btn-success">Approve</a>
