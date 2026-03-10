@@ -101,6 +101,18 @@ namespace TrackPoint.Data.SeedData
                 await context.SaveChangesAsync();
             }
 
+            // Seed ApprovalReasons (if empty)
+            if (!await context.ApprovalReason.AnyAsync())
+            {
+                var approvalReasons = new[]
+                {
+                    new ApprovalReason { ReasonName = "CheckOut", ReasonCode = "0" },
+                    new ApprovalReason { ReasonName = "CheckIn", ReasonCode = "1" },
+                };
+                context.ApprovalReason.AddRange(approvalReasons);
+                await context.SaveChangesAsync();
+            }
+
             // Seed sample Assets (if empty) - create 30 total sample assets
             if (!await context.Asset.AnyAsync())
             {
