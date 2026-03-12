@@ -360,22 +360,90 @@ namespace TrackPoint.Controllers
             // Log the asset to the console for debugging purposes
             Console.WriteLine($"New Asset Added: {asset.AssetTag}, {asset.Make}, {asset.Model}, {asset.Category}, {asset.Location}, {asset.IssuedToUser}, {asset.AssetStatus}, {asset.Notes}");
 
-            // Pack the information for the AssetBrowser
-            AssetBrowserViewModel model = new AssetBrowserViewModel();
-            model._assets = assets.ToList();
-            model._categories = categories.ToList();
-            model._locations = locations.ToList();
-            return RedirectToAction("AssetBrowser", model);
+            return RedirectToAction("AssetBrowser");
+        }
+
+        /**
+         * Retire an asset from the database and redirect to the Asset Browser
+        */
+        public IActionResult RetireAsset(int AssetId)
+        {
+            Asset asset = _context.Asset.Find(AssetId);
+
+            // If the asset is already retired, just redirect to the Asset Browser
+            if(asset.AssetStatus == Enums.AssetStatus.Retired.ToString())
+            {
+                return RedirectToAction("AssetBrowser");
+            }
+
+            asset.AssetStatus = Enums.AssetStatus.Retired.ToString();
+
+            _context.Asset.Update(asset);
+
+            // Update TransferLog for Asset Retirement
+            // TODO: This currently does nothing since the asset being deleted also deletes all of its transfer logs due to the
+            //       Foreign Key fo AssetID. We should implement the system of retiring assets instead of deleting their entry.
+
+            _context.TransferLog.Add(new TransferLog
+            {
+                AssetId = asset.AssetId,
+                NewStatus = "Retired",
+                eventType = Enums.eventType.Archival,
+                TransferDate = DateTime.Now
+            });
+
+            _context.SaveChanges();
+
+            // Log retired asset
+            Console.WriteLine($"Asset Retired: {AssetId}");
+
+            return RedirectToAction("AssetBrowser");
+        }
+
+        /**
+         * Unretire an asset from the database and redirect to the Asset Browser
+        */
+        public IActionResult UnretireAsset(int AssetId)
+        {
+            Asset asset = _context.Asset.Find(AssetId);
+
+            // If the asset is not already retired, just redirect to the Asset Browser
+            if (asset.AssetStatus != Enums.AssetStatus.Retired.ToString())
+            {
+                return RedirectToAction("AssetBrowser");
+            }
+
+            asset.AssetStatus = Enums.AssetStatus.InStorage.ToString();
+
+            _context.Asset.Update(asset);
+
+            // Update TransferLog for Asset Retirement
+            // TODO: This currently does nothing since the asset being deleted also deletes all of its transfer logs due to the
+            //       Foreign Key fo AssetID. We should implement the system of retiring assets instead of deleting their entry.
+
+            _context.TransferLog.Add(new TransferLog
+            {
+                AssetId = asset.AssetId,
+                NewStatus = "Unretired",
+                eventType = Enums.eventType.StatusChange,
+                TransferDate = DateTime.Now
+            });
+
+            _context.SaveChanges();
+
+            // Log retired asset
+            Console.WriteLine($"Asset Unretired: {AssetId}");
+
+            return RedirectToAction("AssetBrowser");
         }
 
         /**
          * Delete the asset from the database and redirect to the Asset Browser
          * 
-         * We may want to make it clear that this function is for when a mistake was made,
-         * rather than for when they are done with an asset. Assets they are finished with should
-         * have their status changed to "Retired", to preserve their history in the logs.
+         * This function is depreciated. It is replaced with the RetireAsset method.
          */
         // TODO: Update AssetLoan for this as well, likely by deleting the loan
+        /*
         public IActionResult DeleteAsset(int AssetId)
         {
             Asset asset = _context.Asset.Find(AssetId);
@@ -405,6 +473,7 @@ namespace TrackPoint.Controllers
             model._locations = locations.ToList();
             return RedirectToAction("AssetBrowser", model);
         }
+        */
 
         /**
          * Return the view for editing assets with the selected asset passed as the model
