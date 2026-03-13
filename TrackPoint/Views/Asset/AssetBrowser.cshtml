@@ -533,6 +533,7 @@
 
 
                     var modalId = $"confirmModal-{asset.AssetId}";
+                    var retireModalId = $"confirmRetireModal-{asset.AssetId}";
                     <tr>
                         <td>
                             <a asp-controller="Asset" asp-action="AssetView" asp-route-assetTag="@asset.AssetTag">@asset.AssetTag</a>
@@ -631,14 +632,62 @@
                                     <i class="bi bi-pencil-fill fs-4"></i>
                                 </a>
 
-                                <a class="btn btn-sm"
-                                   asp-controller="Asset"
-                                   asp-action="DeleteAsset"
-                                   asp-route-AssetId="@asset.AssetId"
-                                   aria-label="Delete asset"
-                                   title="Delete">
-                                    <i class="bi bi-trash-fill fs-4"></i>
-                                </a>
+                                if(!asset.AssetStatus.Equals(Enums.AssetStatus.Retired.ToString()))
+                                {
+                                    <a class="btn btn-sm"
+                                       data-bs-toggle="modal"
+                                       data-bs-target="#@retireModalId"
+                                       aria-label="Retire asset"
+                                       title="Retire">
+                                        <i class="bi bi-archive-fill fs-4"></i>
+                                    </a>
+                        
+                                    <!--Confirmation modal adapted from Matthew's in the AssetBrowser-->
+                                    <div class="modal fade" id="@retireModalId" tabindex="-1" aria-labelledby="@($"{retireModalId}-label")" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="@($"{retireModalId}-label")">Retire @asset.AssetTag</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you want to retire this asset?<br /><strong>This asset will no longer be able to be borrowed.</strong><br /><br /><strong>Logs associated with this asset will remain.<br />This does not delete anything.</strong>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <a asp-controller="Asset" asp-action="RetireAsset" asp-route-assetId="@asset.AssetId" class="btn btn-danger">Retire</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                } else {
+                                    <a class="btn btn-sm"
+                                       data-bs-toggle="modal"
+                                       data-bs-target="#@retireModalId"
+                                       aria-label="Unretire asset"
+                                       title="Unretire">
+                                        <i class="bi bi-archive fs-4"></i>
+                                    </a>
+
+                                    <!--Confirmation modal adapted from Matthew's in the AssetBrowser-->
+                                    <div class="modal fade" id="@retireModalId" tabindex="-1" aria-labelledby="@($"{retireModalId}-label")" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="@($"{retireModalId}-label")">Unretire @asset.AssetTag</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you want to unretire this asset?<br><strong>This asset will be set to "In Storage", and will once again be borrowable.</strong>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <a asp-controller="Asset" asp-action="UnretireAsset" asp-route-assetId="@asset.AssetId" class="btn btn-danger">Unretire</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
                             }
                         </td>
                     </tr>
