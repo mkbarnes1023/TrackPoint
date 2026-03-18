@@ -191,9 +191,12 @@
                     <label asp-for="location.Abbreviation">Abbreviation</label>
                     <input type="text" asp-for="location.Abbreviation" value="@Model.location.Abbreviation" required maxlength="10">
                 </div>
-                <div>
+                <div class="toggle-row">
                     <label>Update Asset Tags</label>
-                    <input type="checkbox" asp-for="updateAssetTags">
+                    <label class="switch">
+                        <input type="checkbox" asp-for="updateAssetTags">
+                        <span class="slider"></span>
+                    </label>
                 </div>
 
                 <input type="submit" value="Submit" asp-action="EditLocation" class="primary-btn">

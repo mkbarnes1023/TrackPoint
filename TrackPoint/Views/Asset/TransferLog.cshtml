@@ -217,7 +217,7 @@
         
         <div class="card">
         <h1>Transfer Log</h1>
-        <table class="transfer">
+        <table class="table w-100" id="table">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -287,7 +287,7 @@
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 <script>
     $(document).ready(function () {
-        $('#tlog').DataTable({
+        $('#table').DataTable({
             "order": [[ 7, "desc" ]],
             "columnDefs":
             [

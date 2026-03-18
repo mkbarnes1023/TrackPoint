@@ -6,6 +6,7 @@
 
         public int AssignedToUser { get; set; }
         public List<Asset> Assigned { get; set; } = new List<Asset>();
+        public IEnumerable<TrackPoint.Models.Approvals> _approvals;
 
     }
 }
