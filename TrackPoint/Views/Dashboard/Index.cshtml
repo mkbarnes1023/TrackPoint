@@ -325,19 +325,50 @@
                             <tr>
                                 <th>Asset Tag</th>
                                 <th>Approval Reason</th>
-                                <th>Requestor</th>
                                 <th>Request Date</th>
+                                <th>Approval Status</th>
                                 <th style="text-align:right;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            
+                            @{
+                                var currUserId = UserManager?.GetUserId(User) ?? ""; // fallback empty string if UserManager is null
+                                var userApprovals = new List<Approvals>();
+
+                                if (Model != null && Model._approvals != null)
+                                {
+                                    userApprovals = Model._approvals
+                                    .Where(a => a.RequestorId == currUserId)
+                                    .ToList();
+                                }
+                            }
+
+                            @if (userApprovals.Any())
+                            {
+                                foreach (var approval in userApprovals)
+                                {
+                                    <tr>
+                                        <td>@approval.AssetId</td>
+                                        <td>@approval.ApprovalReason</td>
+                                        <td>@approval.RequestDate</td>
+                                        <td>@approval.ApprovalStatus</td>
+                                        <td style="text-align:right;">
+                                            <a asp-controller="Approvals" asp-action="ApproveAsset" asp-route-ApprovalId="@approval.ApprovalId"
+                                               class="btn btn-success btn-sm me-2">Approve</a>
+                                            <a asp-controller="Approvals" asp-action="RejectAsset" asp-route-ApprovalId="@approval.ApprovalId"
+                                               class="btn btn-light btn-sm">Deny</a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
                                 <tr>
-                                    <td colspan="5" class="text-center" style="font-style:italic; color:#6b7280;">
+                                    <td colspan="5" style="text-align:center; font-style:italic; color:#6b7280;">
                                         Nothing to display
                                     </td>
                                 </tr>
-                            
+                            }
                         </tbody>
                     </table>
                 </div>
