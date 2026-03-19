@@ -8,7 +8,7 @@ using TrackPoint.Models;
 
 namespace TrackPoint.Data.SeedData
 {
-    public static class AdminSeedData
+    public static class AdminSeedData 
     {
         public static async Task InitializeAsync(ApplicationDbContext context)
         {
