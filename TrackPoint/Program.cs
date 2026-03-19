@@ -39,7 +39,11 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Seed admins from appsettings.json using AdminSeedData
-await AdminSeedData.SeedAdminsAsync(app.Services);
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await AdminSeedData.InitializeAsync(db);
+}
 
 // Optionally: additional data seeding spot
 using (var scope = app.Services.CreateScope())
