@@ -31,5 +31,16 @@
             Archival,
             Deletion
         }
+
+        // Conditions for assets
+        // TODO: Integrate with Asset model and forms, and confirm if we need more conditions
+        public enum AssetCondition
+        {
+            New,
+            Good,
+            Fair,
+            Poor,
+            Broken
+        }   
     }
 }

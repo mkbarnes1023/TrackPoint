@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+
 
 namespace TrackPoint.Models.DTOs
 {
@@ -11,6 +11,10 @@ namespace TrackPoint.Models.DTOs
         public int ZeroToThirty { get; set; }
         public int ThirtyOneToNinety { get; set; }
         public int NinetyPlus { get; set; }
+        public int NeedsAttention { get; set; }
+        public List<Asset> Attention { get; set; } = new List<Asset>();
+
+        public IEnumerable<TrackPoint.Models.Approvals> _approvals;
 
         // Count of assets with warranty/expiration within the next 6 months
         public int WarrantyExpiringWithin6MonthsCount { get; set; }

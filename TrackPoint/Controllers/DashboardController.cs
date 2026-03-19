@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TrackPoint.Data;
@@ -58,6 +62,16 @@ namespace TrackPoint.Controllers
                 .Count(a => a.WarrantyExpirationDate != null
                             && a.WarrantyExpirationDate > today.AddDays(90));
 
+            // Retrieve assets whose AssetStatus indicates they need attention.
+            // Use lowercase list and compare against the column converted to lower to avoid case-sensitivity issues.
+            var attentionStatuses = new[] { "maintenance", "pendingdeployment", "lost", "needsreplacement" };
+            var attentionAssets = await _context.Asset
+                .Where(a => a.AssetStatus != null && attentionStatuses.Contains(a.AssetStatus.ToLower()))
+                .ToListAsync();
+
+            var needsAttention = attentionAssets.Count;
+
+            var approvals = await _context.Approvals.ToListAsync();
 
             var viewModel = new AdminDashboardViewModel
             {
@@ -67,14 +81,44 @@ namespace TrackPoint.Controllers
                 ExpiredCount = expiredCount,
                 ZeroToThirty = zeroToThirty,
                 ThirtyOneToNinety = thirtyOneToNinety,
-                NinetyPlus = ninetyPlus
+                NinetyPlus = ninetyPlus,
+                NeedsAttention = needsAttention,
+                Attention = attentionAssets,
+                _approvals = approvals,
             };
 
             return View(viewModel);
         }
 
+
+
         // Borrower + Admin
-        public IActionResult Index() => View();
+        public async Task<IActionResult> Index()
+        {
+            // Get current signed-in user's ID (NameIdentifier)
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Prepare defaults
+            var assignedToUser = 0;
+            var assigned = new List<Asset>();
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                // Retrieve all assets assigned to the current user and set the count
+                assigned = await _context.Asset
+                    .Where(a => a.IssuedToUserId == userId)
+                    .ToListAsync();
+
+                assignedToUser = assigned.Count;
+            }
+
+            var viewModel = new BorrowerDashboardViewModel
+            {
+                AssignedToUser = assignedToUser,
+                Assigned = assigned
+            };
+            return View(viewModel);
+        }
 
         
     }

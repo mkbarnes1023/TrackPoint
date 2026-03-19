@@ -1,288 +1,505 @@
 ﻿@model TrackPoint.Models.DTOs.AdminDashboardViewModel
 @using System.Text.Json
-
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
 
 @{
     ViewData["Title"] = "Dashboard";
 }
 
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
 <style>
+    /* --- Canvas --- */
     canvas {
         width: 260px !important;
         height: 260px !important;
     }
 
-    .col-md-3 {
-        align-content: center;
-        width: 300px;
-        height: 180px;
-        
-    }
+    /* --- Layout & Page --- */
     .page {
-        display:flex;
+        display: flex;
         flex-direction: column;
-        gap:25px;
+        gap: 25px;
         padding: 20px;
     }
 
+    .row.g-1 > .col-md-6 {
+        display: flex;
+        align-items: center;
+    }
+
+        .row.g-1 > .col-md-6.text-right {
+            justify-content: flex-end;
+        }
+
+    /* --- Typography --- */
     h1 {
         font-weight: 700;
-        font-size: 40px;
-        color: #064973;
+        font-size: 30px;
+        color: #1c1c1c;
         letter-spacing: -1px;
-    }
-    .display-4 {
-        text-align: center;
-    }
-    h6 {
-        text-align: center;
-        font-weight: 700;
-
+        margin: 0;
     }
 
-    body {
-        background: #f2f2f2;
-        font-family: 'DM Sans', system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-    }
     h4 {
         font-family: 'DM Sans', system-ui, -apple-system, "Segoe UI", Roboto, Arial;
         font-weight: 700;
-        font-size: 22px;
-        color:dimgrey;
+        font-size: 20px;
+        color: #1c1c1c;
         letter-spacing: -1px;
-        
+        margin-bottom: 16px;
     }
 
+    h5 {
+        font-weight: 600;
+        margin: 0 0 16px 0;
+    }
+
+    h6 {
+        text-align: center;
+        font-weight: 700;
+        font-size: 14px;
+        color: #1c1c1c;
+    }
+
+    /* --- Backgrounds & Sections --- */
     .section {
-        align-content: center;
         background: white;
-        border: 2px;
-        padding: 15px;
         border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
 
-    .primary-btn {
-        width: 100%;
-        margin-top: 28px;
-        padding: 14px;
-        font-size: 15px;
+    /* --- Priority Overview Cards --- */
+    .priority-card {
+        flex: 1 1 220px;
+        border-radius: 10px;
+        padding: 20px;
+        font-weight: 700;
+        color: var(--priority-color);
+        background-color: var(--priority-bg);
+    }
+
+    .priority-number {
+        font-size: 36px;
+        font-weight: 700;
+    }
+
+    .priority-label {
+        font-size: 14px;
+        font-weight: 500;
+        opacity: 0.8;
+    }
+
+    /* Priority color variables */
+    .priority-needs-attention {
+        --priority-color: #be185d;
+        --priority-bg: rgba(244, 114, 182, 0.12);
+    }
+
+    .priority-overdue {
+        --priority-color: #7c3aed;
+        --priority-bg: rgba(216, 180, 254, 0.12);
+    }
+
+    .priority-warranty-expiring {
+        --priority-color: #0f766e;
+        --priority-bg: rgba(20, 184, 166, 0.12);
+    }
+
+    .priority-unassigned {
+        --priority-color: #1d4ed8;
+        --priority-bg: rgba(59, 130, 246, 0.12);
+    }
+
+    /* --- System Overview Chart Containers --- */
+    .chart-container {
+        flex: 1 1 48%;
+        border-radius: 12px;
+        padding: 20px;
+        background-color: #ffffff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        max-width: 100%;
+    }
+
+    .chart-title {
+        font-size: 16px;
         font-weight: 600;
-        color: #fff;
-        background: linear-gradient(135deg, #4f46e5, #7c3aed);
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: transform 0.15s, box-shadow 0.15s;
+        margin-bottom: 12px;
+        text-align: left;
     }
 
-        .primary-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
+    .chart-canvas-wrapper {
+        width: 100%;
+        max-width: 260px;
+        margin: 0 auto;
+    }
+
+    /* --- Table Styling --- */
+    .table-container {
+        overflow-x: auto;
+    }
+
+    table.table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+        table.table thead th {
+            background-color: #f3f6fa;
+            color: #6b7280;
+            font-weight: 600;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 14px;
         }
 
-    .secondary-btn {
-        width: 100%;
-        margin-top: 28px;
-        padding: 14px;
-        font-size: 15px;
-        font-weight: 600;
-        color: #fff;
-        background: linear-gradient(135deg, #4f46e5, #7c3aed);
-        border: none;
-        border-radius: 10px;
+        table.table tbody td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #eef2f7;
+            font-size: 14px;
+            color: #111827;
+        }
+
+        table.table tbody tr:nth-child(even) {
+            background-color: #fcfcfd;
+        }
+
+        table.table tbody tr:hover {
+            background-color: #f9fafb;
+            transition: background-color 0.2s ease;
+        }
+
+    /* --- Buttons --- */
+    .btn-sm {
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #2563eb;
+        background-color: transparent;
+        border: 1px solid transparent;
+        transition: background-color 0.15s ease, border-color 0.15s ease;
         cursor: pointer;
-        transition: transform 0.15s, box-shadow 0.15s;
     }
 
-        .primary-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
+        .btn-sm:hover,
+        .btn-sm:focus {
+            background-color: #e0e7ff;
+            border-color: #2563eb;
+            color: #2563eb;
         }
+
+        /* Icon sizing inside buttons */
+        .btn-sm i {
+            vertical-align: middle;
+            font-size: 1.25rem;
+        }
+
+    /* Body & Fonts */
+    body {
+        background: #f5f5f5;
+        font-family: 'DM Sans', system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    /* Flex gap fallback for older browsers */
+    .d-flex.flex-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
 
 </style>
 
 
 
-    <div class="page">
+<div class="page">
     <div class="row g-1">
         <div class="col-md-6">
             <h1>Home</h1>
         </div>
-        <div class="col-md-6" style="text-align:right">
+        <div class="col-md-6 text-right">
             <a asp-controller="Report" asp-action="ReportBuilder" class="secondary-btn">
                 Generate A Report
             </a>
         </div>
-  
-        </div>
-        <!-- Priority Overview -->
-        <div class="section">
-            <h4>Priority Overview</h4>
-            <div class="d-flex justify-content-between flex-wrap" style="gap: 20px; margin-top: 15px;">
-            <div class="custom-background" style="flex: 1 1 220px; border:1px solid #f472b6; border-radius:10px; padding:10px; background-color:rgba(244, 114, 182, 0.25)">
-                <div class="display-4" style="color:#f472b6">0</div>
-                <h6 style="color:#f472b6">Needs Attention</h6>
-                </div>
-            <div class="custom-background" style="flex: 1 1 220px; border:1px solid #d8b4fe; border-radius:10px; padding:10px; background-color: rgba(216, 180, 254,0.25)">
-                <div class="display-4" style="color:#d8b4fe">0</div>
-                <h6 style="color:#d8b4fe">Overdue</h6>
-                </div>
-            <div class="custom-background" style="flex: 1 1 220px; border:1px solid #14b8a6; border-radius:10px; padding:10px; background-color: rgba(20, 184, 166,0.25)">
-                <div class="display-4" style="color:#14b8a6">@Model.ExpiringSoonCount</div>
-                <h6 style="color:#14b8a6">Warranty Expiring</h6>
-                </div>
-            <div class="custom-background" style="flex: 1 1 220px; border:1px solid #3b82f6; border-radius:10px; padding:10px; background-color: rgba(59, 131, 246,0.25)">
-                <div class="display-4" style="color:#3b82f6">@Model.UnassignedCount</div>
-                <h6 style="color:#3b82f6">Unassigned</h6>
-                </div>
-            </div>
-        </div>
-
-        <!-- System Overview -->
-        <div class="section">
-            <h4>System Overview</h4>
-            <div class="d-flex flex-wrap justify-content-between" style="gap: 20px; margin-top: 15px;">
-                <div class="custom-background" style="flex: 1 1 45%; border:1px solid #D3D3D3; border-radius:10px; padding:10px;">
-                    <canvas id="statusChart"></canvas>
-                    <h6>Asset by Status</h6>
-                </div>
-                <div class="custom-background" style="flex: 1 1 45%; border:1px solid #D3D3D3; border-radius:10px; padding:10px;">
-                    <canvas id="warranty"></canvas>
-                    <h6>Warranty Coverage</h6>
-                </div>
-            </div>
-        </div>
-
-        <!-- Action Center -->
-        <div class="section">
-            <h4>Action Center</h4>
-            <div class="d-flex flex-column" style="gap: 20px; margin-top: 15px;">
-                <div class="custom-background" style="border:1px solid #D3D3D3; border-radius:10px; padding:10px;">
-                    <canvas id="make"></canvas>
-                    <h6>Needs Immediate Action</h6>
-                </div>
-                <div class="custom-background" style="border:1px solid #D3D3D3; border-radius:10px; padding:10px;">
-                    <canvas id="make"></canvas>
-                    <h6>Pending Approvals</h6>
-                </div>
-            </div>
-        </div>
-
     </div>
+
+    <!-- Priority Overview -->
+    <div class="section">
+        <h4>Priority Overview</h4>
+        <div class="d-flex flex-wrap">
+            <div class="priority-card priority-needs-attention">
+                <div class="priority-number">@Model.NeedsAttention</div>
+                <div class="priority-label">Needs Attention</div>
+            </div>
+
+            <div class="priority-card priority-overdue">
+                <div class="priority-number">0</div>
+                <div class="priority-label">Overdue</div>
+            </div>
+
+            <div class="priority-card priority-warranty-expiring">
+                <div class="priority-number">@Model.ExpiringSoonCount</div>
+                <div class="priority-label">Warranty Expiring</div>
+            </div>
+
+            <div class="priority-card priority-unassigned">
+                <div class="priority-number">@Model.UnassignedCount</div>
+                <div class="priority-label">Unassigned</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Overview -->
+    <div class="section">
+        <h4>System Overview</h4>
+        <div class="d-flex flex-wrap">
+            <div class="chart-container">
+                <div class="chart-title">Asset by Status</div>
+                <div class="chart-canvas-wrapper">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Warranty Coverage</div>
+                <div class="chart-canvas-wrapper">
+                    <canvas id="warranty"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Center -->
+    <div class="section">
+        <h4>Action Center</h4>
+
+        <div class="d-flex flex-column" style="gap: 20px; margin-top: 15px;">
+            <div class="section">
+                <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom: 16px;">
+                    <h4 class="chart-title">Needs Immediate Action</h4>
+                </div>
+                <!-- Needs Immediate Action Table -->
+                <div class="table-container">
+                    <table class="table" id="action">
+                        <thead>
+                            <tr>
+                                <th>Asset Tag</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th style="text-align: center;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Attention.Any())
+                            {
+                                foreach (var asset in Model.Attention)
+                                {
+                                    <tr>
+                                        <td>@asset.AssetTag</td>
+                                        <td>@asset.Category</td>
+                                        <td>@asset.AssetStatus</td>
+                                        <td style="text-align: center;">
+                                            <a class="btn btn-sm"
+                                               asp-controller="Asset"
+                                               asp-action="AssetView"
+                                               asp-route-assetTag="@asset.AssetTag"
+                                               title="View details">
+                                                <i class="bi bi-info-circle-fill"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" style="text-align:center; font-style:italic; color:#6b7280;">
+                                        Nothing to display
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom: 16px;">
+                    <h4 class="chart-title">Pending Approvals</h4>
+                </div>
+                <div class="table-container">
+                    <table class="table" id="action">
+                        <thead>
+                            <tr>
+                                <th>Asset Tag</th>
+                                <th>Approval Reason</th>
+                                <th>Requestor</th>
+                                <th>Request Date</th>
+                                <th style="text-align:right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model._approvals.Any())
+                            {
+                                foreach (var approval in Model._approvals)
+                                {
+                                    <tr>
+                                        <td>@approval.AssetId</td>
+                                        <td>@approval.ApprovalReason</td>
+                                        <td>@UserManager.Users.FirstOrDefault(u => u.Id == approval.RequestorId)?.UserName</td>
+                                        <td>@approval.RequestDate</td>
+                                        <td style="text-align:right;">
+                                            <a asp-controller="Approvals" asp-action="ApproveAsset" asp-route-ApprovalId="@approval.ApprovalId"
+                                               class="btn btn-success btn-sm me-2">Approve</a>
+                                            <a asp-controller="Approvals" asp-action="RejectAsset" asp-route-ApprovalId="@approval.ApprovalId"
+                                               class="btn btn-light btn-sm">Deny</a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" style="text-align:center; font-style:italic; color:#6b7280;">
+                                        Nothing to display
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script>
-    //create charts 
-    DrawAssetChart();
-    DrawWarrantyChart();
+    <script>
+        DrawAssetChart();
+        DrawWarrantyChart();
 
-            function DrawAssetChart() {
-        // Labels and data from server
-        const labels = @Html.Raw(JsonSerializer.Serialize(Model.StatusCounts.Select(s => s.Label)));
-        const data = @Html.Raw(JsonSerializer.Serialize(Model.StatusCounts.Select(s => s.Count)));
+        function DrawAssetChart() {
+            const labels = @Html.Raw(JsonSerializer.Serialize(Model.StatusCounts.Select(s => s.Label)));
+            const data = @Html.Raw(JsonSerializer.Serialize(Model.StatusCounts.Select(s => s.Count)));
 
-        const ctx = document.getElementById('statusChart').getContext('2d');
+            const ctx = document.getElementById('statusChart').getContext('2d');
 
-        // Purple-centric SaaS palette
-        const backgroundColors = [
-            '#14b8a6', // Teal
-            '#7c3aed', // Purple
-            '#3b82f6', // Blue
-            '#6366f1', // Indigo
-            '#9333ea', // Darker Purple
-            '#f472b6', // Pink
-            '#facc15', // Amber
-            '#ec4899'  // Magenta
-        ];
+            const backgroundColors = [
+                '#14b8a6',
+                '#7c3aed',
+                '#3b82f6',
+                '#6366f1',
+                '#9333ea',
+                '#f472b6',
+                '#facc15',
+                '#ec4899'
+            ];
 
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: backgroundColors.slice(0, data.length),
-                    borderColor: '#ffffff',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'right',
-                        labels: {
-                            boxWidth: 15,
-                            padding: 20,
-                            font: { size: 14 }
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: backgroundColors.slice(0, data.length),
+                        borderWidth: 0,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 1,
+                    cutout: '65%', // safe + modern
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 10,
+                                padding: 14,
+                                color: '#374151',
+                                font: {
+                                    size: 13
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#111827',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            padding: 10,
+                            cornerRadius: 6
                         }
-                    },
-                    tooltip: {
-                        enabled: true,
-                        backgroundColor: '#1F2937',
-                        titleColor: '#fff',
-                        bodyColor: '#fff',
-                        padding: 10
                     }
                 }
-            }
-        });
-    }
+            });
+        }
 
-    function DrawWarrantyChart() {
-        // Values from server
-        const expired = @Html.Raw(JsonSerializer.Serialize(Model.ExpiredCount));
-        const zeroToThirty = @Html.Raw(JsonSerializer.Serialize(Model.ZeroToThirty));
-        const thirtyOneToNinety = @Html.Raw(JsonSerializer.Serialize(Model.ThirtyOneToNinety));
-        const ninetyPlus = @Html.Raw(JsonSerializer.Serialize(Model.NinetyPlus));
-        const totalAssets = @Html.Raw(JsonSerializer.Serialize(Model.StatusCounts.Sum(s => s.Count)));
-        const noWarranty = Math.max(0, totalAssets - (expired + zeroToThirty + thirtyOneToNinety + ninetyPlus));
+        function DrawWarrantyChart() {
+            const expired = @Html.Raw(JsonSerializer.Serialize(Model.ExpiredCount));
+            const zeroToThirty = @Html.Raw(JsonSerializer.Serialize(Model.ZeroToThirty));
+            const thirtyOneToNinety = @Html.Raw(JsonSerializer.Serialize(Model.ThirtyOneToNinety));
+            const ninetyPlus = @Html.Raw(JsonSerializer.Serialize(Model.NinetyPlus));
+            const totalAssets = @Html.Raw(JsonSerializer.Serialize(Model.StatusCounts.Sum(s => s.Count)));
+            const noWarranty = Math.max(0, totalAssets - (expired + zeroToThirty + thirtyOneToNinety + ninetyPlus));
 
-        const labels = ['No Warranty', 'Expired', '0-30 days', '31-90 days', '90+ days'];
-        const data = [noWarranty, expired, zeroToThirty, thirtyOneToNinety, ninetyPlus];
+            const labels = ['No Warranty', 'Expired', '0-30 days', '31-90 days', '90+ days'];
+            const data = [noWarranty, expired, zeroToThirty, thirtyOneToNinety, ninetyPlus];
 
-        const ctx = document.getElementById('warranty').getContext('2d');
+            const ctx = document.getElementById('warranty').getContext('2d');
 
-        // Purple/teal SaaS palette
-        const backgroundColors = [
-            '#d8b4fe', // Light Purple - No Warranty
-            '#7c3aed', // Purple - Expired
-            '#9333ea', // Darker Purple - 0-30
-            '#14b8a6', // Teal - 31-90
-            '#f472b6'  // Pink - 90+
-        ];
+            const backgroundColors = [
+                '#c4b5fd',
+                '#7c3aed',
+                '#9333ea',
+                '#14b8a6',
+                '#f472b6'
+            ];
 
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: backgroundColors,
-                    borderColor: '#ffffff',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'right',
-                        labels: { boxWidth: 15, padding: 20, font: { size: 14 } }
-                    },
-                    tooltip: {
-                        enabled: true,
-                        backgroundColor: '#1F2937',
-                        titleColor: '#fff',
-                        bodyColor: '#fff',
-                        padding: 10
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderWidth: 0,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 1,
+                    cutout: '65%',
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 10,
+                                padding: 14,
+                                color: '#374151',
+                                font: {
+                                    size: 13
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#111827',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            padding: 10,
+                            cornerRadius: 6
+                        }
                     }
                 }
-            }
-        });
-    }
-</script>
+            });
+        }
+    </script>

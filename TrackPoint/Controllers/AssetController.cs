@@ -16,6 +16,7 @@ using System.Threading;
 using TrackPoint.Data;
 using TrackPoint.Models;
 using TrackPoint.Views.Asset;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace TrackPoint.Controllers
 {
@@ -61,20 +62,31 @@ namespace TrackPoint.Controllers
          */
         public IActionResult LocationEdit(int locationId)
         {
+            // If you are trying to edit the "Unassigned" location, which has an ID of 1 by default, redirect back to the management page.
+            if (locationId == 1)
+            {
+                return RedirectToAction("ManageLocations");
+            }
             LocationEditViewModel model = new LocationEditViewModel();
             model.location = _context.Location.Find(locationId);
             return View(model);
         }
 
         /*
-		 *  Try to delete a category
+		 *  Try to delete a Location
 		 */
         public IActionResult DeleteLocation(int locationId)
         {
             // Check that the location specified corresponds to a real location
-            if (!_context.Location.Any(l => l.LocationId == locationId))
+            if(!_context.Location.Any(l => l.LocationId == locationId))
             {
                 Console.WriteLine($"Couldn't Find location: {locationId}");
+                return RedirectToAction("ManageLocations");
+            }
+            // Check that the location is not the "null" location used for unassigned assets, which cannot be deleted
+            if(locationId == 1)
+            {
+                Console.WriteLine($"You can't delete the Unassigned location!");
                 return RedirectToAction("ManageLocations");
             }
             // Set each asset in this location to a "null" location
@@ -179,6 +191,11 @@ namespace TrackPoint.Controllers
          */
         public IActionResult CategoryEdit(int categoryId)
         {
+            // If you are trying to edit the "Unassigned" category, which has an ID of 1 by default, redirect back to the management page.
+            if (categoryId == 1)
+            {
+                return RedirectToAction("ManageCategories");
+            }
             CategoryEditViewModel model = new CategoryEditViewModel();
             model.category = _context.Category.Find(categoryId);
             return View(model);
@@ -241,6 +258,12 @@ namespace TrackPoint.Controllers
                 Console.WriteLine($"Couldn't Find category: {categoryId}");
                 return RedirectToAction("ManageCategories");
             }
+            // Check that the category is not the "null" category used for unassigned assets, which cannot be deleted
+            if (categoryId == 1)
+            {
+                Console.WriteLine($"You can't delete the Unassigned category!");
+                return RedirectToAction("ManageCategories");
+            }
             // Set each asset in this category to a "null" category
             IEnumerable<Asset> assets = _context.Asset.Where(a => a.CategoryId == categoryId);
             foreach (Asset a in assets)
@@ -263,10 +286,11 @@ namespace TrackPoint.Controllers
 		 */
         public IActionResult AssetAdd(Asset a)
         {
-            // Pass the locations and categories to the view via the AssetAddModel
+            // Pass the locations, categories, and users to the view via the AssetAddViewModel
             AssetAddViewModel model = new AssetAddViewModel();
             model._locations = locations.ToList();
             model._categories = categories.ToList();
+            model._users = _userManager.Users.ToList();
             model.asset = a;
             return View(model);
         }
@@ -311,7 +335,6 @@ namespace TrackPoint.Controllers
             // Assign the Asset an asset tag based on the Category's abbreviation, Location abbreviation and a unique number, padded to 4 digits with leading zeros.
             asset.AssetTag = $"{_context.Category.Find(asset.CategoryId)?.Abbreviation}-{_context.Location.Find(asset.LocationId)?.Abbreviation}-{(_context.Asset.Count(a => a.CategoryId == asset.CategoryId && a.LocationId == asset.LocationId) + 1).ToString().PadLeft(4, '0')}";
 
-
             //asset.AssetTag = $"{_context.Category.Find(asset.CategoryId)?.Abbreviation}-{_context.Asset.Count(a => a.CategoryId == asset.CategoryId) + 1}";
 
             // Add the new Asset to database and redirect the user to the AssetBrowser
@@ -337,22 +360,90 @@ namespace TrackPoint.Controllers
             // Log the asset to the console for debugging purposes
             Console.WriteLine($"New Asset Added: {asset.AssetTag}, {asset.Make}, {asset.Model}, {asset.Category}, {asset.Location}, {asset.IssuedToUser}, {asset.AssetStatus}, {asset.Notes}");
 
-            // Pack the information for the AssetBrowser
-            AssetBrowserViewModel model = new AssetBrowserViewModel();
-            model._assets = assets.ToList();
-            model._categories = categories.ToList();
-            model._locations = locations.ToList();
-            return RedirectToAction("AssetBrowser", model);
+            return RedirectToAction("AssetBrowser");
+        }
+
+        /**
+         * Retire an asset from the database and redirect to the Asset Browser
+        */
+        public IActionResult RetireAsset(int AssetId)
+        {
+            Asset asset = _context.Asset.Find(AssetId);
+
+            // If the asset is already retired, just redirect to the Asset Browser
+            if(asset.AssetStatus == Enums.AssetStatus.Retired.ToString())
+            {
+                return RedirectToAction("AssetBrowser");
+            }
+
+            asset.AssetStatus = Enums.AssetStatus.Retired.ToString();
+
+            _context.Asset.Update(asset);
+
+            // Update TransferLog for Asset Retirement
+            // TODO: This currently does nothing since the asset being deleted also deletes all of its transfer logs due to the
+            //       Foreign Key fo AssetID. We should implement the system of retiring assets instead of deleting their entry.
+
+            _context.TransferLog.Add(new TransferLog
+            {
+                AssetId = asset.AssetId,
+                NewStatus = "Retired",
+                eventType = Enums.eventType.Archival,
+                TransferDate = DateTime.Now
+            });
+
+            _context.SaveChanges();
+
+            // Log retired asset
+            Console.WriteLine($"Asset Retired: {AssetId}");
+
+            return RedirectToAction("AssetBrowser");
+        }
+
+        /**
+         * Unretire an asset from the database and redirect to the Asset Browser
+        */
+        public IActionResult UnretireAsset(int AssetId)
+        {
+            Asset asset = _context.Asset.Find(AssetId);
+
+            // If the asset is not already retired, just redirect to the Asset Browser
+            if (asset.AssetStatus != Enums.AssetStatus.Retired.ToString())
+            {
+                return RedirectToAction("AssetBrowser");
+            }
+
+            asset.AssetStatus = Enums.AssetStatus.InStorage.ToString();
+
+            _context.Asset.Update(asset);
+
+            // Update TransferLog for Asset Retirement
+            // TODO: This currently does nothing since the asset being deleted also deletes all of its transfer logs due to the
+            //       Foreign Key fo AssetID. We should implement the system of retiring assets instead of deleting their entry.
+
+            _context.TransferLog.Add(new TransferLog
+            {
+                AssetId = asset.AssetId,
+                NewStatus = "Unretired",
+                eventType = Enums.eventType.StatusChange,
+                TransferDate = DateTime.Now
+            });
+
+            _context.SaveChanges();
+
+            // Log retired asset
+            Console.WriteLine($"Asset Unretired: {AssetId}");
+
+            return RedirectToAction("AssetBrowser");
         }
 
         /**
          * Delete the asset from the database and redirect to the Asset Browser
          * 
-         * We may want to make it clear that this function is for when a mistake was made,
-         * rather than for when they are done with an asset. Assets they are finished with should
-         * have their status changed to "Retired", to preserve their history in the logs.
+         * This function is depreciated. It is replaced with the RetireAsset method.
          */
         // TODO: Update AssetLoan for this as well, likely by deleting the loan
+        /*
         public IActionResult DeleteAsset(int AssetId)
         {
             Asset asset = _context.Asset.Find(AssetId);
@@ -382,6 +473,7 @@ namespace TrackPoint.Controllers
             model._locations = locations.ToList();
             return RedirectToAction("AssetBrowser", model);
         }
+        */
 
         /**
          * Return the view for editing assets with the selected asset passed as the model
@@ -393,6 +485,7 @@ namespace TrackPoint.Controllers
             AssetAddViewModel model = new AssetAddViewModel();
             model._categories = categories.ToList();
             model._locations = locations.ToList();
+            model._users = _userManager.Users.ToList();
             model.asset = asset;
             return View(model);
         }
@@ -404,6 +497,7 @@ namespace TrackPoint.Controllers
             AssetAddViewModel model = new AssetAddViewModel();
             model._categories = categories.ToList();
             model._locations = locations.ToList();
+            model._users = _userManager.Users.ToList();
             model.asset = a;
             return View("AssetEdit", model);
         }
@@ -493,6 +587,36 @@ namespace TrackPoint.Controllers
                 TempData["Failure"] = "Error: Current user not found.";
                 return RedirectToAction("AssetBrowser");
             }
+
+            // Redirect to Asset Browser if asset requires administrator approval
+            if (_context.Category.Find(asset.CategoryId)?.RequiresApproval == true)
+            {
+                if (_context.Approvals.FirstOrDefault(ap => ap.AssetId == asset.AssetId) != null)
+                {
+                    TempData["Success"] = $"A request already exists for this asset"; // TODO: Complete this check, maybe change the status for assets pending approval
+                    return RedirectToAction("AssetBrowser");
+                }
+
+                // Create a new Approval
+                var approval = new Approvals
+                {
+                    ReasonId = 1, // TODO: Do ReasonId and ApprovalReason do the same thing?
+                    ApprovalReason = _context.ApprovalReason.Find(1), // TODO: Fill in the ApprovalReason table
+                    RequestorId = userId,
+                    AssetId = asset.AssetId,
+                    RequestDate = DateTime.Now,
+                    ApprovalStatus = "Pending",
+                    ApproverId = null,
+                    ResolvedDate = null,
+                    Comments = null,
+                    ApprovalRelatedStatus = "CheckOut" // TODO: Idk what this is exactly
+                };
+                _context.Approvals.Update(approval);
+                _context.SaveChanges();
+                TempData["Success"] = $"Your check-out request has been sent for administrator approval, you will be notified if your request is approved.";
+                return RedirectToAction("AssetBrowser");
+            }
+
             asset.IssuedToUserId = userId;
             asset.StatusDate = DateTime.Now;
             asset.AssetStatus = "InUse";
@@ -528,8 +652,8 @@ namespace TrackPoint.Controllers
                 TransferDate = DateTime.Now // TODO: Make sure DateTime.Now is synced, save as variable to "freeze" it
             });
 
-        // Save the changes
-        _context.SaveChanges();
+            // Save the changes
+            _context.SaveChanges();
 
             // Prevent duplicate form submissions on page refresh
             if (ModelState.IsValid)
@@ -600,22 +724,40 @@ namespace TrackPoint.Controllers
             {
                 return "Error: Make and Model cannot be empty.";
             }
+            // Empty or whitespace serial number
+            if (string.IsNullOrWhiteSpace(a.SerialNumber))
+            {
+                return "Error: Serial Number cannot be empty.";
+            }
+            // Empty or whitespace vendor
+            if (string.IsNullOrWhiteSpace(a.Vendor))
+            {
+                return "Error: Vendor cannot be empty.";
+            }
+            // Empty or whitespace condition
+            if (string.IsNullOrWhiteSpace(a.Condition))
+            {
+                return "Error: Condition cannot be empty.";
+            }
+            // Empty or whitespace status
+            if (string.IsNullOrWhiteSpace(a.AssetStatus))
+            {
+                return "Error: Asset Status cannot be empty.";
+            }
             // Category is empty or invalid
             if (!_context.Category.Any(c => c.CategoryId == a.CategoryId))
             {
                 return "Error: Invalid category selected.";
-
             }
             // Location is empty or invalid
             if (!_context.Location.Any(l => l.LocationId == a.LocationId))
             {
-
                 return "Error: Invalid location selected.";
             }
-            // Check if IssuedToUser is valid if not null (TODO: Currently broken.)
-            if (a.IssuedToUser != null && !_userManager.Users.Any(u => u.Id == a.IssuedToUserId))
+            // Check if IssuedToUserId is valid
+            if (!string.IsNullOrEmpty(a.IssuedToUserId) && !_userManager.Users.Any(u => u.Id == a.IssuedToUserId))
             {
-                return $"Error: User '{a.IssuedToUser}' not found.";
+                return "Error: Selected user not found.";
             }
 
             // If all checks pass, return empty string
@@ -662,6 +804,11 @@ namespace TrackPoint.Controllers
             {
                 Location existingLocation = _context.Location.First(loc => loc.Name == l.Name);
                 return "Error: A location with this abbreviation already exists: " + existingLocation.Name + " (" + existingLocation.Abbreviation + ")";
+            }
+            // Location is the Unasigned location, which can't be edited
+            if (l.LocationId == 1)
+            {
+                return "Error: The Unassigned location cannot be edited.";
             }
 
             return "";
@@ -716,6 +863,11 @@ namespace TrackPoint.Controllers
             if (c.DefaultLoanPeriodDays < 0)
             {
                 return "Error: Default Loan Period cannot be negative.";
+            }
+            // Category is the Unasigned category, which can't be edited
+            if (c.CategoryId == 1)
+            {
+                return "Error: The Unassigned category cannot be edited.";
             }
 
             return "";

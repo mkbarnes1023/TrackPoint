@@ -362,3 +362,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /TrackPoint/Properties/ServiceDependencies/trackpoint-webapp - Web Deploy/profile.arm.json
+
+# Development Settings
+/TrackPoint/appsettings.Development.json
