@@ -9,7 +9,7 @@ using TrackPoint.Configuration;
 
 namespace TrackPoint.Data
 {
-    public static class AdminSeedData // Renamed from SeedData
+    public static class AdminSeedData 
     {
         private const string AdminRoleName = "Admin";
 
