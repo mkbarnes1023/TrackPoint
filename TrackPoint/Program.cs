@@ -42,7 +42,7 @@ using (var scope = app.Services.CreateScope())
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await AdminSeedData.InitializeAsync(db);
+    await AdminSeedData.SeedAdminsAsync(app.Services);
 }
 
 // Optionally: additional data seeding spot
