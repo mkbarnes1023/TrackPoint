@@ -26,6 +26,7 @@
             width: 200px;
             height: 100vh;
             overflow-y: auto;
+            overflow-x: visible;
             background: #064973;
             padding: 20px 16px;
             border-right: 1px solid #e2e8f0;
@@ -36,6 +37,17 @@
         .main-with-sidebar {
             margin-left: 200px;
             min-height: 100vh;
+        }
+
+        .sidebar .dropdown-menu {
+            max-width: 100%;
+        }
+
+        .user-name-wrap,
+        .user-email-wrap {
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
         }
 
         /* Small screen behavior: let the sidebar stack above content */

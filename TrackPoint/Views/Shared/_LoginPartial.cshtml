@@ -1,6 +1,6 @@
 @using System.Security.Claims
 
-<ul class="navbar-nav ms-auto">
+<ul class="navbar-nav ms-auto w-100">
 @if (User.Identity?.IsAuthenticated == true)
 {
     var email = User.FindFirstValue(ClaimTypes.Email) 
@@ -9,13 +9,13 @@
                 ?? "Account";
     var name = User.FindFirstValue(ClaimTypes.Name) ?? email;
 
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle text-light" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <li class="nav-item dropup w-100">
+        <a class="nav-link dropdown-toggle text-light user-name-wrap" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             @name
         </a>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+        <ul class="dropdown-menu w-100" aria-labelledby="userMenu">
             <li>
-                <span class="dropdown-item-text small text-muted">@email</span>
+                <span class="dropdown-item-text small text-muted user-email-wrap">@email</span>
             </li>
             <li><hr class="dropdown-divider" /></li>
             <li>
