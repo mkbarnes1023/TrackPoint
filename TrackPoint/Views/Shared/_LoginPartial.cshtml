@@ -3,23 +3,32 @@
 <ul class="navbar-nav ms-auto w-100">
 @if (User.Identity?.IsAuthenticated == true)
 {
-    var email = User.FindFirstValue(ClaimTypes.Email) 
-                ?? User.FindFirstValue("preferred_username") 
-                ?? User.Identity.Name 
+    var email = User.FindFirstValue(ClaimTypes.Email)
+                ?? User.FindFirstValue("preferred_username")
+                ?? User.Identity.Name
                 ?? "Account";
     var name = User.FindFirstValue(ClaimTypes.Name) ?? email;
 
     <li class="nav-item dropup w-100">
-        <a class="nav-link dropdown-toggle text-light user-name-wrap" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <a class="nav-link dropdown-toggle text-light user-name-wrap"
+           href="#"
+           id="userMenu"
+           role="button"
+           data-bs-toggle="dropdown"
+           aria-expanded="false">
             @name
         </a>
-        <ul class="dropdown-menu w-100" aria-labelledby="userMenu">
+        <ul class="dropdown-menu w-100 account-menu" aria-labelledby="userMenu">
             <li>
                 <span class="dropdown-item-text small text-muted user-email-wrap">@email</span>
             </li>
             <li><hr class="dropdown-divider" /></li>
             <li>
-                <a class="dropdown-item" asp-area="MicrosoftIdentity" asp-controller="Account" asp-action="SignOut">Sign Out</a>
+                <a class="dropdown-item"
+                   asp-area="MicrosoftIdentity"
+                   asp-controller="Account"
+                   asp-action="SignOut"
+                   asp-route-redirectUri="/SignedOut">Sign Out</a>
             </li>
         </ul>
     </li>

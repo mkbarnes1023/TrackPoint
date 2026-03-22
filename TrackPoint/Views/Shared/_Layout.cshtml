@@ -43,6 +43,11 @@
             max-width: 100%;
         }
 
+        .sidebar .account-menu {
+            min-width: 0;
+            max-width: 100%;
+        }
+
         .user-name-wrap,
         .user-email-wrap {
             white-space: normal;
@@ -67,164 +72,168 @@
 
 
 <body>
+    @{
+        var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    }
 
+    @if (isAuthenticated)
+    {
+        <!-- ===== Sidebar ===== -->
+        <nav class="d-flex flex-column sidebar">
 
-    <!-- ===== Sidebar ===== -->
-    <nav class="d-flex flex-column sidebar">
+            <!-- Top Section -->
+            <div>
 
-        <!-- Top Section -->
-        <div>
+                <!-- Logo (Reduced spacing) -->
+                <a class="navbar-brand d-block"
+                   style="margin-bottom:18px;"
+                   asp-controller="Home" asp-action="Index">
+                    <img class="img-fluid"
+                         style="height:50px;"
+                         src="https://www.lsnf.org/wp-content/themes/LSNFtheme/assets/images/Logo.png" />
+                </a>
 
-            <!-- Logo (Reduced spacing) -->
-            <a class="navbar-brand d-block"
-               style="margin-bottom:18px;"
-               asp-controller="Home" asp-action="Index">
-                <img class="img-fluid"
-                     style="height:50px;"
-                     src="https://www.lsnf.org/wp-content/themes/LSNFtheme/assets/images/Logo.png" />
-            </a>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    var isAdmin = User.IsInRole("Admin");
+                    var isBorrower = User.IsInRole("Borrower");
 
-            @if (User.Identity?.IsAuthenticated == true)
-            {
-                var isAdmin = User.IsInRole("Admin");
-                var isBorrower = User.IsInRole("Borrower");
+                    <!-- Navigation -->
+                    <ul class="navbar-nav flex-column w-100"
+                        style="gap:22px; font-family:Inter, sans-serif;">
 
-                <!-- Navigation -->
-                <ul class="navbar-nav flex-column w-100"
-                    style="gap:22px; font-family:Inter, sans-serif;">
-
-                    <!-- DASHBOARD -->
-                    <li class="nav-item">
-                        <span style="font-size:11px;
-                                     text-transform:uppercase;
-                                     letter-spacing:.08em;
-                                     color:#94a3b8;
-                                     margin-bottom:6px;
-                                     display:block;">
-                            Dashboard
-                        </span>
-
-                        <ul class="nav flex-column" style="gap:6px;">
-
-                            @if (isAdmin || isBorrower)
-                            {
-                                <li>
-                                    <a class="nav-link text-light"
-                                       style="border-radius:8px;
-                                              padding:8px 12px;
-                                              font-weight:500;
-                                              color:#334155;"
-                                       asp-controller="Dashboard"
-                                       asp-action="Index">
-                                        <i class="bi bi-clipboard-data-fill fs-6"></i> Borrower
-                                    </a>
-                                </li>
-                            }
-
-                            @if (isAdmin)
-                            {
-                                <li>
-                                    <a class="nav-link text-light"
-                                       style="border-radius:8px;
-                                              padding:8px 12px;
-                                              font-weight:500;
-                                              color:#334155;"
-                                       asp-controller="Dashboard"
-                                       asp-action="adminDashboard">
-                                        <i class="bi bi-shield-shaded fs-6"></i> Admin
-                                    </a>
-                                </li>
-                            }
-                        </ul>
-                    </li>
-
-                    <!-- ASSETS -->
-                    <li class="nav-item">
-                        <span style="font-size:11px;
-                                     text-transform:uppercase;
-                                     letter-spacing:.08em;
-                                     color:#94a3b8;
-                                     margin-bottom:6px;
-                                     display:block;">
-
-                            Assets
-                        </span>
-
-                        <ul class="nav flex-column" style="gap:6px;">
-                            <li>
-                                <a class="nav-link text-light"
-                                   style="border-radius:8px;
-                                          padding:8px 12px;
-                                          font-weight:500;
-                                          color:#334155;"
-                                   asp-controller="Asset"
-                                   asp-action="AssetBrowser">
-                                    <i class="bi bi-basket-fill fs-6"></i> Browse Assets
-                                </a>
-                            </li>
-
-                            @if (isAdmin)
-                            {
-                                <li>
-                                    <a class="nav-link text-light"
-                                       style="border-radius:8px;
-                                              padding:8px 12px;
-                                              font-weight:500;
-                                              color:#334155;"
-                                       asp-controller="Asset"
-                                       asp-action="AssetAdd">
-                                        <i class="bi bi-plus-square-fill fs-6"></i> Register Asset
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="nav-link text-light"
-                                       style="border-radius:8px;
-                                              padding:8px 12px;
-                                              font-weight:500;
-                                              color:#334155;"
-                                       asp-controller="Asset"
-                                       asp-action="TransferLog">
-                                        <i class="bi bi-journal fs-6"></i> Transfer Log
-                                    </a>
-                                </li>
-                            }
-                        </ul>
-                    </li>
-
-                    @if (isAdmin)
-                    {
-                        <!-- MANAGEMENT -->
-                        <li class="nav-item text-light">
+                        <!-- DASHBOARD -->
+                        <li class="nav-item">
                             <span style="font-size:11px;
                                          text-transform:uppercase;
                                          letter-spacing:.08em;
                                          color:#94a3b8;
                                          margin-bottom:6px;
                                          display:block;">
-                                Management
+                                Dashboard
                             </span>
 
                             <ul class="nav flex-column" style="gap:6px;">
-                                <li><a class="nav-link text-light" style="border-radius:8px;padding:8px 12px;font-weight:500;color:#334155;" asp-controller="Admin" asp-action="AllocateDemo"><i class="bi bi-clipboard-plus fs-6"></i> Admin Allocation</a></li>
-                                <li><a class="nav-link text-light" style="border-radius:8px;padding:8px 12px;font-weight:500;color:#334155;" asp-controller="Asset" asp-action="ManageCategories"><i class="bi bi-box-seam-fill fs-6"></i> Category</a></li>
-                                <li><a class="nav-link text-light" style="border-radius:8px;padding:8px 12px;font-weight:500;color:#334155;" asp-controller="Asset" asp-action="ManageLocations"><i class="bi bi-building-fill fs-6"></i> Location</a></li>
+
+                                @if (isAdmin || isBorrower)
+                                {
+                                    <li>
+                                        <a class="nav-link text-light"
+                                           style="border-radius:8px;
+                                                  padding:8px 12px;
+                                                  font-weight:500;
+                                                  color:#334155;"
+                                           asp-controller="Dashboard"
+                                           asp-action="Index">
+                                            <i class="bi bi-clipboard-data-fill fs-6"></i> Borrower
+                                        </a>
+                                    </li>
+                                }
+
+                                @if (isAdmin)
+                                {
+                                    <li>
+                                        <a class="nav-link text-light"
+                                           style="border-radius:8px;
+                                                  padding:8px 12px;
+                                                  font-weight:500;
+                                                  color:#334155;"
+                                           asp-controller="Dashboard"
+                                           asp-action="adminDashboard">
+                                            <i class="bi bi-shield-shaded fs-6"></i> Admin
+                                        </a>
+                                    </li>
+                                }
                             </ul>
                         </li>
-                    }
-                </ul>
-            }
-        </div>
 
-        <!-- Bottom Section (Perfectly aligned now) -->
-        <div style="margin-top:auto; padding-top:20px; width:100%;">
-            <partial name="_LoginPartial" />
-        </div>
+                        <!-- ASSETS -->
+                        <li class="nav-item">
+                            <span style="font-size:11px;
+                                         text-transform:uppercase;
+                                         letter-spacing:.08em;
+                                         color:#94a3b8;
+                                         margin-bottom:6px;
+                                         display:block;">
 
-    </nav>
+                                Assets
+                            </span>
+
+                            <ul class="nav flex-column" style="gap:6px;">
+                                <li>
+                                    <a class="nav-link text-light"
+                                       style="border-radius:8px;
+                                              padding:8px 12px;
+                                              font-weight:500;
+                                              color:#334155;"
+                                       asp-controller="Asset"
+                                       asp-action="AssetBrowser">
+                                        <i class="bi bi-basket-fill fs-6"></i> Browse Assets
+                                    </a>
+                                </li>
+
+                                @if (isAdmin)
+                                {
+                                    <li>
+                                        <a class="nav-link text-light"
+                                           style="border-radius:8px;
+                                                  padding:8px 12px;
+                                                  font-weight:500;
+                                                  color:#334155;"
+                                           asp-controller="Asset"
+                                           asp-action="AssetAdd">
+                                            <i class="bi bi-plus-square-fill fs-6"></i> Register Asset
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="nav-link text-light"
+                                           style="border-radius:8px;
+                                                  padding:8px 12px;
+                                                  font-weight:500;
+                                                  color:#334155;"
+                                           asp-controller="Asset"
+                                           asp-action="TransferLog">
+                                            <i class="bi bi-journal fs-6"></i> Transfer Log
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </li>
+
+                        @if (isAdmin)
+                        {
+                            <!-- MANAGEMENT -->
+                            <li class="nav-item text-light">
+                                <span style="font-size:11px;
+                                             text-transform:uppercase;
+                                             letter-spacing:.08em;
+                                             color:#94a3b8;
+                                             margin-bottom:6px;
+                                             display:block;">
+                                    Management
+                                </span>
+
+                                <ul class="nav flex-column" style="gap:6px;">
+                                    <li><a class="nav-link text-light" style="border-radius:8px;padding:8px 12px;font-weight:500;color:#334155;" asp-controller="Admin" asp-action="AllocateDemo"><i class="bi bi-clipboard-plus fs-6"></i> Admin Allocation</a></li>
+                                    <li><a class="nav-link text-light" style="border-radius:8px;padding:8px 12px;font-weight:500;color:#334155;" asp-controller="Asset" asp-action="ManageCategories"><i class="bi bi-box-seam-fill fs-6"></i> Category</a></li>
+                                    <li><a class="nav-link text-light" style="border-radius:8px;padding:8px 12px;font-weight:500;color:#334155;" asp-controller="Asset" asp-action="ManageLocations"><i class="bi bi-building-fill fs-6"></i> Location</a></li>
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+
+            <!-- Bottom Section (Perfectly aligned now) -->
+            <div style="margin-top:auto; padding-top:20px; width:100%;">
+                <partial name="_LoginPartial" />
+            </div>
+
+        </nav>
+    }
 
     <!-- ===== Main Content ===== -->
-    <div class="main-with-sidebar d-flex flex-column">
-
+    <div class="@(isAuthenticated ? "main-with-sidebar d-flex flex-column" : "d-flex flex-column min-vh-100")">
         <div>
             <main role="main">
                 @RenderBody()
@@ -238,7 +247,6 @@
             © 2025 - TrackPoint -
             <a asp-controller="Home" asp-action="Privacy">Privacy</a>
         </footer>
-
     </div>
 
 
