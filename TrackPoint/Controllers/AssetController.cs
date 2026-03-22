@@ -9,7 +9,7 @@ using System.Linq;
 using Microsoft.Extensions.Options;
 using QRCoder;
 using System.Collections.Immutable;
-using System.Net.NetworkInformation;
+//using System.Net.Networking;
 using System.Security.Claims;
 using System.Security.Cryptography.Xml;
 using System.Threading;
@@ -20,7 +20,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace TrackPoint.Controllers
 {
-    [Authorize(Roles = "Admin,Borrower")]
+    [Authorize(Roles = "Admin")]
     public class AssetController : Controller
     {
         /*
@@ -39,6 +39,7 @@ namespace TrackPoint.Controllers
             _userManager = userManager;
         }
 
+        [Authorize(Roles = "Admin,Borrower")]
         public IActionResult AssetBrowser()
         {
             // Pack the needed information into a ViewModel
