@@ -70,12 +70,13 @@ app.MapGet("/", async context =>
 {
     if (context.User?.Identity?.IsAuthenticated == true)
     {
-        context.Response.Redirect("/Home/Index");
+        context.Response.Redirect("/Dashboard/Index");
     }
     else
     {
-        context.Response.Redirect("/MicrosoftIdentity/Account/SignIn");
+        context.Response.Redirect("/MicrosoftIdentity/Account/SignIn?redirectUri=/");
     }
+
     await Task.CompletedTask;
 });
 
