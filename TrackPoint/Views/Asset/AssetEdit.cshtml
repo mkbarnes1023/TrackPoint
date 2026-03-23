@@ -216,7 +216,14 @@
                     </div>
                     <div>
                         <label asp-for="asset.Condition">Condition</label>
-                        <input type="text" asp-for="asset.Condition" value="@Model.asset.Condition" required>
+                        <select type="text" asp-for="asset.Condition" required>
+                            <option value="">Select Condition</option>
+                            <option value="New">New</option>
+                            <option value="Good">Good</option>
+                            <option value="Fair">Fair</option>
+                            <option value="Poor">Poor</option>
+                            <option value="Broken">Broken</option>
+                        </select>
                     </div>
 
                     <div>
