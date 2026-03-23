@@ -1,0 +1,33 @@
+@page "/SignedOut"
+@{
+    Layout = null;
+    ViewData["Title"] = "Signed Out";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Signed Out - TrackPoint</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+</head>
+<body class="bg-light">
+    <main class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-5">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4 text-center">
+                        <h1 class="h4 mb-3">You have signed out</h1>
+                        <p class="text-muted mb-4">Your session has ended successfully.</p>
+                        <a class="btn btn-primary"
+                           asp-area="MicrosoftIdentity"
+                           asp-controller="Account"
+                           asp-action="SignIn">Sign in again</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
