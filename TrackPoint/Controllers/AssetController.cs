@@ -759,6 +759,11 @@ namespace TrackPoint.Controllers
             {
                 return "Error: Selected user not found.";
             }
+            // Check if the Condition is one of the allowed values in Enums.AssetCondition
+            if (!Enum.GetNames(typeof(Enums.AssetCondition)).ToList<string>().Contains(a.Condition))
+            {
+                return "Error: Invalid condition selected.";
+            }
 
             // If all checks pass, return empty string
             return "";
