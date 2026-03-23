@@ -24,11 +24,7 @@
             </li>
             <li><hr class="dropdown-divider" /></li>
             <li>
-                <a class="dropdown-item"
-                   asp-area="MicrosoftIdentity"
-                   asp-controller="Account"
-                   asp-action="SignOut"
-                   asp-route-redirectUri="/SignedOut">Sign Out</a>
+                <a class="dropdown-item" href="/Account/Logout">Sign Out</a>
             </li>
         </ul>
     </li>
@@ -36,7 +32,7 @@
 else
 {
     <li class="nav-item">
-        <a class="nav-link text-light" asp-area="MicrosoftIdentity" asp-controller="Account" asp-action="SignIn">Sign In</a>
+        <a class="nav-link text-light" href="/MicrosoftIdentity/Account/SignIn?redirectUri=/">Sign In</a>
     </li>
 }
 </ul>
