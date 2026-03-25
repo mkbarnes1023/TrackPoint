@@ -186,6 +186,8 @@
                     <input type="text" asp-for="Abbreviation" value="@Model.Abbreviation" required maxlength="10">
                 </div>
 
+                @* Populate with default office, make another view for creating more offices *@
+
             </div>
 			<input type="submit" value="Submit" asp-action="NewLocation" class="primary-btn">
 		</form>

@@ -21,6 +21,7 @@ namespace TrackPoint.Data
         public DbSet<Asset> Asset { get; set; }
         public DbSet<Category> Category { get; set; }
         public DbSet<Location> Location { get; set; }
+        public DbSet<Office> Office { get; set; }
         public DbSet<ApprovalReason> ApprovalReason { get; set; }
         public DbSet<Approvals> Approvals { get; set; }
         public DbSet<Notification> Notification { get; set; }

@@ -128,8 +128,31 @@ namespace TrackPoint.Data.SeedData
                 await context.SaveChangesAsync();
             }
 
-            // Seed ApprovalReasons (if empty)
-            if (!await context.ApprovalReason.AnyAsync())
+        // Seed Offices with a default office for each location and some extra offices for Jacksonville
+        if (!await context.Office.AnyAsync())
+        {
+            var offices = new[]
+            {
+                        new Office { Name = "Unassigned", LocationId = 1 },
+                        new Office { Name = "JAX", LocationId = 2 },
+                        new Office { Name = "TLH", LocationId = 3 },
+                        new Office { Name = "PNS", LocationId = 4 },
+                        new Office { Name = "GNV", LocationId = 5 },
+                        new Office { Name = "PCB", LocationId = 6 },
+                        new Office { Name = "STA", LocationId = 7 },
+                        new Office { Name = "FNB", LocationId = 8 },
+                        new Office { Name = "DST", LocationId = 9 },
+                        // JAX offices
+                        new Office { Name = "JKB", LocationId = 2},
+                        new Office { Name = "JK400", LocationId = 2}
+                    };
+
+            context.Office.AddRange(offices);
+            await context.SaveChangesAsync();
+        }
+
+        // Seed ApprovalReasons (if empty)
+        if (!await context.ApprovalReason.AnyAsync())
             {
                 var approvalReasons = new[]
                 {
