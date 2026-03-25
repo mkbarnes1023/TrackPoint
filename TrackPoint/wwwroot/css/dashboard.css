@@ -1,0 +1,202 @@
+﻿/* --- Canvas --- */
+canvas {
+    width: 260px !important;
+    height: 260px !important;
+}
+
+/* --- Layout & Page --- */
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    padding: 20px;
+}
+
+.row.g-1 > .col-md-6 {
+    display: flex;
+    align-items: center;
+}
+
+    .row.g-1 > .col-md-6.text-right {
+        justify-content: flex-end;
+    }
+
+/* --- Typography --- */
+h1 {
+    font-weight: 700;
+    font-size: 30px;
+    color: #1c1c1c;
+    letter-spacing: -1px;
+    margin: 0;
+}
+
+h4 {
+    font-family: 'DM Sans', system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+    font-weight: 700;
+    font-size: 20px;
+    color: #1c1c1c;
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+}
+
+h5 {
+    font-weight: 600;
+    margin: 0 0 16px 0;
+}
+
+h6 {
+    text-align: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: #1c1c1c;
+}
+
+/* --- Sections --- */
+.section {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* --- Priority Overview Cards --- */
+.priority-card {
+    flex: 1 1 220px;
+    border-radius: 10px;
+    padding: 20px;
+    font-weight: 700;
+    color: var(--priority-color);
+    background-color: var(--priority-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.priority-number {
+    font-size: 36px;
+    font-weight: 700;
+}
+
+.priority-label {
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0.8;
+}
+
+/* Priority color variables */
+.priority-needs-attention {
+    --priority-color: #be185d;
+    --priority-bg: rgba(244, 114, 182, 0.12);
+}
+
+.priority-overdue {
+    --priority-color: #7c3aed;
+    --priority-bg: rgba(216, 180, 254, 0.12);
+}
+
+.priority-warranty-expiring {
+    --priority-color: #0f766e;
+    --priority-bg: rgba(20, 184, 166, 0.12);
+}
+
+.priority-unassigned {
+    --priority-color: #1d4ed8;
+    --priority-bg: rgba(59, 130, 246, 0.12);
+}
+
+/* --- System Overview Charts --- */
+.chart-container {
+    flex: 1 1 48%;
+    border-radius: 12px;
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    max-width: 100%;
+}
+
+.chart-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    text-align: left;
+}
+
+.chart-canvas-wrapper {
+    width: 100%;
+    max-width: 260px;
+    margin: 0 auto;
+}
+
+/* --- Tables --- */
+.table-container {
+    overflow-x: auto;
+}
+
+table.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
+}
+
+    table.table thead th {
+        background-color: #f3f6fa;
+        color: #6b7280;
+        font-weight: 600;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 12px 16px;
+        text-align: left;
+    }
+
+    table.table tbody td {
+        padding: 14px 16px;
+        border-bottom: 1px solid #eef2f7;
+        color: #111827;
+    }
+
+    table.table tbody tr:nth-child(even) {
+        background-color: #fcfcfd;
+    }
+
+    table.table tbody tr:hover {
+        background-color: #f9fafb;
+        transition: background-color 0.2s ease;
+    }
+
+/* --- Buttons --- */
+.btn-sm {
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #2563eb;
+    background-color: transparent;
+    border: 1px solid transparent;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+    cursor: pointer;
+}
+
+    .btn-sm:hover,
+    .btn-sm:focus {
+        background-color: #e0e7ff;
+        border-color: #2563eb;
+        color: #2563eb;
+    }
+
+    .btn-sm i {
+        vertical-align: middle;
+        font-size: 1.25rem;
+    }
+
+/* --- General Body --- */
+body {
+    background: #f5f5f5;
+    font-family: 'DM Sans', system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* --- Flex gap fallback --- */
+.d-flex.flex-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
