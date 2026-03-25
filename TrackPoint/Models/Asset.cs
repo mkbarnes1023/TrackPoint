@@ -39,6 +39,11 @@ public class Asset
     public int LocationId { get; set; }
     public Location Location { get; set; }
 
+    // Office FK
+    // TODO: Migrate LocationId to OfficeId and point to Location through OfficeId instead
+    //public string Name { get; set; }
+    //public Office Office { get; set; }
+
     // ---------------------
     // Status Fields
     // ---------------------

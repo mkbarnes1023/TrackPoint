@@ -168,6 +168,14 @@ namespace TrackPoint.Controllers
             _context.Location.Add(l);
             _context.SaveChanges();
 
+            // Add a default office for the location
+            _context.Office.Add(new Office
+            {
+                Name = l.Abbreviation,
+                LocationId = l.LocationId
+            });
+            _context.SaveChanges(); // We need to do SaveChanges() twice due to the LocationId FK constraint
+
             // Log the Location to the console for debugging purposes
             Console.WriteLine($"New Location Added: {l.Name}, {l.Abbreviation}");
             return RedirectToAction("Index", "Home");
