@@ -762,40 +762,64 @@
 
         // Filter modal logic
         const filterModalEl = document.getElementById('filterModal');
+
+        // Map of filter input names to DataTable column indexes
+        const filterMap = [
+            { key: 'assetTag', index: 0, selector: '#filter-assetTag' },
+            { key: 'make', index: 1, selector: '#filter-make' },
+            { key: 'model', index: 2, selector: '#filter-model' },
+            { key: 'category', index: 3, selector: '#filter-category' },
+            { key: 'location', index: 4, selector: '#filter-location' },
+            { key: 'issuedTo', index: 5, selector: '#filter-issuedTo' },
+            { key: 'status', index: 6, selector: '#filter-status' }
+        ];
+
+        // Read filters from the URL query string and apply them to the table
+        function applyFiltersFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            let any = false;
+            filterMap.forEach(f => {
+                const v = params.get(f.key) || '';
+                $(f.selector).val(v);
+                table.column(f.index).search(v, false, false);
+                if (v) any = true;
+            });
+            if (any) table.draw();
+        }
+
+        // Update the URL query string to reflect current filter inputs
+        function updateUrlWithFilters() {
+            const params = new URLSearchParams(window.location.search);
+            filterMap.forEach(f => {
+                const v = $(f.selector).val() || '';
+                if (v) params.set(f.key, v);
+                else params.delete(f.key);
+            });
+            const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+            history.replaceState(null, '', newUrl);
+        }
+
+        // Populate modal inputs with active search when opening (keeps existing behavior)
         if (filterModalEl) {
-            // Populate modal inputs with active search when opening
             filterModalEl.addEventListener('show.bs.modal', function () {
-                // column indexes: 0: Asset Tag, 1: Make, 2: Model, 3: Category, 4: Location, 5: Issued To, 6: Status
-                $('#filter-assetTag').val(table.column(0).search() || '');
-                $('#filter-make').val(table.column(1).search() || '');
-                $('#filter-model').val(table.column(2).search() || '');
-                $('#filter-category').val(table.column(3).search() || '');
-                $('#filter-location').val(table.column(4).search() || '');
-                $('#filter-issuedTo').val(table.column(5).search() || '');
-                $('#filter-status').val(table.column(6).search() || '');
+                filterMap.forEach(f => {
+                    $('#'+f.selector.replace('#','')).val(table.column(f.index).search() || '');
+                });
             });
         }
 
-        // Apply filters
-        $('#applyFiltersBtn').on('click', function () {
-            const vTag = $('#filter-assetTag').val() || '';
-            const vMake = $('#filter-make').val() || '';
-            const vModel = $('#filter-model').val() || '';
-            const vCategory = $('#filter-category').val() || '';
-            const vLocation = $('#filter-location').val() || '';
-            const vIssuedTo = $('#filter-issuedTo').val() || '';
-            const vStatus = $('#filter-status').val() || '';
+        // Initialize table filters from URL on page load so link sharing works
+        applyFiltersFromUrl();
 
-            // use literal search (disable regex/smart)
-            table.column(0).search(vTag, false, false);
-            table.column(1).search(vMake, false, false);
-            table.column(2).search(vModel, false, false);
-            table.column(3).search(vCategory, false, false);
-            table.column(4).search(vLocation, false, false);
-            table.column(5).search(vIssuedTo, false, false);
-            table.column(6).search(vStatus, false, false);
+        // Apply filters when user confirms; also update the URL so it can be shared
+        $('#applyFiltersBtn').on('click', function () {
+            filterMap.forEach(f => {
+                const v = $(f.selector).val() || '';
+                table.column(f.index).search(v, false, false);
+            });
 
             table.draw();
+            updateUrlWithFilters();
 
             // hide modal using bootstrap's modal instance if available
             try {
@@ -806,17 +830,16 @@
             }
         });
 
-        // Clear filters
+        // Clear filters and remove them from the URL as well
         $('#clearFiltersBtn').on('click', function () {
-            $('#filter-assetTag').val('');
-            $('#filter-make').val('');
-            $('#filter-model').val('');
-            $('#filter-category').val('');
-            $('#filter-location').val('');
-            $('#filter-issuedTo').val('');
-            $('#filter-status').val('');
-
+            filterMap.forEach(f => { $(f.selector).val(''); });
             table.columns([0,1,2,3,4,5,6]).search('').draw();
+
+            // remove filter keys from URL
+            const params = new URLSearchParams(window.location.search);
+            filterMap.forEach(f => params.delete(f.key));
+            const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+            history.replaceState(null, '', newUrl);
         });
 
     });
