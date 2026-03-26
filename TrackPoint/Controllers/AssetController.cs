@@ -187,6 +187,25 @@ namespace TrackPoint.Controllers
             return View(locations);
         }
 
+        /* Manage offices for a given location */
+        public IActionResult ManageOffices()
+        {
+            IEnumerable<Office> offices = _context.Office.Include(o => o.Location).ToList();
+            return View(offices);
+        }
+
+        /* Add a new office */
+        public IActionResult NewOffice(Office o)
+        {
+            // TODO: Add input validation
+
+            // Add the new Office to the database
+            _context.Office.Add(o);
+            _context.SaveChanges();
+
+            return RedirectToAction("ManageOffices", "Asset");
+        }
+
         /*
 		 *  Return the view for the Category Add Form
 		 */
