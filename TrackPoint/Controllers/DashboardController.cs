@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using TrackPoint.Data;
 using TrackPoint.Models;
 using TrackPoint.Models.DTOs;
+using System.Threading.Tasks;
 
 namespace TrackPoint.Controllers
 {
@@ -91,7 +92,6 @@ namespace TrackPoint.Controllers
         }
 
 
-
         // Borrower + Admin
         public async Task<IActionResult> Index()
         {
@@ -101,6 +101,7 @@ namespace TrackPoint.Controllers
             // Prepare defaults
             var assignedToUser = 0;
             var assigned = new List<Asset>();
+            var approvals = new List<Approvals>();
 
             if (!string.IsNullOrEmpty(userId))
             {
@@ -110,16 +111,24 @@ namespace TrackPoint.Controllers
                     .ToListAsync();
 
                 assignedToUser = assigned.Count;
+
+                // Load approvals for this user and include related Asset and ApprovalReason for display
+                approvals = await _context.Approvals
+                    .Where(a => a.RequestorId == userId)
+                    .Include(a => a.Asset)
+                    .Include(a => a.ApprovalReason)
+                    .ToListAsync();
             }
 
             var viewModel = new BorrowerDashboardViewModel
             {
                 AssignedToUser = assignedToUser,
-                Assigned = assigned
+                Assigned = assigned,
+                _approvals = approvals
             };
             return View(viewModel);
         }
-
+        
         
     }
 }

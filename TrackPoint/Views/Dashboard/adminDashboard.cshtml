@@ -2,6 +2,7 @@
 @using System.Text.Json
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<IdentityUser> UserManager
+@inject TrackPoint.Data.ApplicationDbContext Db
 
 @{
     ViewData["Title"] = "Dashboard";
@@ -12,7 +13,27 @@
 <head>
     <link rel="stylesheet" href="/css/dashboard.css">
 </head>
+<style>
+    .primary-btn {
+        width: 25%;
+        margin-top: 28px;
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 600;
+        text-align: center;
+        color: #fff;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
 
+        .primary-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
+        }
+</style>
 
 
 <div class="page">
@@ -21,7 +42,7 @@
             <h1>Home</h1>
         </div>
         <div class="col-md-6 text-right">
-            <a asp-controller="Report" asp-action="ReportBuilder" class="secondary-btn">
+            <a asp-controller="Report" asp-action="ReportBuilder" class="primary-btn">
                 Generate A Report
             </a>
         </div>
@@ -96,11 +117,15 @@
                         <tbody>
                             @if (Model.Attention.Any())
                             {
+                                int count = 0;
+
                                 foreach (var asset in Model.Attention)
                                 {
+                                    if (count == 5) { break; }
+
                                     <tr>
                                         <td>@asset.AssetTag</td>
-                                        <td>@asset.Category</td>
+                                        <td>@(Db.Category.FirstOrDefault(c => c.CategoryId == asset.CategoryId)?.Name ?? "")</td>
                                         <td>@asset.AssetStatus</td>
                                         <td style="text-align: center;">
                                             <a class="btn btn-sm"
@@ -112,12 +137,30 @@
                                             </a>
                                         </td>
                                     </tr>
+
+                                    count++;
+                                }
+
+                                @* show "view more" if there are more than 5 *@
+                                @if (Model.Attention.Count() > 5)
+                                {
+                                    <tr>
+                                        <td colspan="4" style="text-align:center;">
+                                            <i class="bi bi-plus"></i>
+                                            <a asp-controller="Asset"
+                                               asp-action="Attention"
+                                               style="color:#2563eb; font-weight:500;">
+                                                View all assets requiring attention 
+                                            </a>
+                                        </td>
+                                    </tr>
                                 }
                             }
                             else
                             {
                                 <tr>
                                     <td colspan="4" style="text-align:center; font-style:italic; color:#6b7280;">
+                                        
                                         Nothing to display
                                     </td>
                                 </tr>
