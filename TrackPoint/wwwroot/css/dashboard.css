@@ -212,6 +212,7 @@ body {
     border-radius: 10px;
     cursor: pointer;
     transition: transform 0.15s, box-shadow 0.15s;
+    text-decoration: none;
 }
 
     .primary-btn:hover {
