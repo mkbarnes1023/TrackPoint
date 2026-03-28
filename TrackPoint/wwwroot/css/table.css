@@ -8,6 +8,16 @@ h1 {
     font-weight: 600;
     margin-bottom: 2rem;
     color: #064973;
+    font-family: 'DM Sans', system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+}
+
+h4 {
+    font-family: 'DM Sans', system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+    font-weight: 700;
+    font-size: 20px;
+    color: #1c1c1c;
+    letter-spacing: -1px;
+    margin-bottom: 16px;
 }
 
 .page {
@@ -270,3 +280,51 @@ select {
     background: gray;
     color: #000;
 }
+
+.toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    font-size: 14px;
+    color: #334155;
+}
+
+/* Toggle Switch */
+.switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+}
+
+    .switch input {
+        display: none;
+    }
+
+.slider {
+    position: absolute;
+    inset: 0;
+    background: #d1d5db;
+    border-radius: 999px;
+    transition: background 0.2s;
+}
+
+    .slider::before {
+        content: "";
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        top: 3px;
+        left: 3px;
+        background: #fff;
+        border-radius: 50%;
+        transition: transform 0.2s;
+    }
+
+.switch input:checked + .slider {
+    background: #7c3aed;
+}
+
+    .switch input:checked + .slider::before {
+        transform: translateX(20px);
+    }
