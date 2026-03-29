@@ -13,7 +13,24 @@
         
         <div class="card">
         <h1>Transfer Log</h1>
-        <table class="table w-100" id="table">
+
+        <style>
+            /* Loading overlay used across asset pages */
+            #page-loading-overlay {
+                position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 2000;
+                display:flex; align-items:center; justify-content:center; flex-direction:column;
+                transition: opacity 0.35s ease;
+            }
+            .loader { width:48px; height:48px; border-radius:50%; border:6px solid #eef2ff; border-top-color:#6b46c1; animation: spin 1s linear infinite; margin-bottom:10px; }
+            @@keyframes spin { to { transform: rotate(360deg); } }
+            #page-loading-text { color:#374151; font-weight:500; font-size:14px; }
+        </style>
+        <div id="page-loading-overlay" aria-hidden="true">
+            <div class="loader" role="status" aria-hidden="true"></div>
+            <div id="page-loading-text">Loading&hellip;</div>
+        </div>
+
+        <table class="table w-100" id="table" style="display:none;">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -82,8 +99,10 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 <script>
-    $(document).ready(function () {
+    // Wait for full page load to avoid layout shift, then initialize DataTables
+    $(window).on('load', function () {
         $('#table').DataTable({
+            autoWidth: false,
             "order": [[ 7, "desc" ]],
             "columnDefs":
             [
@@ -91,7 +110,12 @@
                     "orderable": false, "targets": [1, 4, 6],
                     "searchable": false, "targets": [1, 4]
                 }
-            ]
+            ],
+            initComplete: function () {
+                try { this.api().columns.adjust(); } catch (e) { console.warn('columns.adjust failed', e); }
+                try { $('#page-loading-overlay').fadeOut(350); } catch (e) { }
+                try { $('#table').fadeIn(300); } catch (e) { $('#table').css('display', ''); }
+            }
         });
     });
 </script>
