@@ -10,6 +10,7 @@ canvas {
     flex-direction: column;
     gap: 25px;
     padding: 20px;
+    background: aliceblue;
 }
 
 .row.g-1 > .col-md-6 {
