@@ -75,11 +75,21 @@ namespace TrackPoint.Controllers
                 TransferDate = DateTime.Now
             });
 
+            // Update the asset's audit trail
+            // TODO: Properly re-implement this functionality.
+            //asset.AuditTrail.Add(new AuditTrail
+            //{
+            //    AssetTag = asset.AssetTag,
+            //    IssuedTo = previousIssuedTo,
+            //    TransferDate = previousTransferDate,
+            //    //Asset = asset
+            //});
+
             // Remove the approval request
             _context.Approvals.Remove(Approval); // TODO: I don't think this should remove the entry entirely, but the approval is "done" at this point
             _context.SaveChanges();
             TempData["Success"] = $"Request {ApprovalId} has been approved.";
-            return RedirectToAction("ApprovalsTest");
+            return RedirectToAction("AssetBrowser", "Asset");
         }
 
         public IActionResult RejectAsset(int ApprovalId)
@@ -95,7 +105,7 @@ namespace TrackPoint.Controllers
             _context.SaveChanges();
 
             TempData["Success"] = $"Request {ApprovalId} has been rejected.";
-            return RedirectToAction("ApprovalsTest");
+            return RedirectToAction("AssetBrowser", "Asset");
         }
     }
 }

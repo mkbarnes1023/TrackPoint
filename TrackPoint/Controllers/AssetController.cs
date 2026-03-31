@@ -570,7 +570,7 @@ namespace TrackPoint.Controllers
 
             return View(asset);
         }
-        // TODO: Upgrade this to the new checkout process.
+        
         public IActionResult checkOut(string AssetTag)
         {
             var asset = _context.Asset.FirstOrDefault(a => a.AssetTag == AssetTag);
@@ -589,17 +589,17 @@ namespace TrackPoint.Controllers
                 return RedirectToAction("AssetBrowser");
             }
 
+            if (_context.Approvals.FirstOrDefault(ap => ap.AssetId == asset.AssetId) != null)
+            {
+                TempData["Success"] = $"A request already exists for this asset"; // TODO: Complete this check, maybe change the status for assets pending approval
+                return RedirectToAction("AssetBrowser");
+            }
+
             // Redirect to Asset Browser if asset requires administrator approval
             if (_context.Category.Find(asset.CategoryId)?.RequiresApproval == true)
             {
-                if (_context.Approvals.FirstOrDefault(ap => ap.AssetId == asset.AssetId) != null)
-                {
-                    TempData["Success"] = $"A request already exists for this asset"; // TODO: Complete this check, maybe change the status for assets pending approval
-                    return RedirectToAction("AssetBrowser");
-                }
-
-                // Create a new Approval
-                var approval = new Approvals
+                // Create a new admin Approval
+                var adminApproval = new Approvals
                 {
                     ReasonId = 1, // TODO: Do ReasonId and ApprovalReason do the same thing?
                     ApprovalReason = _context.ApprovalReason.Find(1), // TODO: Fill in the ApprovalReason table
@@ -612,58 +612,32 @@ namespace TrackPoint.Controllers
                     Comments = null,
                     ApprovalRelatedStatus = "CheckOut" // TODO: Idk what this is exactly
                 };
-                _context.Approvals.Update(approval);
+                _context.Approvals.Update(adminApproval);
                 _context.SaveChanges();
                 TempData["Success"] = $"Your check-out request has been sent for administrator approval, you will be notified if your request is approved.";
                 return RedirectToAction("AssetBrowser");
             }
 
-            asset.IssuedToUserId = userId;
-            asset.StatusDate = DateTime.Now;
-            asset.AssetStatus = "InUse";
-
-            // Update the asset's audit trail
-            // TODO: Properly re-implement this functionality.
-            //asset.AuditTrail.Add(new AuditTrail
-            //{
-            //    AssetTag = asset.AssetTag,
-            //    IssuedTo = previousIssuedTo,
-            //    TransferDate = previousTransferDate,
-            //    //Asset = asset
-            //});
-            
-            // Update AssetLoan for Check Out
-            if (asset != null)
+            // Otherwise, start the check out process with borrower confirmation
+            var borrowerApproval = new Approvals
             {
-                // TODO: Update this for full Check Out process. This should work for now, but just be wary
-                // of whether ApprovedByUserId should be set by the Borrower or Admin depending on context.
-                var assetLoan = UpdateLoanStatus(asset.AssetId, userId, "InUse", 0);
-                _context.Assetloan.Update(assetLoan);
-            }
-
-            // Update TransferLog for Check Out
-            _context.TransferLog.Add(new TransferLog
-            {
+                ReasonId = 1, // TODO: Do ReasonId and ApprovalReason do the same thing?
+                ApprovalReason = _context.ApprovalReason.Find(1), // TODO: Fill in the ApprovalReason table
+                RequestorId = userId,
                 AssetId = asset.AssetId,
-                OldBorrowerId = null,
-                NewBorrowerId = asset.IssuedToUserId,
-                NewStatus = "InUse",
-                OldStatus = null,
-                eventType = Enums.eventType.BorrowerTransfer,
-                TransferDate = DateTime.Now // TODO: Make sure DateTime.Now is synced, save as variable to "freeze" it
-            });
+                RequestDate = DateTime.Now,
+                ApprovalStatus = "Pending",
+                ApproverId = userId,
+                ResolvedDate = null,
+                Comments = null,
+                ApprovalRelatedStatus = "CheckOut" // TODO: Idk what this is exactly
+            };
 
-            // Save the changes
+            _context.Approvals.Update(borrowerApproval);
             _context.SaveChanges();
-
-            // Prevent duplicate form submissions on page refresh
-            if (ModelState.IsValid)
-            {
-                TempData["Success"] = $"Asset {AssetTag} successfully allocated to {User.Identity?.Name}!";
-                return RedirectToAction("AssetBrowser", "Asset");
-            }
-
-            return View(); // TODO: This leads to nowhere, redirect back to form with error or remove this if we will never reach it
+            TempData["Success"] = $"Your check-out request has started, please refer to the instructions on how to complete it.";
+            // TODO: Show instructions prompt on redirect
+            return RedirectToAction("AssetBrowser");
         }
 
         // Check In an Asset
