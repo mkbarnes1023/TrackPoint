@@ -301,21 +301,7 @@ namespace TrackPoint.Controllers
                     double y = 40;
                     gfx.DrawString("Category Report", new XFont("Arial", 14, XFontStyle.Bold), XBrushes.Black, new XRect(40, 10, page.Width - 80, 30), XStringFormats.Center);
 
-                    // Table as real table
-                    if (request.Table)
-                    {
-                        var rows = new List<string[]>();
-                        rows.Add(new[] { "Category", "Quantity", "AverageTotal", "AverageMaintenance(%)" });
-                        foreach (var r in report.Rows)
-                        {
-                            rows.Add(new[] { r.Name ?? "", r.Quantity.ToString(CultureInfo.InvariantCulture), r.AverageTotal.ToString("0.##", CultureInfo.InvariantCulture), r.AverageMaintenance.ToString("0.##", CultureInfo.InvariantCulture) });
-                        }
-
-                        DrawTable(gfx, font, 40, y, rows);
-                        y += (rows.Count + 1) * 22;
-                    }
-
-                    // Charts
+                    // Charts first (KPI at top)
                     if (request.Visualization)
                     {
                         // Pie chart
@@ -345,7 +331,7 @@ namespace TrackPoint.Controllers
                             gfx.DrawImage(img, 40, y, 260, 180);
                         }
 
-                        // Bar chart below/side
+                        // Bar chart to the right of the pie
                         var barConfig = new
                         {
                             type = "bar",
@@ -370,6 +356,23 @@ namespace TrackPoint.Controllers
                             var img2 = XImage.FromStream(() => msBar);
                             gfx.DrawImage(img2, 320, y, 240, 180);
                         }
+
+                        // move Y down after charts
+                        y += 190;
+                    }
+
+                    // Then the table under the charts
+                    if (request.Table)
+                    {
+                        var rows = new List<string[]>();
+                        rows.Add(new[] { "Category", "Quantity", "AverageTotal", "AverageMaintenance(%)" });
+                        foreach (var r in report.Rows)
+                        {
+                            rows.Add(new[] { r.Name ?? "", r.Quantity.ToString(CultureInfo.InvariantCulture), r.AverageTotal.ToString("0.##", CultureInfo.InvariantCulture), r.AverageMaintenance.ToString("0.##", CultureInfo.InvariantCulture) });
+                        }
+
+                        DrawTable(gfx, font, 40, y, rows);
+                        y += (rows.Count + 1) * 22;
                     }
 
                     using var outMs = new MemoryStream();
@@ -495,19 +498,7 @@ namespace TrackPoint.Controllers
                     double y = 40;
                     gfx.DrawString("Location Report", new XFont("Arial", 14, XFontStyle.Bold), XBrushes.Black, new XRect(40, 10, page.Width - 80, 30), XStringFormats.Center);
 
-                    if (request.Table)
-                    {
-                        var rows = new List<string[]>();
-                        rows.Add(new[] { "Location", "TotalAssets", "% Unassigned", "% Maintenance" });
-                        foreach (var r in report.Rows)
-                        {
-                            rows.Add(new[] { r.Name ?? "", r.Quantity.ToString(CultureInfo.InvariantCulture), r.AverageTotal.ToString("0.##", CultureInfo.InvariantCulture), r.AverageMaintenance.ToString("0.##", CultureInfo.InvariantCulture) });
-                        }
-
-                        DrawTable(gfx, font, 40, y, rows);
-                        y += (rows.Count + 1) * 22;
-                    }
-
+                    // Charts first (KPI at top)
                     if (request.Visualization)
                     {
                         // Pie
@@ -539,6 +530,22 @@ namespace TrackPoint.Controllers
                             var img2 = XImage.FromStream(() => msBar);
                             gfx.DrawImage(img2, 320, y, 240, 180);
                         }
+
+                        y += 190;
+                    }
+
+                    // Then the table under the charts
+                    if (request.Table)
+                    {
+                        var rows = new List<string[]>();
+                        rows.Add(new[] { "Location", "TotalAssets", "% Unassigned", "% Maintenance" });
+                        foreach (var r in report.Rows)
+                        {
+                            rows.Add(new[] { r.Name ?? "", r.Quantity.ToString(CultureInfo.InvariantCulture), r.AverageTotal.ToString("0.##", CultureInfo.InvariantCulture), r.AverageMaintenance.ToString("0.##", CultureInfo.InvariantCulture) });
+                        }
+
+                        DrawTable(gfx, font, 40, y, rows);
+                        y += (rows.Count + 1) * 22;
                     }
 
                     using var outMs = new MemoryStream();
@@ -648,19 +655,7 @@ namespace TrackPoint.Controllers
                     double y = 40;
                     gfx.DrawString("Status Report", new XFont("Arial", 14, XFontStyle.Bold), XBrushes.Black, new XRect(40, 10, page.Width - 80, 30), XStringFormats.Center);
 
-                    if (request.Table)
-                    {
-                        var rows = new List<string[]>();
-                        rows.Add(new[] { "Status", "AssetCount", "% of Total" });
-                        foreach (var r in report.Rows)
-                        {
-                            rows.Add(new[] { r.Name ?? "", r.Quantity.ToString(CultureInfo.InvariantCulture), r.AverageTotal.ToString("0.##", CultureInfo.InvariantCulture) });
-                        }
-
-                        DrawTable(gfx, font, 40, y, rows);
-                        y += (rows.Count + 1) * 22;
-                    }
-
+                    // Draw KPI charts first
                     if (request.Visualization)
                     {
                         var pieConfig = new
@@ -676,6 +671,22 @@ namespace TrackPoint.Controllers
                             var img = XImage.FromStream(() => msPie);
                             gfx.DrawImage(img, 40, y, 260, 180);
                         }
+
+                        y += 190;
+                    }
+
+                    // Then draw table under the charts
+                    if (request.Table)
+                    {
+                        var rows = new List<string[]>();
+                        rows.Add(new[] { "Status", "AssetCount", "% of Total" });
+                        foreach (var r in report.Rows)
+                        {
+                            rows.Add(new[] { r.Name ?? "", r.Quantity.ToString(CultureInfo.InvariantCulture), r.AverageTotal.ToString("0.##", CultureInfo.InvariantCulture) });
+                        }
+
+                        DrawTable(gfx, font, 40, y, rows);
+                        y += (rows.Count + 1) * 22;
                     }
 
                     using var outMs = new MemoryStream();

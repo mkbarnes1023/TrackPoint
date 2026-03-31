@@ -72,7 +72,11 @@ namespace TrackPoint.Controllers
 
             var needsAttention = attentionAssets.Count;
 
-            var approvals = await _context.Approvals.ToListAsync();
+            // Include related entities so views can access ApprovalReason and Asset properties
+            var approvals = await _context.Approvals
+                .Include(a => a.ApprovalReason)
+                .Include(a => a.Asset)
+                .ToListAsync();
 
             var viewModel = new AdminDashboardViewModel
             {

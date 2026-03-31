@@ -1,35 +1,37 @@
 ﻿@model TrackPoint.Models.Asset
 @using Microsoft.AspNetCore.Identity
-@inject UserManager<IdentityUser> UserManager // TODO: Needed to get username of borrower, consider replacing this later so injection is not needed.
+@inject UserManager<IdentityUser> UserManager
 
 @{
     ViewData["Title"] = "Asset Details";
 }
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/asset.css" />
 
 @if (Model?.AssetTag != null)
 {
     var statusRaw = (Model.AssetStatus ?? "").ToString().Trim();
     var statusKey = statusRaw.ToLowerInvariant();
 
-    string statusColorClass;
+    string statusBadgeClass;
     if (statusKey == "inuse" || statusKey == "undermaintenance")
     {
-        statusColorClass = "text-danger";
+        statusBadgeClass = "badge-red";
     }
     else if (statusKey == "instorage" || statusKey == "transfered" || statusKey == "transferred" || statusKey == "pendingdeployment")
     {
-        statusColorClass = "text-success";
+        statusBadgeClass = "badge-green";
     }
     else if (statusKey == "retired" || statusKey == "lost")
     {
-        statusColorClass = "text-secondary";
+        statusBadgeClass = "badge-grey";
     }
     else
     {
-        statusColorClass = "";
+        statusBadgeClass = "badge-blue";
     }
 
-    // Model.IssuedToUser.UserName currently does not work, so look up their username by their Id instead.
     var issuedToName = "Unassigned";
     if (!string.IsNullOrWhiteSpace(Model.IssuedToUser?.UserName))
     {
@@ -37,157 +39,254 @@
     }
     else if (!string.IsNullOrWhiteSpace(Model.IssuedToUserId))
     {
-        // Lookup user by Id in dbo.AspNetUsers
         var user = UserManager.FindByIdAsync(Model.IssuedToUserId).GetAwaiter().GetResult();
         issuedToName = user?.UserName ?? "Unassigned";
     }
 
-    // Mandatory Variables
     var categoryName = Model.Category?.Name ?? (Model.CategoryId > 0 ? $"ID {Model.CategoryId}" : "—");
     var locationName = Model.Location?.Name ?? (Model.LocationId > 0 ? $"ID {Model.LocationId}" : "—");
-    
-    // Modal Variables
+
     var borrowModalId = $"confirmModal-Borrow-{Model.AssetId}";
     var barcodeModalId = $"confirmModal-Barcode-{Model.AssetId}";
     var maintenanceModalId = $"confirmModal-Maintenance-{Model.AssetId}";
 
-    <div class="container">
-        <div class="d-flex justify-content-end mb-3">
-        @if (issuedToName == User.Identity.Name)
-        {
-        <button type="button" class="btn btn-warning me-2 btn-lg" data-bs-toggle="modal" data-bs-target="#@maintenanceModalId">Report</button>
-        <!-- Report for Maintenance Modal -->
-        <!-- TODO: Input validation, disable submit button until all fields are filled-->
+    <div class="page">
+        <div class="asset-shell">
+            <div class="asset-topbar">
+                <div>
+                    <h1>Asset Details</h1>
+                    <p class="asset-subtitle">View key asset details, current status, and available actions.</p>
+                </div>
+
+                <div class="asset-top-actions">
+                    @if (issuedToName == User.Identity.Name)
+                    {
+                        <button type="button" class="secondary-btn" data-bs-toggle="modal" data-bs-target="#@maintenanceModalId">
+                            Report Issue
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="button" class="secondary-btn" disabled title="Cannot report because you are not borrowing this asset.">
+                            Report Issue
+                        </button>
+                    }
+
+                    <button type="button" class="secondary-btn" data-bs-toggle="modal" data-bs-target="#@barcodeModalId">
+                        Generate Barcode
+                    </button>
+                </div>
+            </div>
+
+            <div class="asset-main-card">
+                <div class="asset-grid">
+                    <div class="asset-media">
+                        <div class="asset-image-wrap">
+                            <img src="https://placehold.co/600x400/000000/FFFFFF.png" class="asset-image" alt="Asset image placeholder" />
+                        </div>
+
+                        <div class="asset-cta-row">
+                            @if (statusKey == "instorage" || statusKey == "transfered" || statusKey == "transferred" || statusKey == "pendingdeployment")
+                            {
+                                <button type="button" class="primary-btn asset-action-btn" data-bs-toggle="modal" data-bs-target="#@borrowModalId">
+                                    Borrow Asset
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button" class="primary-btn asset-action-btn" disabled title="Cannot borrow this asset.">
+                                    Borrow Asset
+                                </button>
+                            }
+
+                            <a asp-controller="Asset"
+                                   asp-action="AuditTrail"
+                                   asp-route-assetTag="@Model.AssetTag"
+                                   class="outline-btn asset-action-btn">
+                                View Audit Trail
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="asset-info">
+                        <div class="asset-heading-block">
+                            <div class="asset-kicker">@categoryName</div>
+                            <h2>@Model.Make @Model.Model</h2>
+
+                            <div class="asset-meta-row">
+                                <span class="asset-chip">@Model.AssetTag</span>
+                                <span class="badge @statusBadgeClass">@statusRaw</span>
+                            </div>
+                        </div>
+
+                        <div class="asset-summary-grid">
+                            <div class="summary-card">
+                                <div class="summary-label">Location</div>
+                                <div class="summary-value">@locationName</div>
+                            </div>
+
+                            <div class="summary-card">
+                                <div class="summary-label">Assigned To</div>
+                                <div class="summary-value">@issuedToName</div>
+                            </div>
+
+                            <div class="summary-card">
+                                <div class="summary-label">Condition</div>
+                                <div class="summary-value">@(String.IsNullOrWhiteSpace(Model.Condition) ? "—" : Model.Condition)</div>
+                            </div>
+
+                            <div class="summary-card">
+                                <div class="summary-label">Serial Number</div>
+                                <div class="summary-value">@(String.IsNullOrWhiteSpace(Model.SerialNumber) ? "—" : Model.SerialNumber)</div>
+                            </div>
+                        </div>
+
+                        <div class="asset-notes">
+                            <div class="section-title">Notes</div>
+                            <div class="notes-box">
+                                @(String.IsNullOrWhiteSpace(Model.Notes) ? "No notes available." : Model.Notes)
+                            </div>
+                        </div>
+
+                        <details class="more-info">
+                            <summary>More Information</summary>
+
+                            <div class="more-info-grid">
+                                <div class="field">
+                                    <div class="section-title">Purchase Date</div>
+                                    <div>@(Model.PurchaseDate.HasValue ? Model.PurchaseDate.Value.ToString("yyyy-MM-dd") : "—")</div>
+                                </div>
+
+                                <div class="field">
+                                    <div class="section-title">Warranty Expiration</div>
+                                    <div>@(Model.WarrantyExpirationDate.HasValue ? Model.WarrantyExpirationDate.Value.ToString("yyyy-MM-dd") : "—")</div>
+                                </div>
+
+                                <div class="field">
+                                    <div class="section-title">Purchase Price</div>
+                                    <div>@(Model.PurchasePrice != 0 ? Model.PurchasePrice.ToString("C") : "—")</div>
+                                </div>
+
+                                <div class="field">
+                                    <div class="section-title">Vendor</div>
+                                    <div>@(String.IsNullOrWhiteSpace(Model.Vendor) ? "—" : Model.Vendor)</div>
+                                </div>
+
+                                <div class="field">
+                                    <div class="section-title">Last Status Date</div>
+                                    <div>@(Model.StatusDate != default ? Model.StatusDate.ToString("g") : "—")</div>
+                                </div>
+
+                                <div class="field">
+                                    <div class="section-title">Asset ID</div>
+                                    <div>@Model.AssetId</div>
+                                </div>
+                            </div>
+                        </details>
+
+                        <div class="asset-bottom-actions">
+                            <a asp-controller="Asset"
+                                   asp-action="AssetEdit"
+                                   asp-route-assetTag="@Model.AssetTag"
+                                   class="primary-btn asset-bottom-btn">
+                                Edit Asset
+                            </a>
+
+                            <a asp-controller="Asset"
+                                   asp-action="AssetBrowser"
+                                   class="outline-btn asset-bottom-btn">
+                                Back to Assets
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Modal -->
         <div class="modal fade" id="@maintenanceModalId" tabindex="-1" aria-labelledby="@($"{maintenanceModalId}-label")" aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content">
+                <div class="modal-content asset-modal">
                     <div class="modal-header">
                         <h5 class="modal-title" id="@($"{maintenanceModalId}-label")">Report for Maintenance</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <form>
-                            <div class="row mb-3">
-                                <label for="reportReason" class="col-form-label">What issue are you facing with asset <strong>@Model.AssetTag</strong>?</label>
-                                <select required class="form-select">
-                                    <option selected="">Choose a Reason:</option>
+                            <div class="field">
+                                <label for="reportReason">What issue are you facing with asset <strong>@Model.AssetTag</strong>?</label>
+                                <select required class="form-select" id="reportReason">
+                                    <option selected="">Choose a Reason</option>
                                     <option value="1">Asset is broken</option>
                                     <option value="2">Warranty is expired</option>
                                     <option value="3">Unsafe to use</option>
                                     <option value="4">Other</option>
                                 </select>
-                                <label for="reportDetails" class="col-form-label">Please give a short description of the issue:</label>
+                            </div>
+
+                            <div class="field">
+                                <label for="reportDetails">Please give a short description of the issue</label>
                                 <input required type="text" class="form-control" id="reportDetails" placeholder="Enter text here.">
                             </div>
                         </form>
-                    </div> 
+                    </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <a asp-controller="Asset" asp-action="ReportForMaintenance" asp-route-assetTag="@Model.AssetTag" class="btn btn-primary">Submit</a>
+                        <button type="button" class="outline-btn modal-btn" data-bs-dismiss="modal">Cancel</button>
+                        <a asp-controller="Asset" asp-action="ReportForMaintenance" asp-route-assetTag="@Model.AssetTag" class="primary-btn modal-btn">Submit</a>
                     </div>
                 </div>
             </div>
         </div>
-        }
-        else
-        {
-            <button type="button" class="btn btn-secondary me-2 btn-lg" disabled title="Cannot report because you are not borrowing this asset.">Report</button>
-        }
 
         <!-- Barcode Modal -->
-        <button type="button" class="btn btn-secondary btn-lg" data-bs-toggle="modal" data-bs-target="#@barcodeModalId">Generate Barcode</button>
-            <div class="modal fade" id="@barcodeModalId" tabindex="-1" aria-labelledby="@($"{barcodeModalId}-label")" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="@($"{barcodeModalId}-label")">QR Code for Asset @Model.AssetTag</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body text-center">
-                            <!-- Hidden form used to get antiforgery token and assetTag for JS POST -->
-                            <form id="qrForm-@Model.AssetId" method="post" style="display:none">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="assetTag" value="@Model.AssetTag" />
-                            </form>
+        <div class="modal fade" id="@barcodeModalId" tabindex="-1" aria-labelledby="@($"{barcodeModalId}-label")" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content asset-modal">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="@($"{barcodeModalId}-label")">QR Code for Asset @Model.AssetTag</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <form id="qrForm-@Model.AssetId" method="post" style="display:none">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="assetTag" value="@Model.AssetTag" />
+                        </form>
 
-                            <div id="qrContainer-@Model.AssetId" class="d-flex justify-content-center align-items-center" style="min-height:180px;">
-                                <div class="spinner-border text-secondary" role="status" aria-hidden="true"></div>
-                            </div>
+                        <div id="qrContainer-@Model.AssetId" class="qr-box">
+                            <div class="spinner-border text-secondary" role="status" aria-hidden="true"></div>
                         </div>
-                        <div class="modal-footer">
-                            <a id="qrDownloadLink-@Model.AssetId" class="btn btn-primary" style="display:none" download>Download PNG</a>
-                            <btn class="btn btn-outline-secondary" style="">Print</btn>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <a id="qrDownloadLink-@Model.AssetId" class="primary-btn modal-btn" style="display:none" download>Download PNG</a>
+                        <button type="button" class="outline-btn modal-btn">Print</button>
+                        <button type="button" class="outline-btn modal-btn" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-6 text-center">
-                <img src="https://placehold.co/600x400/000000/FFFFFF.png" class="img-fluid mb-3" alt="Asset image / barcode placeholder" />
-                <div class="d-flex justify-content-center gap-2">
-                    @if (statusKey == "instorage" || statusKey == "transfered" || statusKey == "transferred" || statusKey == "pendingdeployment")
-                    {
-                        <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#@borrowModalId">Borrow</button>
-
-                        <!-- Borrow Asset Modal -->
-                        <div class="modal fade" id="@borrowModalId" tabindex="-1" aria-labelledby="@($"{borrowModalId}-label")" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="@($"{borrowModalId}-label")">Borrow Asset</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        Are you sure you want to check out asset <strong>@Model.AssetTag</strong>?
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        <a asp-controller="Asset" asp-action="checkOut" asp-route-assetTag="@Model.AssetTag" class="btn btn-primary">Confirm</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
-                        <button type="button" class="btn btn-secondary btn-lg" disabled title="Cannot borrow this asset.">Borrow</button>
-                    }
-                    <a asp-controller="Asset" asp-action="AuditTrail" asp-route-assetTag="@Model.AssetTag" class="btn btn-primary btn-lg">View Audit Trail</a>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <h1 class="text-center">@Model.Make @Model.Model</h1>
-                <hr />
-                <div class="fs-6">
-                    <p><strong>Asset Tag:</strong> @Model.AssetTag</p>
-                    <p><strong>Status:</strong> <span class="@statusColorClass">@statusRaw</span></p>
-                    <p><strong>Location:</strong> @locationName</p>
-                    <p><strong>Category:</strong> @categoryName</p>
-                    <p><strong>Serial Number:</strong> @(String.IsNullOrWhiteSpace(Model.SerialNumber) ? "—" : Model.SerialNumber)</p>
-                    <p><strong>Issued To:</strong> @issuedToName</p>
-                    <p><strong>Purchase Date:</strong> @(Model.PurchaseDate.HasValue? Model.PurchaseDate.Value.ToString("yyyy-MM-dd") : "—")</p>
-                    <p><strong>Warranty Expiration:</strong> @(Model.WarrantyExpirationDate.HasValue? Model.WarrantyExpirationDate.Value.ToString("yyyy-MM-dd") : "—")</p>
-                    <p><strong>Purchase Price:</strong> @(Model.PurchasePrice != 0 ? Model.PurchasePrice.ToString("C") : "—")</p>
-                    <p><strong>Vendor:</strong> @(String.IsNullOrWhiteSpace(Model.Vendor) ? "—" : Model.Vendor)</p>
-                    <p><strong>Condition:</strong> @(String.IsNullOrWhiteSpace(Model.Condition) ? "—" : Model.Condition)</p>
-                    <p><strong>Notes:</strong> @(String.IsNullOrWhiteSpace(Model.Notes) ? "—" : Model.Notes)</p>
-                    <p><strong>Last Status Date:</strong> @(Model.StatusDate != default ? Model.StatusDate.ToString("g") : "—")</p>
-                </div>
-
-                <div class="mt-3">
-                    <a asp-controller="Asset" asp-action="AssetEdit" asp-route-assetTag="@Model.AssetTag" class="btn btn-warning me-2 btn-lg">Edit</a>
-                    <a asp-controller="Asset" asp-action="AssetBrowser" class="btn btn-outline-secondary btn-lg">Back</a>
+        <!-- Borrow Modal -->
+        <div class="modal fade" id="@borrowModalId" tabindex="-1" aria-labelledby="@($"{borrowModalId}-label")" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content asset-modal">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="@($"{borrowModalId}-label")">Borrow Asset</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to check out asset <strong>@Model.AssetTag</strong>?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="outline-btn modal-btn" data-bs-dismiss="modal">Cancel</button>
+                        <a asp-controller="Asset" asp-action="checkOut" asp-route-assetTag="@Model.AssetTag" class="primary-btn modal-btn">Confirm</a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
     <script>
         (function () {
-            // Elements per-asset (unique IDs using AssetId)
             var barcodeModalSelector = '#@barcodeModalId';
             var qrFormId = 'qrForm-@Model.AssetId';
             var qrContainerId = 'qrContainer-@Model.AssetId';
@@ -198,10 +297,8 @@
 
             modalEl.addEventListener('shown.bs.modal', function () {
                 var qrContainer = document.getElementById(qrContainerId);
-                // If image already loaded, do nothing
                 if (qrContainer.querySelector('img')) return;
 
-                // Show spinner (already present) and fetch the QR code
                 var form = document.getElementById(qrFormId);
                 if (!form) return;
 
@@ -211,11 +308,8 @@
                 var assetTagInput = form.querySelector('input[name="assetTag"]');
                 var assetTag = assetTagInput ? assetTagInput.value : '';
 
-                // Build form data including antiforgery token
                 var fd = new URLSearchParams();
-                if (token) {
-                    fd.append('__RequestVerificationToken', token);
-                }
+                if (token) fd.append('__RequestVerificationToken', token);
                 fd.append('assetTag', assetTag);
 
                 var fetchUrl = '@Url.Action("GenerateQRCode", "Asset")';
@@ -228,36 +322,32 @@
                     },
                     body: fd.toString()
                 })
-                    .then(function (res) {
-                        if (!res.ok) throw new Error('Network response was not ok');
-                        return res.blob();
-                    })
-                    .then(function (blob) {
-                        // Create image and download link
-                        var img = document.createElement('img');
-                        img.className = 'img-fluid';
-                        var url = URL.createObjectURL(blob);
-                        img.src = url;
+                .then(function (res) {
+                    if (!res.ok) throw new Error('Network response was not ok');
+                    return res.blob();
+                })
+                .then(function (blob) {
+                    var img = document.createElement('img');
+                    img.className = 'img-fluid';
+                    var url = URL.createObjectURL(blob);
+                    img.src = url;
 
-                        // Clear container and append image
-                        qrContainer.innerHTML = '';
-                        qrContainer.appendChild(img);
+                    qrContainer.innerHTML = '';
+                    qrContainer.appendChild(img);
 
-                        // Show download link
-                        var downloadLink = document.getElementById(qrDownloadLinkId);
-                        if (downloadLink) {
-                            downloadLink.style.display = 'inline-block';
-                            downloadLink.href = url;
-                            downloadLink.download = assetTag + '_QRCode.png';
-                        }
-                    })
-                    .catch(function (err) {
-                        qrContainer.innerHTML = '<div class="alert alert-danger">Failed to generate QR code.</div>';
-                        console.error(err);
-                    });
+                    var downloadLink = document.getElementById(qrDownloadLinkId);
+                    if (downloadLink) {
+                        downloadLink.style.display = 'inline-block';
+                        downloadLink.href = url;
+                        downloadLink.download = assetTag + '_QRCode.png';
+                    }
+                })
+                .catch(function (err) {
+                    qrContainer.innerHTML = '<div class="alert alert-danger">Failed to generate QR code.</div>';
+                    console.error(err);
+                });
             });
 
-            // Optional: clear blob URLs when modal hidden to free memory
             modalEl.addEventListener('hidden.bs.modal', function () {
                 var qrContainer = document.getElementById(qrContainerId);
                 if (!qrContainer) return;
@@ -271,8 +361,13 @@
 }
 else
 {
-    <div class="container">
-        <div class="alert alert-warning">No asset detected.</div>
-        <a asp-controller="Asset" asp-action="AssetBrowser" class="btn btn-secondary">Back to list</a>
+    <div class="page">
+        <div class="card asset-empty-card">
+            <h1>No asset detected</h1>
+            <p class="asset-subtitle">We could not find an asset to display.</p>
+            <a asp-controller="Asset" asp-action="AssetBrowser" class="primary-btn asset-inline-btn">
+                Back to list
+            </a>
+        </div>
     </div>
 }

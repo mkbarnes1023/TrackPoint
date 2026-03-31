@@ -194,8 +194,8 @@
                                 foreach (var approval in Model._approvals)
                                 {
                                     <tr>
-                                        <td>@approval.AssetId</td>
-                                        <td>@approval.ApprovalReason</td>
+                                        <td>@(approval.Asset?.AssetTag ?? approval.AssetId.ToString())</td>
+                                        <td>@(approval.ApprovalReason?.ReasonName ?? "—")</td>
                                         <td>@UserManager.Users.FirstOrDefault(u => u.Id == approval.RequestorId)?.UserName</td>
                                         <td>@approval.RequestDate</td>
                                         <td style="text-align:right;">
