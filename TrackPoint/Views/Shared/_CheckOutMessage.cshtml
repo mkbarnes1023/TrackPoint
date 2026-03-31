@@ -1,0 +1,36 @@
+﻿@{
+    var message = TempData["Info"] as string;
+    var assetName = TempData["assetName"] as string;
+    var relevantAdmin = TempData["relevantAdmin"] as string;
+    var officeLocation = TempData["officeLocation"] as string;
+}
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="modal fade" id="flashModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">Check Out Instructions</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <strong>CAUTION: Please read these instructions carefully.</strong><br/>
+                    <p>To check out your asset @assetName, you must do the following:</p><br/>
+                    <ol>
+                        <li>1. Navigate to office @officeLocation and locate your asset.</li>
+                        <li>2. Scan the QR code with your mobile device.</li>
+                        <li>3. Select "Confirm" to ensure physical possession of the asset.</li>
+                        <li>4. </li>
+                    </ol><br/>
+                    <p>Your asset is located in office @officeLocation.
+                        If you encounter any issues, please contact @relevantAdmin for assistance.
+                        They can also offer to handle checking out the asset for you.</p><br/>
+                    <p><strong>Dispcl</strong></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

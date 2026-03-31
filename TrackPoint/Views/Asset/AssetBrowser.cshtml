@@ -426,12 +426,17 @@
                                             </div>
                                             <div class="modal-body">
                                                 Are you sure you want to check out asset <strong>@asset.AssetTag</strong>?
-                                                @* Show dialog if asset requires admin approval 
-                                                   TODO: Individual assets may also require approval regardless of category
-                                                *@
                                                 @if (asset.Category.RequiresApproval)
                                                 {
                                                     <br/><p><strong>Disclaimer:</strong> This asset requires admin approval to check out.</p>
+                                                }
+                                                @* Show dialog for checking out with physical confirmation *@
+                                                else
+                                                {
+                                                    <p>
+                                                        <br />You will be required to scan this asset's QR code with your phone to prove physical possession.
+                                                        <br /><strong>Disclaimer:</strong> You will be held accountable for this asset after checking it out. <u href="">Terms apply</u>
+                                                    </p>
                                                 }
                                             </div>
                                             <div class="modal-footer">
