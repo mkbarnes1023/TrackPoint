@@ -50,6 +50,67 @@
         text-decoration: none;
     }
 
+    /* DataTables top controls */
+    #top-right {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .dataTables_filter,
+    .dataTables_length {
+        margin: 0;
+    }
+
+        .dataTables_filter label,
+        .dataTables_length label {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dataTables_filter input {
+            width: 260px !important;
+            padding: 12px 14px !important;
+            border-radius: 8px !important;
+            border: 1px solid #d1d5db !important;
+            font-size: 14px !important;
+            transition: border 0.2s, box-shadow 0.2s !important;
+            background: #fff;
+            margin-left: 0 !important;
+        }
+
+            .dataTables_filter input:focus {
+                outline: none !important;
+                border-color: #6366f1 !important;
+                box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+            }
+
+        .dataTables_length select {
+            width: auto !important;
+            padding: 10px 12px !important;
+            border-radius: 8px !important;
+            border: 1px solid #d1d5db !important;
+            font-size: 14px !important;
+            background: #fff;
+        }
+
+        /* Optional: hide default "Search:" text if you want cleaner SaaS style */
+        .dataTables_filter label {
+            font-size: 0;
+        }
+
+        .dataTables_filter input::placeholder {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
 </style>
 
 
@@ -502,7 +563,7 @@
     $(window).on('load', function () {
     const table = $('#asset').DataTable({
     autoWidth: false,
-    dom: 'ltp',
+    dom: 'fltp',
     pagingType: 'full_numbers',
     columnDefs: [
     {
@@ -545,6 +606,12 @@
     }
     });
 
+    // Move DataTables controls into custom top-right area
+    $('#top-right').append($('.dataTables_filter'));
+    $('#top-right').append($('.dataTables_length'));
+    $('.dataTables_filter input').attr('placeholder', 'Search assets');
+
+    // Column toggle modal sync
     const columnModal = document.getElementById('columnToggleModal');
     if (columnModal) {
     columnModal.addEventListener('show.bs.modal', function () {
@@ -557,6 +624,7 @@
     });
     }
 
+    // Toggle visible columns
     document.querySelectorAll('input.toggle-vis').forEach((checkbox) => {
     checkbox.addEventListener('change', function (e) {
     const colIndex = Number(e.target.getAttribute('data-column'));
@@ -566,8 +634,6 @@
     }
     });
     });
-
-    $('#top-right').append($('.dataTables_length'));
 
     const filterModalEl = document.getElementById('filterModal');
 
@@ -697,7 +763,12 @@
     } else {
     $(f.selector).val('');
     }
+
+    if (f.multi) {
+    table.column(f.index).search('', true, false);
+    } else {
     table.column(f.index).search('', false, false);
+    }
     });
 
     table.draw();
