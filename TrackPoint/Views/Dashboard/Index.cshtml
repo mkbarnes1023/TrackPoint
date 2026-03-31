@@ -6,7 +6,7 @@
 @inject UserManager<IdentityUser> UserManager
 
 @{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Home";
     bool isAdmin = User.IsInRole("Admin");
 
     var currentUserId = UserManager.Users.FirstOrDefault(u => u.UserName == User.Identity.Name)?.Id;
@@ -32,12 +32,6 @@
 </head>
 
 <div class="page">
-    <div class="row g-1">
-        <div class="col-md-6">
-            <h1>Home</h1>
-        </div>
-    </div>
-
     <div class="section">
         <h4>Priority Overview</h4>
         <div class="d-flex flex-wrap">
