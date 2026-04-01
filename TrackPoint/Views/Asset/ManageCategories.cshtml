@@ -1,4 +1,5 @@
 ﻿@{
+    ViewData["Title"] = "Category";
 }
 @model IEnumerable<TrackPoint.Models.Category>
 <link rel="stylesheet" href="/css/manager.css">
@@ -45,7 +46,8 @@
                     if (c.CategoryId != 1)
                     {
                         string modalId = $"confirmModal-{c.CategoryId}"; ;
-                        <li class="list-group-item">
+                        <li class="list-group-item" style="justify-content:space-between">
+                            
                             @c.Name (@c.Abbreviation) <a class="btn btn-sm" asp-controller="Asset" asp-action="CategoryEdit" asp-route-categoryId="@c.CategoryId"><i class="bi bi-pencil-fill fs-4"></i></a> <a class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#@modalId"><i class="bi bi-trash-fill fs-4"></i></a>
                             <!--Confirmation modal adapted from Matthew's in the AssetBrowser-->
                             <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@($"{modalId}-label")" aria-hidden="true">

@@ -12,6 +12,7 @@ namespace TrackPoint.Models.DTOs
         public int ThirtyOneToNinety { get; set; }
         public int NinetyPlus { get; set; }
         public int NeedsAttention { get; set; }
+        public int Overdue { get; set; }
         public List<Asset> Attention { get; set; } = new List<Asset>();
 
         public IEnumerable<TrackPoint.Models.Approvals> _approvals;

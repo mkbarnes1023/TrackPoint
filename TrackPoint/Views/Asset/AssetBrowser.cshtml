@@ -4,7 +4,7 @@
 @inject UserManager<IdentityUser> UserManager // TODO: Needed to get username of borrower, consider replacing this later so injection is not needed.
 
 @{
-    ViewData["Title"] = "Browse Available Assets";
+    ViewData["Title"] = "Browse";
     var msg = TempData["Success"] as string; // TODO: This will always have the success conditional, add support for Failure (red) and Warning (yellow)
 }
 
@@ -14,6 +14,7 @@
         @msg
     </div>
 }
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 <head>
     <link rel="stylesheet" href="/css/table.css">
 </head>
@@ -592,6 +593,11 @@
     console.warn('columns.adjust() failed', e);
     }
 
+    $('#top-right').append($('.dataTables_filter'));
+    $('#top-right').append($('.dataTables_length'));
+
+    $('.dataTables_filter input').attr('placeholder', 'Search assets');
+
     try {
     $('#page-loading-overlay').fadeOut(350, function () {
     $(this).addClass('hidden');
@@ -606,12 +612,6 @@
     }
     });
 
-    // Move DataTables controls into custom top-right area
-    $('#top-right').append($('.dataTables_filter'));
-    $('#top-right').append($('.dataTables_length'));
-    $('.dataTables_filter input').attr('placeholder', 'Search assets');
-
-    // Column toggle modal sync
     const columnModal = document.getElementById('columnToggleModal');
     if (columnModal) {
     columnModal.addEventListener('show.bs.modal', function () {
@@ -624,7 +624,6 @@
     });
     }
 
-    // Toggle visible columns
     document.querySelectorAll('input.toggle-vis').forEach((checkbox) => {
     checkbox.addEventListener('change', function (e) {
     const colIndex = Number(e.target.getAttribute('data-column'));
@@ -656,7 +655,6 @@
     if (!values || values.length === 0) return '';
     return '^(' + values.map(v => escapeRegex(v)).join('|') + ')$';
     }
-
     return values || '';
     }
 
