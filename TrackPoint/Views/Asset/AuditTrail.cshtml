@@ -1,0 +1,70 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using System.Linq
+@model IEnumerable<TrackPoint.Models.AuditTrail>
+@inject UserManager<IdentityUser> UserManager
+@{
+        ViewData["Title"] = "Audit Trail";
+}
+<head>
+    <link rel="stylesheet" href="/css/table.css">
+</head>
+
+<div class="page">
+        <div class="card">
+        <h1>Audit Trail</h1>
+        <table class="table w-100" id="table">
+            <thead>
+                <tr>
+                    <th>Change Date</th>
+                    <th>New Status</th>
+                    <th>Field Changed</th>
+                    <th>New Value</th>
+                    <th>Changed By</th>
+                    <th>Comment</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var AuditTrailEntry in Model)
+                {
+                    <tr>
+                        <td>@(AuditTrailEntry.ChangeDate?.ToString("g") ?? "")</td>
+                        <td>@AuditTrailEntry.NewStatus</td>
+                        <td>@AuditTrailEntry.FieldChanged</td>
+                        <td>@AuditTrailEntry.NewValue</td>
+                        <td>
+                            @{ var u = !string.IsNullOrEmpty(AuditTrailEntry.ChangedByUserId) ? UserManager.FindByIdAsync(AuditTrailEntry.ChangedByUserId).Result : null; }
+                            @((u != null) ? u.UserName : AuditTrailEntry.ChangedByUserId)
+                        </td>
+                        <td>@AuditTrailEntry.Comment</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        </div>
+</div>
+
+<!-- DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script>
+    // Wait for full page load to avoid layout shift, then initialize DataTables
+    $(window).on('load', function () {
+            $('#table').DataTable({
+            autoWidth: false,
+            "order": [[ 0, "desc" ]],
+            "columnDefs":
+            [
+                {
+                    "orderable": false, "targets": [1, 4],
+                    "searchable": false, "targets": [1, 4]
+                }
+            ],
+            initComplete: function () {
+                try { this.api().columns.adjust(); } catch (e) { console.warn('columns.adjust failed', e); }
+                try { $('#page-loading-overlay').fadeOut(350); } catch (e) { }
+                try { $('#table').fadeIn(300); } catch (e) { $('#table').css('display', ''); }
+            }
+        });
+    });
+</script>

@@ -24,8 +24,8 @@ namespace TrackPoint.Models
         public string? Comment { get; set; }
 
         //foreign key to Approvals
-        public int RelatedApprovalId { get; set; }
-        public ApprovalReason ApprovalReason { get; set; }
+        public int? RelatedApprovalId { get; set; }
+        public ApprovalReason? ApprovalReason { get; set; }
         public string FieldChanged { get; set; }
         public string? NewValue { get; set; }
 

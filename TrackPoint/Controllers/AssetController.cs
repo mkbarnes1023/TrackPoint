@@ -392,6 +392,20 @@ namespace TrackPoint.Controllers
                 TransferDate = DateTime.Now
             });
 
+            // Update the asset's audit trail
+            asset.AuditTrail.Add(new AuditTrail
+            {
+                AssetId = asset.AssetId,
+                NewStatus = "Retired",
+                ChangedByUserId = _userManager.GetUserId(User),
+                ChangeDate = DateTime.Now,
+                Comment = "",
+                RelatedApprovalId = 0,
+                ApprovalReason = null,
+                FieldChanged = "AssetStatus",
+                NewValue = "Retired"
+            });
+
             _context.SaveChanges();
 
             // Log retired asset
@@ -427,6 +441,20 @@ namespace TrackPoint.Controllers
                 NewStatus = "Unretired",
                 eventType = Enums.eventType.StatusChange,
                 TransferDate = DateTime.Now
+            });
+            
+            // Update the asset's audit trail
+            asset.AuditTrail.Add(new AuditTrail
+            {
+                AssetId = asset.AssetId,
+                NewStatus = "Unretired",
+                ChangedByUserId = _userManager.GetUserId(User),
+                ChangeDate = DateTime.Now,
+                Comment = "",
+                RelatedApprovalId = 0,
+                ApprovalReason = null,
+                FieldChanged = "AssetStatus",
+                NewValue = "Unretired"
             });
 
             _context.SaveChanges();
@@ -510,7 +538,7 @@ namespace TrackPoint.Controllers
         {
             // Validate the asset. If the string returned isnt empty, return a error message back to the view.
             string ErrorString = ValidateAsset(asset);
-            if (!ErrorString.Equals(""))
+            if (!ErrorString.Equals("")) 
             {
                 TempData["InputError"] = ErrorString;
                 return RedirectToAction("AssetEditFromModel", asset);
@@ -556,7 +584,14 @@ namespace TrackPoint.Controllers
             {
                 return NotFound();
             }
-            return View(asset);
+            // Load audit entries directly from the DB so the related collection is fetched
+            var assetTrail = _context.AuditTrail
+                .Where(at => at.AssetId == asset.AssetId)
+                .Include(at => at.ChangedBy)
+                .OrderByDescending(at => at.ChangeDate)
+                .ToList();
+
+            return View(assetTrail);
         }
 
         public IActionResult AssetView(string AssetTag)
@@ -622,14 +657,18 @@ namespace TrackPoint.Controllers
             asset.AssetStatus = "InUse";
 
             // Update the asset's audit trail
-            // TODO: Properly re-implement this functionality.
-            //asset.AuditTrail.Add(new AuditTrail
-            //{
-            //    AssetTag = asset.AssetTag,
-            //    IssuedTo = previousIssuedTo,
-            //    TransferDate = previousTransferDate,
-            //    //Asset = asset
-            //});
+            asset.AuditTrail.Add(new AuditTrail
+            {
+                AssetId = asset.AssetId,
+                NewStatus = "InUse",
+                ChangedByUserId = userId,
+                ChangeDate = DateTime.Now,
+                Comment = "",
+                RelatedApprovalId = 0,
+                ApprovalReason = null,
+                FieldChanged = "AssetStatus",
+                NewValue = "InUse"
+            });
             
             // Update AssetLoan for Check Out
             if (asset != null)
@@ -685,6 +724,22 @@ namespace TrackPoint.Controllers
                 //UpdateLoanStatus(asset.AssetId, null, null, 2);
                 _context.Assetloan.Remove(assetLoan);
             }
+            
+            string userId = _userManager.GetUserId(User);
+            
+            // Update the asset's audit trail
+            asset.AuditTrail.Add(new AuditTrail
+            {
+                AssetId = asset.AssetId,
+                NewStatus = "InStorage",
+                ChangedByUserId = userId,
+                ChangeDate = DateTime.Now,
+                Comment = "",
+                RelatedApprovalId = 0,
+                ApprovalReason = null,
+                FieldChanged = "AssetStatus",
+                NewValue = "InStorage"
+            });
 
             // Update TransferLog for Check In
             _context.TransferLog.Add(new TransferLog
