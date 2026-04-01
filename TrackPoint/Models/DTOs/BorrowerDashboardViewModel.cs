@@ -5,8 +5,11 @@
         //mcount the number of assets assinged to the current singed in user
 
         public int AssignedToUser { get; set; }
+        public int DueSoon { get; set; }
+        public int WarrantyExpiringSoon { get; set; }
         public List<Asset> Assigned { get; set; } = new List<Asset>();
         public IEnumerable<TrackPoint.Models.Approvals> _approvals;
+
 
     }
 }

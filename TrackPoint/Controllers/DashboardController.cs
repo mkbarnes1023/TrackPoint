@@ -72,6 +72,9 @@ namespace TrackPoint.Controllers
 
             var needsAttention = attentionAssets.Count;
 
+            var overdue = await _context.Asset
+                .CountAsync(a => a.WarrantyExpirationDate != null && a.WarrantyExpirationDate < DateTime.Now);
+
             // Include related entities so views can access ApprovalReason and Asset properties
             var approvals = await _context.Approvals
                 .Include(a => a.ApprovalReason)
@@ -88,9 +91,10 @@ namespace TrackPoint.Controllers
                 ThirtyOneToNinety = thirtyOneToNinety,
                 NinetyPlus = ninetyPlus,
                 NeedsAttention = needsAttention,
+                Overdue = overdue,
                 Attention = attentionAssets,
                 _approvals = approvals,
-            };
+            }; 
 
             return View(viewModel);
         }
@@ -106,6 +110,9 @@ namespace TrackPoint.Controllers
             var assignedToUser = 0;
             var assigned = new List<Asset>();
             var approvals = new List<Approvals>();
+            var dueSoon = 0;
+            var warrantyExpiringSoon = 0;
+
 
             if (!string.IsNullOrEmpty(userId))
             {
@@ -116,18 +123,46 @@ namespace TrackPoint.Controllers
 
                 assignedToUser = assigned.Count;
 
+
+
                 // Load approvals for this user and include related Asset and ApprovalReason for display
                 approvals = await _context.Approvals
                     .Where(a => a.RequestorId == userId)
                     .Include(a => a.Asset)
                     .Include(a => a.ApprovalReason)
                     .ToListAsync();
+
+                
+            }
+
+            // Calculate loans that are due soon for the current user (e.g., within 30 days)
+            var today = DateTime.Today;
+            var dueLimit = today.AddDays(30);
+            if (!string.IsNullOrEmpty(userId))
+            {
+                dueSoon = await _context.Assetloan
+                    .Where(l => l.BorrowerId == userId
+                                && l.DueDate.HasValue
+                                && l.DueDate.Value.Date >= today
+                                && l.DueDate.Value.Date <= dueLimit
+                                && l.ReturnedDate == null)
+                    .CountAsync();
+
+                // Count assets assigned to the user whose warranty is expiring soon (within 30 days)
+                warrantyExpiringSoon = await _context.Asset
+                    .Where(a => a.IssuedToUserId == userId
+                                && a.WarrantyExpirationDate.HasValue
+                                && a.WarrantyExpirationDate.Value.Date >= today
+                                && a.WarrantyExpirationDate.Value.Date <= dueLimit)
+                    .CountAsync();
             }
 
             var viewModel = new BorrowerDashboardViewModel
             {
                 AssignedToUser = assignedToUser,
                 Assigned = assigned,
+                DueSoon = dueSoon,
+                WarrantyExpiringSoon = warrantyExpiringSoon,
                 _approvals = approvals
             };
             return View(viewModel);

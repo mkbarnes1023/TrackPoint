@@ -16,11 +16,13 @@
 <style>
     .primary-btn {
         width: 25%;
-        margin-top: 28px;
-        padding: 14px;
+        height: 50px;
+        display: inline-flex !important;
         font-size: 15px;
         font-weight: 600;
         text-align: center;
+        align-items: center;
+        justify-content: center;
         color: #fff;
         background: linear-gradient(135deg, #4f46e5, #7c3aed);
         border: none;
@@ -38,11 +40,10 @@
 
 
 <div class="page">
-    <div class="row g-1">
+    <div class="row g-1" style="justify-content: right;">
         <div class="col-md-6 text-right">
             <a asp-controller="Report" asp-action="ReportBuilder" class="primary-btn">
-                <i class="bi bi-info-file-earmark-bar-graph fs-4"></i>Generate A Report
-
+                <i class="bi bi-info-file-earmark-bar-graph fs-4"></i>Report
             </a>
         </div>
     </div>
@@ -57,7 +58,7 @@
             </div>
 
             <div class="priority-card priority-overdue">
-                <div class="priority-number">0</div>
+                <div class="priority-number">@Model.Overdue</div>
                 <div class="priority-label">Overdue</div>
             </div>
 

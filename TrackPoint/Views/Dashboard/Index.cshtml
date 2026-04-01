@@ -41,13 +41,13 @@
             </div>
 
             <div class="priority-card priority-overdue">
-                <div class="priority-number"><a href="/Asset/AssetBrowser"></a>0 </div>
-                <div class="priority-label">Action Required</div>
+                <div class="priority-number"><a style="text-decoration: none; color:#7c3aed;" href="/Asset/AssetBrowser">@Model.DueSoon</a> </div>
+                <div class="priority-label">Due Soon</div>
             </div>
 
             <div class="priority-card priority-warranty-expiring">
-                <div class="priority-number">0</div>
-                <div class="priority-label">Expiring Soon</div>
+                <div class="priority-number">@Model.WarrantyExpiringSoon</div>
+                <div class="priority-label">Warranty Expiring</div>
             </div>
         </div>
     </div>

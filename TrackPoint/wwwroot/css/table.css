@@ -219,29 +219,141 @@ select {
     min-width: 180px;
 }
 
-/* Pagination */
-.dataTables_wrapper .dataTables_paginate .paginate_button {
-    background: none !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 4px 8px;
-    margin: 0 6px;
-    color: #6b7280 !important;
-    font-size: 14px;
+/* DataTables top controls */
+#top-right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
-    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-        color: #111827 !important;
-    }
+.dataTables_filter,
+.dataTables_length,
+.dataTables_info,
+.dataTables_paginate {
+    margin: 0;
+}
 
-    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-        color: #2563eb !important;
+    /* Labels */
+    .dataTables_filter label,
+    .dataTables_length label {
+        margin: 0;
+        font-size: 14px;
         font-weight: 600;
+        color: #475569;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
-    .dataTables_wrapper .dataTables_paginate .paginate_button:focus {
-        outline: none;
+    /* Hide default Search text but keep input */
+    .dataTables_filter label {
+        font-size: 0;
     }
+
+    /* Search box */
+    .dataTables_filter input {
+        width: 260px !important;
+        padding: 12px 14px !important;
+        border-radius: 8px !important;
+        border: 1px solid #d1d5db !important;
+        font-size: 14px !important;
+        transition: border 0.2s, box-shadow 0.2s !important;
+        background: #fff;
+        margin-left: 0 !important;
+        color: #334155 !important;
+    }
+
+        .dataTables_filter input:focus {
+            outline: none !important;
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+        }
+
+        .dataTables_filter input::placeholder {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+    /* Length dropdown */
+    .dataTables_length select {
+        width: auto !important;
+        min-width: 72px;
+        padding: 10px 36px 10px 12px !important;
+        border-radius: 8px !important;
+        border: 1px solid #d1d5db !important;
+        font-size: 14px !important;
+        background: #fff !important;
+        color: #334155 !important;
+        box-shadow: none !important;
+    }
+
+        .dataTables_length select:focus {
+            outline: none !important;
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+        }
+
+/* Bottom area */
+.dataTables_wrapper .dataTables_info {
+    padding-top: 18px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #64748b;
+}
+
+.dataTables_wrapper .dataTables_paginate {
+    padding-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+    /* Pagination buttons */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        background: #fff !important;
+        border: 1px solid #d1d5db !important;
+        box-shadow: none !important;
+        padding: 8px 12px !important;
+        margin: 0 !important;
+        border-radius: 8px !important;
+        color: #475569 !important;
+        font-size: 14px !important;
+        font-weight: 600;
+        line-height: 1.2;
+        transition: all 0.2s ease !important;
+    }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: #f8fafc !important;
+            border-color: #cbd5e1 !important;
+            color: #111827 !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+            border-color: transparent !important;
+            color: #fff !important;
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.22) !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button:focus {
+            outline: none !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+        }
+
+/* Better spacing between bottom left/right */
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    margin-top: 10px;
+}
 
 /* Badges */
 .badge {
