@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using QRCoder;
 using System.Linq;
 using Microsoft.Extensions.Options;
-using QRCoder;
 using System.Collections.Immutable;
 //using System.Net.Networking;
 using System.Security.Claims;
@@ -879,13 +878,21 @@ namespace TrackPoint.Controllers
             return "";
         }
         // Generate QR Code for Asset
-        // TODO: Fix the URL and integrate this into the Check Out flow later
         [HttpPost]
         public IActionResult GenerateQRCode(string assetTag)
         {
+            // Build absolute URL to the AssetView action with the current assetTag
+            string assetUrl = Url.Action("AssetView", "Asset", new { AssetTag = assetTag }, Request.Scheme, Request.Host.Value);
+
+            // Fallbacks if Url.Action returned null/empty
+            if (string.IsNullOrEmpty(assetUrl))
+            {
+                assetUrl = Request.Headers["Referer"].FirstOrDefault() ?? assetTag ?? string.Empty;
+            }
+
             using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
             {
-                QRCodeData qrCodeData = qrGenerator.CreateQrCode(assetTag, QRCodeGenerator.ECCLevel.Q);
+                QRCodeData qrCodeData = qrGenerator.CreateQrCode(assetUrl, QRCodeGenerator.ECCLevel.Q);
                 using (QRCode qrCode = new QRCode(qrCodeData))
                 {
                     using (var qrCodeImage = qrCode.GetGraphic(20))
