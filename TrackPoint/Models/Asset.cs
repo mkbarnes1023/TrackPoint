@@ -66,4 +66,9 @@ public class Asset
     public string Vendor { get; set; }
 
     public string Condition { get; set; }
+
+    // ---------------------
+    // Audit Trail
+    // ---------------------
+    public ICollection<AuditTrail> AuditTrail { get; set; } = new List<AuditTrail>();
 }

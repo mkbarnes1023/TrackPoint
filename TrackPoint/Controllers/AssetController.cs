@@ -557,7 +557,14 @@ namespace TrackPoint.Controllers
             {
                 return NotFound();
             }
-            return View(asset);
+            // Load audit entries directly from the DB so the related collection is fetched
+            var assetTrail = _context.AuditTrail
+                .Where(at => at.AssetId == asset.AssetId)
+                .Include(at => at.ChangedBy)
+                .OrderByDescending(at => at.ChangeDate)
+                .ToList();
+
+            return View(assetTrail);
         }
 
         public IActionResult AssetView(string AssetTag)
@@ -623,14 +630,19 @@ namespace TrackPoint.Controllers
             asset.AssetStatus = "InUse";
 
             // Update the asset's audit trail
-            // TODO: Properly re-implement this functionality.
-            //asset.AuditTrail.Add(new AuditTrail
-            //{
-            //    AssetTag = asset.AssetTag,
-            //    IssuedTo = previousIssuedTo,
-            //    TransferDate = previousTransferDate,
-            //    //Asset = asset
-            //});
+            asset.AuditTrail.Add(new AuditTrail
+            {
+                AssetId = asset.AssetId,
+                NewStatus = "InUse",
+                ChangedByUserId = userId,
+                ChangeDate = DateTime.Now,
+                Comment = "",
+                RelatedApprovalId = 0,
+                ApprovalReason = null,
+                FieldChanged = "AssetStatus",
+                NewValue = "InUse"
+                //Asset = asset
+            });
             
             // Update AssetLoan for Check Out
             if (asset != null)
