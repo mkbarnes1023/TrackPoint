@@ -19,7 +19,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace TrackPoint.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class AssetController : Controller
     {
         /*
@@ -172,6 +172,7 @@ namespace TrackPoint.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult ManageLocations()
         {
             IEnumerable<Location> locations = _context.Location.ToList();
