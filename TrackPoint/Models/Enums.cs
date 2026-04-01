@@ -33,13 +33,11 @@
         }
 
         // Conditions for assets
-        // TODO: Integrate with Asset model and forms, and confirm if we need more conditions
+        // Amy confirmed they only want New, Good, and Broken qualifiers.
         public enum AssetCondition
         {
             New,
             Good,
-            Fair,
-            Poor,
             Broken
         }   
     }
