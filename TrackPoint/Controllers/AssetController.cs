@@ -862,7 +862,7 @@ namespace TrackPoint.Controllers
             // Location with same abbreviation already exists
             if (_context.Location.Any(loc => loc.Abbreviation == l.Abbreviation.ToUpper() && loc.LocationId != l.LocationId))
             {
-                Location existingLocation = _context.Location.First(loc => loc.Name == l.Name);
+                Location existingLocation = _context.Location.First(loc => loc.Abbreviation == l.Abbreviation);
                 return "Error: A location with this abbreviation already exists: " + existingLocation.Name + " (" + existingLocation.Abbreviation + ")";
             }
             // Location is the Unasigned location, which can't be edited
