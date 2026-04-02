@@ -135,7 +135,7 @@ namespace TrackPoint.Controllers
                 {
                     // Replace with null location's ID in the future. "Unasigned" is seeded with id 1 by default.
                     // Assign the Asset an asset tag based on the Category's abbreviation, Location abbreviation and a unique number, padded to 4 digits with leading zeros.
-                    a.AssetTag = $"{_context.Category.Find(a.CategoryId)?.Abbreviation}-{_context.Location.Find(a.LocationId)?.Abbreviation}-{a.AssetTag.Substring(a.AssetTag.Length - 4)}";
+                    a.AssetTag = $"{_context.Category.Find(a.CategoryId)?.Abbreviation}-{_context.Location.Find(a.LocationId)?.Abbreviation}-{(_context.Asset.Count(a => a.CategoryId == a.CategoryId && a.LocationId == a.LocationId) + 1).ToString().PadLeft(4, '0')}";
                     _context.Asset.Update(a);
                     Console.WriteLine($"Asset Tag Updated: {a.AssetTag}");
                 }
@@ -236,7 +236,7 @@ namespace TrackPoint.Controllers
                 {
                     // Replace with null location's ID in the future. "Unasigned" is seeded with id 1 by default.
                     // Assign the Asset an asset tag based on the Category's abbreviation, Location abbreviation and the number it had previously
-                    a.AssetTag = $"{_context.Category.Find(a.CategoryId)?.Abbreviation}-{_context.Location.Find(a.LocationId)?.Abbreviation}-{a.AssetTag.Substring(a.AssetTag.Length - 4)}";
+                    a.AssetTag = $"{_context.Category.Find(a.CategoryId)?.Abbreviation}-{_context.Location.Find(a.LocationId)?.Abbreviation}-{(_context.Asset.Count(a => a.CategoryId == a.CategoryId && a.LocationId == a.LocationId) + 1).ToString().PadLeft(4, '0')}";
                     _context.Asset.Update(a);
                     Console.WriteLine($"Asset Tag Updated: {a.AssetTag}");
                 }
