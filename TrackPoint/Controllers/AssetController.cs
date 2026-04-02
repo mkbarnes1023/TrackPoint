@@ -169,7 +169,7 @@ namespace TrackPoint.Controllers
 
             // Log the Location to the console for debugging purposes
             Console.WriteLine($"New Location Added: {l.Name}, {l.Abbreviation}");
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("ManageLocations");
         }
 
         public IActionResult ManageLocations()
@@ -316,7 +316,7 @@ namespace TrackPoint.Controllers
             _context.SaveChanges();
             // Log the category to the console for debugging purposes
             Console.WriteLine($"New Category Added: {c.Name}, {c.Abbreviation}");
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("ManageCategories");
         }
 
         /* 
