@@ -916,7 +916,7 @@ namespace TrackPoint.Controllers
             // Category with same abbreviation already exists
             if (_context.Category.Any(cat => cat.Abbreviation == c.Abbreviation.ToUpper() && cat.CategoryId != c.CategoryId))
             {
-                Category existingCategory = _context.Category.First(cat => cat.Name == c.Name && cat.CategoryId != c.CategoryId);
+                Category existingCategory = _context.Category.First(cat => cat.Abbreviation == c.Abbreviation && cat.CategoryId != c.CategoryId);
                 return "Error: A category with this abbreviation already exists: " + existingCategory.Name + " (" + existingCategory.Abbreviation + ")";
             }
             // Negative default loan period
