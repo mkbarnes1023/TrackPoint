@@ -534,14 +534,23 @@ namespace TrackPoint.Controllers
          * Return the view for editing assets with the selected asset passed as the model
          */
 
-        public IActionResult UpdateAsset(Asset asset)
+        public IActionResult UpdateAsset(AssetAddViewModel assetVM)
         {
+            Asset asset = assetVM.asset;
             // Validate the asset. If the string returned isnt empty, return a error message back to the view.
             string ErrorString = ValidateAsset(asset);
             if (!ErrorString.Equals("")) 
             {
                 TempData["InputError"] = ErrorString;
                 return RedirectToAction("AssetEditFromModel", asset);
+            }
+
+            // If the toggle is selected, update the AssetTag for this asset to reflect Location and Category changes
+            if (assetVM.updateAssetTag)
+            {
+                // Generate a new AssetTag using the latest data. The numbering may change.
+                asset.AssetTag = $"{_context.Category.Find(asset.CategoryId)?.Abbreviation}-{_context.Location.Find(asset.LocationId)?.Abbreviation}-{(_context.Asset.Count(a => a.CategoryId == asset.CategoryId && a.LocationId == asset.LocationId) + 1).ToString().PadLeft(4, '0')}";
+                Console.WriteLine($"Asset Tag Updated: {asset.AssetTag}");
             }
 
             // Update the asset in the database

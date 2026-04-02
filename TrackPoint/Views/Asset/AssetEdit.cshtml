@@ -139,6 +139,14 @@
                         <textarea asp-for="asset.Notes" placeholder="Additional notes about the asset">@Model.asset.Notes</textarea>
                     </div>
 
+                    <div class="toggle-row">
+                        <label>Update Asset Tags</label>
+                        <label class="switch">
+                            <input type="checkbox" asp-for="updateAssetTag">
+                                <span class="slider"></span>
+                            </label>
+                    </div>
+
                     <input type="submit" value="Submit" asp-action="UpdateAsset" class="primary-btn">
                 </form>
             }

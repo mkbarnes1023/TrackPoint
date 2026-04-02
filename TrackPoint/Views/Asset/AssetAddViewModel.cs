@@ -11,5 +11,6 @@ namespace TrackPoint.Views.Asset
         public IEnumerable<Category> _categories;
         public IEnumerable<IdentityUser> _users;
         public Models.Asset asset { get; set; } = new Models.Asset();
+        public bool updateAssetTag { get; set; }
     }
 }
