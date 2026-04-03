@@ -242,7 +242,7 @@
                                     </div>
 
                                     <div class="col-6">
-                                        <label class="section-title">Category</label>
+                                        <label class="section-title">Category <i class="bi bi-info-circle" title="Hold control to select multiple"></i></label>
                                         <select id="filter-category" class="form-select" multiple>
                                             @foreach (var l in Model._categories ?? Enumerable.Empty<Category>())
                                             {
@@ -252,7 +252,7 @@
                                     </div>
 
                                     <div class="col-6">
-                                        <label class="section-title">Location</label>
+                                        <label class="section-title">Location <i class="bi bi-info-circle" title="Hold control to select multiple"></i></label>
                                         <select id="filter-location" class="form-select" multiple>
                                             @foreach (var l in Model._locations ?? Enumerable.Empty<Location>())
                                             {
@@ -267,7 +267,7 @@
                                     </div>
 
                                     <div class="col-6">
-                                        <label class="section-title">Status</label>
+                                        <label class="section-title">Status <i class="bi bi-info-circle" title="Hold control to select multiple"></i></label>
                                         <select id="filter-status" class="form-select" multiple>
                                             @{
                                                 var statuses = (Model._assets ?? Enumerable.Empty<dynamic>())
