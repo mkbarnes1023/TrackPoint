@@ -725,7 +725,7 @@ namespace TrackPoint.Controllers
                 return RedirectToAction("AssetBrowser");
             }
             asset.StatusDate = DateTime.Now;
-            asset.AssetStatus = "InStorage";
+            asset.AssetStatus = "Available";
             
             // Update AssetLoan for Check In
             if (assetLoan != null)

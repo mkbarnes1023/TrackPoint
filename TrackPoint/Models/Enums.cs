@@ -9,8 +9,9 @@
 		public enum AssetStatus
 		{
 			InUse,				// Loaned to somebody, Unavailable
-			InStorage,			// Available
-			UnderMaintenance,	// Broken and Unavailable
+			Available,			// Available
+            InStorage,          // In storage, Available. Depreciated, kept for legacy data
+            UnderMaintenance,	// Broken and Unavailable
 			Retired,			// Not in use anymore, Unavailable
 			PendingDeployment,	// Not in circulation yet, Unavailable
 			Lost,				// Lost, Unavailable

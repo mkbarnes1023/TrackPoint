@@ -407,7 +407,7 @@
                        TODO: Discuss if we want to keep this or relegate it to only the personal dashboard.
                             *@
                             @* Check Out *@
-                            @if (statusKey == "instorage" || statusKey == "transfered" || statusKey == "transferred")
+                            @if (statusKey == "available" || statusKey == "instorage" || statusKey == "transfered" || statusKey == "transferred")
                             {
                                 <button type="button"
                                         class="btn btn-sm"
@@ -575,6 +575,7 @@
     const map = {
     "inuse": "red",
     "instorage": "green",
+    "available": "green",
     "undermaintenance": "yellow",
     "pendingdeployment": "orange",
     "checkedout": "blue",
