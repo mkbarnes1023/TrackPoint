@@ -16,6 +16,7 @@ using TrackPoint.Data;
 using TrackPoint.Models;
 using TrackPoint.Views.Asset;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using DocumentFormat.OpenXml;
 
 namespace TrackPoint.Controllers
 {
@@ -127,6 +128,7 @@ namespace TrackPoint.Controllers
             location.Abbreviation = location.Abbreviation.ToUpper();
             // Add the new Location to database
             _context.Location.Update(location);
+            _context.SaveChanges();
             // If the user selected "Update Asset Tags", find all the assets in this category and update their tags
             if (l.updateAssetTags)
             {
@@ -135,12 +137,16 @@ namespace TrackPoint.Controllers
                 {
                     // Replace with null location's ID in the future. "Unasigned" is seeded with id 1 by default.
                     // Assign the Asset an asset tag based on the Category's abbreviation, Location abbreviation and a unique number, padded to 4 digits with leading zeros.
-                    a.AssetTag = $"{_context.Category.Find(a.CategoryId)?.Abbreviation}-{_context.Location.Find(a.LocationId)?.Abbreviation}-{(_context.Asset.Count(a => a.CategoryId == a.CategoryId && a.LocationId == a.LocationId) + 1).ToString().PadLeft(4, '0')}";
+                    string categoryAbbreviation = _context.Category.Find(a.CategoryId)?.Abbreviation;
+                    string locationAbbreviation = _context.Location.Find(a.LocationId)?.Abbreviation;
+                    a.AssetTag = $"{categoryAbbreviation}-{locationAbbreviation}-{GetNextAssetNumber(categoryAbbreviation, locationAbbreviation).ToString().PadLeft(4, '0')}";
+
                     _context.Asset.Update(a);
+                    _context.SaveChanges();
                     Console.WriteLine($"Asset Tag Updated: {a.AssetTag}");
                 }
             }
-            _context.SaveChanges();
+            
 
             // Log the Location to the console for debugging purposes
             Console.WriteLine($"Location Edited: {location.Name}, {location.Abbreviation}");
@@ -228,20 +234,26 @@ namespace TrackPoint.Controllers
             category.Abbreviation = category.Abbreviation.ToUpper();
             // Add the new Category to database
             _context.Category.Update(category);
+            _context.SaveChanges();
             // If the user selected "Update Asset Tags", find all the assets in this category and update their tags
-            if(c.updateAssetTags)
+            if (c.updateAssetTags)
             {
                 IEnumerable<Asset> assets = _context.Asset.Where(a => a.CategoryId == category.CategoryId).ToList();
                 foreach (Asset a in assets)
                 {
                     // Replace with null location's ID in the future. "Unasigned" is seeded with id 1 by default.
                     // Assign the Asset an asset tag based on the Category's abbreviation, Location abbreviation and the number it had previously
-                    a.AssetTag = $"{_context.Category.Find(a.CategoryId)?.Abbreviation}-{_context.Location.Find(a.LocationId)?.Abbreviation}-{(_context.Asset.Count(a => a.CategoryId == a.CategoryId && a.LocationId == a.LocationId) + 1).ToString().PadLeft(4, '0')}";
+                    string categoryAbbreviation = _context.Category.Find(a.CategoryId)?.Abbreviation;
+                    string locationAbbreviation = _context.Location.Find(a.LocationId)?.Abbreviation;
+                    a.AssetTag = $"{categoryAbbreviation}-{locationAbbreviation}-{GetNextAssetNumber(categoryAbbreviation, locationAbbreviation).ToString().PadLeft(4, '0')}";
+
                     _context.Asset.Update(a);
+                    _context.SaveChanges();
+
                     Console.WriteLine($"Asset Tag Updated: {a.AssetTag}");
                 }
             }
-            _context.SaveChanges();
+            
             // Log the category to the console for debugging purposes
             Console.WriteLine($"Category Updated: {category.Name}, {category.Abbreviation}");
             return RedirectToAction("ManageCategories");
@@ -333,7 +345,10 @@ namespace TrackPoint.Controllers
             }
 
             // Assign the Asset an asset tag based on the Category's abbreviation, Location abbreviation and a unique number, padded to 4 digits with leading zeros.
-            asset.AssetTag = $"{_context.Category.Find(asset.CategoryId)?.Abbreviation}-{_context.Location.Find(asset.LocationId)?.Abbreviation}-{(_context.Asset.Count(a => a.CategoryId == asset.CategoryId && a.LocationId == asset.LocationId) + 1).ToString().PadLeft(4, '0')}";
+            string categoryAbbreviation = _context.Category.Find(asset.CategoryId)?.Abbreviation;
+            string locationAbbreviation = _context.Location.Find(asset.LocationId)?.Abbreviation;
+            asset.AssetTag = $"{categoryAbbreviation}-{locationAbbreviation}-{GetNextAssetNumber(categoryAbbreviation, locationAbbreviation).ToString().PadLeft(4, '0')}";
+            //Console.WriteLine("Max num: " + _context.Asset.Max(a => int.Parse(a.AssetTag.Substring(a.AssetTag.Length - 4))));
 
             //asset.AssetTag = $"{_context.Category.Find(asset.CategoryId)?.Abbreviation}-{_context.Asset.Count(a => a.CategoryId == asset.CategoryId) + 1}";
 
@@ -549,7 +564,9 @@ namespace TrackPoint.Controllers
             if (assetVM.updateAssetTag)
             {
                 // Generate a new AssetTag using the latest data. The numbering may change.
-                asset.AssetTag = $"{_context.Category.Find(asset.CategoryId)?.Abbreviation}-{_context.Location.Find(asset.LocationId)?.Abbreviation}-{(_context.Asset.Count(a => a.CategoryId == asset.CategoryId && a.LocationId == asset.LocationId) + 1).ToString().PadLeft(4, '0')}";
+                string categoryAbbreviation = _context.Category.Find(asset.CategoryId)?.Abbreviation;
+                string locationAbbreviation = _context.Location.Find(asset.LocationId)?.Abbreviation;
+                asset.AssetTag = $"{categoryAbbreviation}-{locationAbbreviation}-{GetNextAssetNumber(categoryAbbreviation, locationAbbreviation).ToString().PadLeft(4, '0')}";
                 Console.WriteLine($"Asset Tag Updated: {asset.AssetTag}");
             }
 
@@ -1062,6 +1079,27 @@ namespace TrackPoint.Controllers
             //}
             Console.WriteLine("assetLoan AssetId: " + assetLoan.AssetId);
             return assetLoan;
+        }
+
+        // Written by Copilot
+        // Returns the next unique numeric suffix for the given category+location abbreviations
+        private int GetNextAssetNumber(string catAbbrev, string locAbbrev)
+        {
+            var prefix = $"{catAbbrev}-{locAbbrev}-";
+            // Filter in the DB but do parsing in-memory
+            var max = _context.Asset
+                .Where(a => a.AssetTag.StartsWith(prefix))
+                .Select(a => a.AssetTag)
+                .AsEnumerable() // bring to CLR so we can safely Substring/Parse
+                .Select(tag =>
+                {
+                    var suffix = tag.Substring(prefix.Length); // part after the prefix
+                    return int.TryParse(suffix, out var n) ? n : 0;
+                })
+                .DefaultIfEmpty(0)
+                .Max();
+
+            return max + 1;
         }
     }
 }
