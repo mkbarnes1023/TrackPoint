@@ -64,6 +64,7 @@
                         <select type="text" asp-for="asset.Condition" required>
                             <option value="">Select Condition</option>
                             <option value="New">New</option>
+                            <option value="Spare">Spare</option>
                             <option value="Good">Good</option>
                             <option value="Broken">Broken</option>
                         </select>
@@ -122,7 +123,7 @@
                         <select asp-for="asset.AssetStatus" required>
                             <option value="">Select Status</option>
                             <option value="InUse">In Use</option>
-                            <option value="InStorage">In Storage</option>
+                            <option value="Available">Available</option>
                             <option value="UnderMaintenance">Under Maintenance</option>
                             <option value="Retired">Retired</option>
                             <option value="PendingDeployment">Pending Deployment</option>
@@ -137,6 +138,14 @@
                     <div>
                         <label asp-for="asset.Notes">Notes</label>
                         <textarea asp-for="asset.Notes" placeholder="Additional notes about the asset">@Model.asset.Notes</textarea>
+                    </div>
+
+                    <div class="toggle-row">
+                        <label>Update Asset Tags</label>
+                        <label class="switch">
+                            <input type="checkbox" asp-for="updateAssetTag">
+                                <span class="slider"></span>
+                            </label>
                     </div>
 
                     <input type="submit" value="Submit" asp-action="UpdateAsset" class="primary-btn">
