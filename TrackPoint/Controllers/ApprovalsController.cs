@@ -96,7 +96,8 @@ namespace TrackPoint.Controllers
             return RedirectToAction("AdminDashboard", "Dashboard");
         }
 
-        public IActionResult RejectAsset(int ApprovalId)
+        [HttpPost]
+        public IActionResult RejectAsset(int ApprovalId, string DenyReason)
         {
             var Approval = _context.Approvals.FirstOrDefault(a => a.ApprovalId == ApprovalId);
             if (Approval == null)
@@ -110,6 +111,7 @@ namespace TrackPoint.Controllers
             var assetInfo = asset != null ? $"{asset.Make} {asset.Model} ({asset.AssetTag})" : "Asset";
 
             // Create notification for the requestor
+            // TODO: Enforce maxlength on DenyReason and change the notification if no reason is provided
             _context.Notification.Add(new Notification
             {
                 userId = Approval.RequestorId,
@@ -117,7 +119,7 @@ namespace TrackPoint.Controllers
                 assetId = Approval.AssetId,
                 pendingApprovalId = ApprovalId,
                 title = "Asset Request Denied",
-                message = $"Your request for {assetInfo} has been denied.",
+                message = $"Your request for {assetInfo} has been denied. The administrator provided the following reason: {DenyReason}",
                 createdAt = DateTime.Now,
                 readAt = DateTime.MinValue,
                 emailedAt = DateTime.MinValue
