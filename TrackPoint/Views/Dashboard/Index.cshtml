@@ -36,17 +36,23 @@
         <h4>Priority Overview</h4>
         <div class="d-flex flex-wrap">
             <div class="priority-card priority-needs-attention">
-                <div class="priority-number">@Model.AssignedToUser</div>
+                <div class="priority-number">
+                    <a style="text-decoration: none; color: #be185d" asp-controller="Asset" asp-action="AssetBrowser" asp-route-issuedTo="@User.Identity.Name">@Model.AssignedToUser</a>
+                </div>
                 <div class="priority-label">My Assets</div>
             </div>
 
             <div class="priority-card priority-overdue">
-                <div class="priority-number"><a style="text-decoration: none; color:#7c3aed;" href="/Asset/AssetBrowser">@Model.DueSoon</a> </div>
+                <div class="priority-number">
+                    <a style="text-decoration: none; color:#7c3aed;" asp-controller="Asset" asp-action="AssetBrowser" asp-route-issuedTo="@User.Identity.Name"  asp-route-loan="due-3">@Model.DueSoon</a>
+                </div>
                 <div class="priority-label">Due Soon</div>
             </div>
 
             <div class="priority-card priority-warranty-expiring">
-                <div class="priority-number">@Model.WarrantyExpiringSoon</div>
+                <div class="priority-number">
+                        <a style="text-decoration: none;" asp-controller="Asset" asp-action="AssetBrowser" asp-route-issuedTo="@User.Identity.Name" asp-route-warranty="0-30">@Model.WarrantyExpiringSoon</a>
+                    </div>
                 <div class="priority-label">Warranty Expiring</div>
             </div>
         </div>

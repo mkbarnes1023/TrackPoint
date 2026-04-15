@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Identity
 @using System.Linq
 @inject UserManager<IdentityUser> UserManager // TODO: Needed to get username of borrower, consider replacing this later so injection is not needed.
+@inject TrackPoint.Data.ApplicationDbContext Db
 
 @{
     ViewData["Title"] = "Browse";
@@ -281,6 +282,28 @@
                                             }
                                         </select>
                                     </div>
+
+                                    <div class="col=6">
+                                        <label class="section-title">Warranty</label>
+                                        <select id="filter-warranty" class="form-select">
+                                            <option value="">(Any)</option>
+                                            <option value="no-warranty">No warranty</option>
+                                            <option value="0-30">0-30 days</option>
+                                            <option value="31-60">31-60 days</option>
+                                            <option value="61-90">61-90 days</option>
+                                            <option value="90+">90+ days</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="section-title">Loan</label>
+                                        <select id="filter-loan" class="form-select">
+                                            <option value="">(Any)</option>
+                                            <option value="loaned">Currently loaned out</option>
+                                            <option value="due-1">Due within 1 day</option>
+                                            <option value="due-3">Due within 3 days</option>
+                                            <option value="due-7">Due within 1 week</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
 
@@ -362,7 +385,8 @@
                     <th>Location</th>
                     <th>Issued To</th>
                     <th>Status</th>
-                    <th>Notes</th> <!-- TODO: This can become too long, either truncate, make it openable, or remove this. -->
+                    <th>WarrantyExpiration</th>
+                    <th>Loan Due</th>
                     <th>Actions</th> <!-- TODO: This is also sortable for no particular reason, figure out how to prevent sorting in DataTables. -->
                 </tr>
             </thead>
@@ -399,8 +423,12 @@
                         <td>@categoryName</td>
                         <td>@locationName</td>
                         <td>@issuedToName</td>
-                        <td>@statusRaw</td>
-                        <td>@asset.Notes</td>
+                        <td>@statusRaw</td>             
+                        <td>@asset.WarrantyExpirationDate?.ToString("yyyy-MM-dd")</td>
+                        @{ 
+                            var loan = Db.Assetloan.FirstOrDefault(l => l.AssetId == asset.AssetId && l.ReturnedDate == null);
+                        }
+                        <td>@(loan?.DueDate?.ToString("yyyy-MM-dd") ?? "")</td>
                         <td class="actions-cell">
                             @* Borrow flow: Show button only when asset is available/in storage/transfered
                        Temporary change: Show the "Return" button if user currently borrows the asset.
@@ -565,6 +593,7 @@
     const table = $('#asset').DataTable({
     autoWidth: false,
     dom: 'fltp',
+    savestate: true,
     pagingType: 'full_numbers',
     columnDefs: [
     {
@@ -585,6 +614,10 @@
     const slug = map[clean] || "blue";
     return `<span class="badge badge-${slug}">${data}</span>`;
     }
+    },
+    {
+    targets: 9,
+    orderable: false
     }
     ],
     initComplete: function () {
@@ -644,7 +677,9 @@
     { key: 'category', index: 3, selector: '#filter-category', multi: true },
     { key: 'location', index: 4, selector: '#filter-location', multi: true },
     { key: 'issuedTo', index: 5, selector: '#filter-issuedTo', multi: false },
-    { key: 'status', index: 6, selector: '#filter-status', multi: true }
+    { key: 'status', index: 6, selector: '#filter-status', multi: true },
+    { key: 'warranty', index: 7, selector: '#filter-warranty', multi: false },
+    { key: 'loan', index: 8, selector: '#filter-loan', multi: false }
     ];
 
     function escapeRegex(value) {
@@ -678,6 +713,10 @@
     function applyFilterToColumn(filter) {
     const value = getFilterValue(filter);
     const searchPattern = buildSearchPattern(value, filter.multi);
+
+    if (filter.key === 'warranty' || filter.key === 'loan') {
+    return;
+    }
 
     if (filter.multi) {
     table.column(filter.index).search(searchPattern, true, false);
@@ -739,6 +778,61 @@
     });
     }
 
+    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+    if (settings.nTable !== $('#asset')[0]) return true;
+
+    const sel = $('#filter-warranty').val();
+    if (!sel) return true;
+
+    const cell = data[7] || '';
+
+    if (sel === 'no-warranty') {
+    return (!cell || cell.trim() === '');
+    }
+
+    if (!cell || cell.trim() === '') return false;
+
+    const exp = new Date(cell);
+    const today = new Date();
+    const todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const diffMs = exp - todayMid;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (sel === '0-30') return diffDays >= 0 && diffDays <= 30;
+    if (sel === '31-60') return diffDays >= 31 && diffDays <= 60;
+    if (sel === '61-90') return diffDays >= 61 && diffDays <= 90;
+    if (sel === '90+') return diffDays > 90;
+
+    return true;
+    });
+
+    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+    if (settings.nTable !== $('#asset')[0]) return true;
+
+    const sel = $('#filter-loan').val();
+    if (!sel) return true;
+
+    const cell = data[8] || '';
+
+    if (sel === 'loaned') {
+    return !!cell && cell.trim() !== '';
+    }
+
+    if (!cell || cell.trim() === '') return false;
+
+    const due = new Date(cell);
+    const today = new Date();
+    const todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const diffMs = due - todayMid;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (sel === 'due-1') return diffDays >= 0 && diffDays <= 1;
+    if (sel === 'due-3') return diffDays >= 0 && diffDays <= 3;
+    if (sel === 'due-7') return diffDays >= 0 && diffDays <= 7;
+
+    return true;
+    });
+
     applyFiltersFromUrl();
 
     $('#applyFiltersBtn').on('click', function () {
@@ -763,10 +857,12 @@
     $(f.selector).val('');
     }
 
+    if (f.key !== 'warranty' && f.key !== 'loan') {
     if (f.multi) {
     table.column(f.index).search('', true, false);
     } else {
     table.column(f.index).search('', false, false);
+    }
     }
     });
 
