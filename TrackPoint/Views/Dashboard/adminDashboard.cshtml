@@ -226,17 +226,21 @@
                                     <div class="modal fade" id="denyModal-@approval.ApprovalId" tabindex="-1" aria-labelledby="denyModalLabel-@approval.ApprovalId" aria-hidden="true">
                                         <div class="modal-dialog modal-dialog-centered">
                                             <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="denyModalLabel-@approval.ApprovalId">Confirm Deny</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    Are you sure you want to deny this asset?
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                    <a class="btn btn-danger" href="@Url.Action("RejectAsset", "Approvals", new { ApprovalId = approval.ApprovalId })">Deny</a>
-                                                </div>
+                                                <form method="post" action="@Url.Action("RejectAsset", "Approvals")">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="denyModalLabel-@approval.ApprovalId">Confirm Deny</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <input type="hidden" name="ApprovalId" value="@approval.ApprovalId" />
+                                                        <label for="denyReason-@approval.ApprovalId" class="form-label">Are you sure you want to deny this asset?<br>If so, please state a reason for denying the approval:</label>
+                                                        <textarea id="denyReason-@approval.ApprovalId" name="DenyReason" class="form-control" maxlength="256" required style="resize:none;"></textarea>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-danger">Deny</button>
+                                                    </div>
+                                                </form>
                                             </div>
                                         </div>
                                     </div>
