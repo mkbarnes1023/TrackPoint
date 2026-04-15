@@ -75,11 +75,25 @@ namespace TrackPoint.Controllers
                 TransferDate = DateTime.Now
             });
 
+            // Create notification for the requestor
+            _context.Notification.Add(new Notification
+            {
+                userId = Approval.RequestorId,
+                type = "approval",
+                assetId = asset.AssetId,
+                pendingApprovalId = ApprovalId,
+                title = "Asset Request Approved",
+                message = $"Your request for {asset.Make} {asset.Model} ({asset.AssetTag}) has been approved and is ready for pickup.",
+                createdAt = DateTime.Now,
+                readAt = DateTime.MinValue,
+                emailedAt = DateTime.MinValue
+            });
+
             // Remove the approval request
             _context.Approvals.Remove(Approval); // TODO: I don't think this should remove the entry entirely, but the approval is "done" at this point
             _context.SaveChanges();
             TempData["Success"] = $"Request {ApprovalId} has been approved.";
-            return RedirectToAction("ApprovalsTest");
+            return RedirectToAction("AdminDashboard", "Dashboard");
         }
 
         public IActionResult RejectAsset(int ApprovalId)
@@ -88,14 +102,33 @@ namespace TrackPoint.Controllers
             if (Approval == null)
             {
                 Console.WriteLine($"\n\n\nERROR: Approval {ApprovalId} not found\n\n\n");
-                return RedirectToAction("ApprovalsTest");
+                return RedirectToAction("AdminDashboard", "Dashboard");
             }
+
+            // Get asset information for notification message
+            var asset = _context.Asset.FirstOrDefault(a => a.AssetId == Approval.AssetId);
+            var assetInfo = asset != null ? $"{asset.Make} {asset.Model} ({asset.AssetTag})" : "Asset";
+
+            // Create notification for the requestor
+            _context.Notification.Add(new Notification
+            {
+                userId = Approval.RequestorId,
+                type = "approval",
+                assetId = Approval.AssetId,
+                pendingApprovalId = ApprovalId,
+                title = "Asset Request Denied",
+                message = $"Your request for {assetInfo} has been denied.",
+                createdAt = DateTime.Now,
+                readAt = DateTime.MinValue,
+                emailedAt = DateTime.MinValue
+            });
+
             // Remove the approval without modifying any data in the Asset table
             _context.Approvals.Remove(Approval);
             _context.SaveChanges();
 
-            TempData["Success"] = $"Request {ApprovalId} has been rejected.";
-            return RedirectToAction("ApprovalsTest");
+            TempData["Success"] = $"Request {ApprovalId} has been rejected."; // TODO: This currently doesn't pass correctly
+            return RedirectToAction("AdminDashboard", "Dashboard");
         }
     }
 }

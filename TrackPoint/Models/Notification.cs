@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
 namespace TrackPoint.Models
 {
@@ -7,7 +9,11 @@ namespace TrackPoint.Models
         [Key]
         public int notificationId { get; set; }
 
-        public int userId { get; set; }
+        public string? userId { get; set; }
+
+        [ForeignKey(nameof(userId))]
+        public IdentityUser? User { get; set; }
+
         public string type { get; set; } = string.Empty;
         public int assetId { get; set; }
         public int pendingApprovalId { get; set; }

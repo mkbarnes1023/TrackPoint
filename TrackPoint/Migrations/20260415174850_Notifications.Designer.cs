@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TrackPoint.Data;
 
@@ -11,9 +12,11 @@ using TrackPoint.Data;
 namespace TrackPoint.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260415174850_Notifications")]
+    partial class Notifications
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -427,7 +430,7 @@ namespace TrackPoint.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuditID"));
 
-                    b.Property<int?>("ApprovalReasonReasonId")
+                    b.Property<int>("ApprovalReasonReasonId")
                         .HasColumnType("int");
 
                     b.Property<int>("AssetId")
@@ -457,7 +460,7 @@ namespace TrackPoint.Migrations
                     b.Property<string>("NewValue")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("RelatedApprovalId")
+                    b.Property<int>("RelatedApprovalId")
                         .HasColumnType("int");
 
                     b.HasKey("AuditID");
@@ -799,10 +802,12 @@ namespace TrackPoint.Migrations
                 {
                     b.HasOne("TrackPoint.Models.ApprovalReason", "ApprovalReason")
                         .WithMany()
-                        .HasForeignKey("ApprovalReasonReasonId");
+                        .HasForeignKey("ApprovalReasonReasonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("TrackPoint.Models.Asset", "Asset")
-                        .WithMany("AuditTrail")
+                        .WithMany()
                         .HasForeignKey("AssetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -842,11 +847,6 @@ namespace TrackPoint.Migrations
                     b.Navigation("Asset");
 
                     b.Navigation("Borrower");
-                });
-
-            modelBuilder.Entity("TrackPoint.Models.Asset", b =>
-                {
-                    b.Navigation("AuditTrail");
                 });
 
             modelBuilder.Entity("TrackPoint.Models.Category", b =>
