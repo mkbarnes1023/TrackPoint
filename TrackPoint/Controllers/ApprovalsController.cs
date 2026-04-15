@@ -79,7 +79,7 @@ namespace TrackPoint.Controllers
             _context.Approvals.Remove(Approval); // TODO: I don't think this should remove the entry entirely, but the approval is "done" at this point
             _context.SaveChanges();
             TempData["Success"] = $"Request {ApprovalId} has been approved.";
-            return RedirectToAction("ApprovalsTest");
+            return RedirectToAction("AdminDashboard", "Dashboard");
         }
 
         public IActionResult RejectAsset(int ApprovalId)
@@ -88,14 +88,14 @@ namespace TrackPoint.Controllers
             if (Approval == null)
             {
                 Console.WriteLine($"\n\n\nERROR: Approval {ApprovalId} not found\n\n\n");
-                return RedirectToAction("ApprovalsTest");
+                return RedirectToAction("AdminDashboard", "Dashboard");
             }
             // Remove the approval without modifying any data in the Asset table
             _context.Approvals.Remove(Approval);
             _context.SaveChanges();
 
-            TempData["Success"] = $"Request {ApprovalId} has been rejected.";
-            return RedirectToAction("ApprovalsTest");
+            TempData["Success"] = $"Request {ApprovalId} has been rejected."; // TODO: This currently doesn't pass correctly
+            return RedirectToAction("AdminDashboard", "Dashboard");
         }
     }
 }
