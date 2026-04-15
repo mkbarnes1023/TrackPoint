@@ -198,12 +198,48 @@
                                         <td>@UserManager.Users.FirstOrDefault(u => u.Id == approval.RequestorId)?.UserName</td>
                                         <td>@approval.RequestDate</td>
                                         <td style="text-align:right;">
-                                            <a asp-controller="Approvals" asp-action="ApproveAsset" asp-route-ApprovalId="@approval.ApprovalId"
-                                               class="btn btn-success btn-sm me-2">Approve</a>
-                                            <a asp-controller="Approvals" asp-action="RejectAsset" asp-route-ApprovalId="@approval.ApprovalId"
-                                               class="btn btn-light btn-sm">Deny</a>
+                                            <!-- Approve Button -->
+                                            <a class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#approveModal-@approval.ApprovalId">Approve</a>
+                                            <!-- Deny Button -->
+                                            <a class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#denyModal-@approval.ApprovalId">Deny</a>
                                         </td>
                                     </tr>
+                                    <!-- Approve Modal -->
+                                    <div class="modal fade" id="approveModal-@approval.ApprovalId" tabindex="-1" aria-labelledby="approveModalLabel-@approval.ApprovalId" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="approveModalLabel-@approval.ApprovalId">Confirm Approve</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you want to approve this asset?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <a class="btn btn-success" href="@Url.Action("ApproveAsset", "Approvals", new { ApprovalId = approval.ApprovalId })">Approve</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Deny Modal -->
+                                    <div class="modal fade" id="denyModal-@approval.ApprovalId" tabindex="-1" aria-labelledby="denyModalLabel-@approval.ApprovalId" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="denyModalLabel-@approval.ApprovalId">Confirm Deny</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you want to deny this asset?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <a class="btn btn-danger" href="@Url.Action("RejectAsset", "Approvals", new { ApprovalId = approval.ApprovalId })">Deny</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 }
                             }
                             else
