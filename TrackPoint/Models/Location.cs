@@ -15,4 +15,7 @@ public class Location
 
     // Navigation property
     public ICollection<Asset>? Assets { get; set; }
+
+    // Offices navigation property
+    public ICollection<Office> Offices { get; set; } = new HashSet<Office>();
 }
