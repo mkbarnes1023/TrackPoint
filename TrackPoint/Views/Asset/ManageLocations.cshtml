@@ -50,7 +50,10 @@
                     {
                         string modalId = $"confirmModal-{l.LocationId}"; ;
                         <li class="list-group-item">
-                            @l.Name (@l.Abbreviation) <a class="btn btn-sm" asp-controller="Asset" asp-action="LocationEdit" asp-route-locationId="@l.LocationId"><i class="bi bi-pencil-fill fs-4"></i></a> <a class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#@modalId"><i class="bi bi-trash-fill fs-4"></i></a>
+                            @l.Name (@l.Abbreviation)
+                            <a class="btn btn-sm" asp-controller="Asset" asp-action="LocationEdit" asp-route-locationId="@l.LocationId"><i class="bi bi-pencil-fill fs-4"></i></a>
+                            <a class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#@modalId"><i class="bi bi-trash-fill fs-4"></i></a>
+                            <a class="btn btn-sm btn-light" asp-controller="Asset" asp-action="Offices" asp-route-locationId="@l.LocationId">Offices</a>
                             <!--Confirmation modal adapted from Matthew's in the AssetBrowser-->
                             <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@($"{modalId}-label")" aria-hidden="true">
                                 <div class="modal-dialog">

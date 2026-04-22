@@ -185,6 +185,18 @@ namespace TrackPoint.Controllers
             return View(locations);
         }
 
+        [Authorize(Roles = "Admin")]
+        public IActionResult Offices(Location l)
+        {
+            // TODO: Perform validation
+            return View(l.Offices);
+        }
+
+        public IActionResult AddOffice(Location l)
+        {
+            return View();
+        }
+
         /*
 		 *  Return the view for the Category Add Form
 		 */

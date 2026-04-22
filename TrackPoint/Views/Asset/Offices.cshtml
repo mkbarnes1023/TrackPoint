@@ -1,0 +1,19 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model IEnumerable<TrackPoint.Models.Office>
+
+<h1>Manage Offices for (placeholder)</h1>
+<div style="text-align: center; padding: 15px;">
+    <a asp-controller="Asset" asp-action="OfficeAdd" class="primary-btn">
+        New Office
+    </a>
+</div>
+
+<h1>Offices List</h1>
+@foreach (Office office in Model)
+{
+    <p>@office.Name</p>
+}
