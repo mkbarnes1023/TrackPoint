@@ -65,7 +65,7 @@ namespace TrackPoint.Controllers
 
             // Retrieve assets whose AssetStatus indicates they need attention.
             // Use lowercase list and compare against the column converted to lower to avoid case-sensitivity issues.
-            var attentionStatuses = new[] { "UnderMaintenance", "PendingDeployment", "Lost", "NeedsReplacement" };
+            var attentionStatuses = new[] { "undermaintenance", "pendingdeployment", "lost", "needsreplacement" };
             var attentionAssets = await _context.Asset
                 .Where(a => a.AssetStatus != null && attentionStatuses.Contains(a.AssetStatus.ToLower()))
                 .ToListAsync();
