@@ -33,6 +33,7 @@ namespace TrackPoint.Controllers
         private IEnumerable<Asset> assets => _context.Asset;
         private IEnumerable<Category> categories => _context.Category;
         private IEnumerable<Location> locations => _context.Location;
+        private IEnumerable<Office> offices => _context.Office;
         public AssetController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
@@ -186,15 +187,38 @@ namespace TrackPoint.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        public IActionResult Offices(Location l)
+        /* TODO: Handle use case for when location for an asset assigned to an office is changed/deleted, add functionality for assigning office to Asset */
+        public IActionResult ManageOffices(int locationId)
         {
-            // TODO: Perform validation
-            return View(l.Offices);
+            var location = _context.Location
+                .Include(l => l.Offices)
+                .FirstOrDefault(l => l.LocationId == locationId);
+            if (location == null)
+            {
+                return NotFound();
+            }
+            ViewBag.Location = location;
+            return View(location.Offices);
         }
 
-        public IActionResult AddOffice(Location l)
+        public IActionResult OfficeAdd(int locationId)
         {
-            return View();
+            ViewBag.LocationId = locationId;
+            return View(new Office());
+        }
+
+        public IActionResult NewOffice(Office office, int locationId)
+        {
+            // Ensure the Office is linked to a valid Location
+            if (!_context.Location.Any(l => l.LocationId == locationId))
+            {
+                TempData["InputError"] = "Invalid location selected.";
+                return View("OfficeAdd", office);
+            }
+            office.LocationId = locationId;
+            _context.Office.Add(office);
+            _context.SaveChanges();
+            return RedirectToAction("ManageOffices", new { locationId = locationId });
         }
 
         /*

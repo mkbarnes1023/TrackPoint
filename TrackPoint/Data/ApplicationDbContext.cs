@@ -28,6 +28,6 @@ namespace TrackPoint.Data
         public DbSet<AssetLoan> Assetloan { get; set; }
         public DbSet<AuditTrail> AuditTrail { get; set; }
         public DbSet<TransferLog> TransferLog { get; set; }
-
+        public DbSet<Office> Office { get; set; }
     } 
 }
