@@ -335,10 +335,11 @@ namespace TrackPoint.Controllers
 		 */
         public IActionResult AssetAdd(Asset a)
         {
-            // Pass the locations, categories, and users to the view via the AssetAddViewModel
+            // Pass the locations, categories, offices, and users to the view via the AssetAddViewModel
             AssetAddViewModel model = new AssetAddViewModel();
             model._locations = locations.ToList();
             model._categories = categories.ToList();
+            model._offices = offices.ToList();
             model._users = _userManager.Users.ToList();
             model.asset = a;
             return View(model);
@@ -565,6 +566,7 @@ namespace TrackPoint.Controllers
             AssetAddViewModel model = new AssetAddViewModel();
             model._categories = categories.ToList();
             model._locations = locations.ToList();
+            model._offices = offices.ToList();
             model._users = _userManager.Users.ToList();
             model.asset = asset;
             return View(model);
@@ -577,6 +579,7 @@ namespace TrackPoint.Controllers
             AssetAddViewModel model = new AssetAddViewModel();
             model._categories = categories.ToList();
             model._locations = locations.ToList();
+            model._offices = offices.ToList();
             model._users = _userManager.Users.ToList();
             model.asset = a;
             return View("AssetEdit", model);

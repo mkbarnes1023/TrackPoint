@@ -14,6 +14,7 @@
 }
 <head>
     <link rel="stylesheet" href="/css/form.css">
+    <script src="/js/officeSelect.js"></script>
 </head>
 
 	
@@ -92,7 +93,7 @@
 
                 <div>
                     <label asp-for="asset.LocationId">Location</label>
-                    <select asp-for="asset.LocationId" required>
+                    <select id="locationSelect" asp-for="asset.LocationId" required>
                         <option value="">Select Location</option>
                         <!--Populate the dropdown with available locations-->
                         @foreach (Location l in Model._locations)
@@ -106,6 +107,24 @@
                             else if (l.LocationId != 1)
                             {
                                 <option value="@l.LocationId">@l.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div>
+                    <label asp-for="asset.OfficeId">Office</label>
+                    <select id="officeSelect" asp-for="asset.OfficeId">
+                        <option value="">Assign to Office (Optional)</option>
+                        @foreach (var office in Model._offices)
+                        {
+                            @if (office.OfficeId == Model.asset.OfficeId)
+                            {
+                                <option value="@office.OfficeId" data-location-id="@office.LocationId" selected>@office.Name</option>
+                            }
+                            else
+                            {
+                                <option value="@office.OfficeId" data-location-id="@office.LocationId">@office.Name</option>
                             }
                         }
                     </select>
