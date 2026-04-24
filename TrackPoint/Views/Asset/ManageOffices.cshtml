@@ -1,0 +1,51 @@
+﻿@{
+    var location = ViewBag.Location as TrackPoint.Models.Location;
+}
+@model IEnumerable<TrackPoint.Models.Office>
+<head>
+    <link rel="stylesheet" href="/css/manager.css">
+</head>
+<style>
+    .primary-btn {
+        width: 25%;
+        margin-top: 28px;
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 600;
+        text-align: center;
+        color: #fff;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: transform 0.15s, box-shadow 0.15s;
+        text-decoration: none;
+    }
+
+        .primary-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
+        }
+</style>
+
+<div class="page">
+    <div class="card">
+        <h1 class="text-center" style="margin-bottom: 0px !important;">Offices for @location?.Name</h1>
+        <div style="text-align: center; padding: 15px;">
+            <a asp-controller="Asset" asp-action="OfficeAdd" asp-route-locationId="@location?.LocationId" class="btn btn-primary">
+                <span style="color: white !important;">New Office</span>
+            </a>
+        </div>
+        @* Display each office for the location
+            TODO: Add a Delete, Edit, and View Assigned Assets button for each office
+        *@
+        <ul class="list-group">
+            @foreach (var office in Model)
+            {
+                <li class="list-group-item">
+                    @office.Name
+                </li>
+            }
+        </ul>
+    </div>
+</div>

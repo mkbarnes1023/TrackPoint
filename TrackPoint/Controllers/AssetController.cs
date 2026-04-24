@@ -33,6 +33,7 @@ namespace TrackPoint.Controllers
         private IEnumerable<Asset> assets => _context.Asset;
         private IEnumerable<Category> categories => _context.Category;
         private IEnumerable<Location> locations => _context.Location;
+        private IEnumerable<Office> offices => _context.Office;
         public AssetController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
@@ -185,6 +186,41 @@ namespace TrackPoint.Controllers
             return View(locations);
         }
 
+        [Authorize(Roles = "Admin")]
+        /* TODO: Handle use case for when location for an asset assigned to an office is changed/deleted, add functionality for assigning office to Asset */
+        public IActionResult ManageOffices(int locationId)
+        {
+            var location = _context.Location
+                .Include(l => l.Offices)
+                .FirstOrDefault(l => l.LocationId == locationId);
+            if (location == null)
+            {
+                return NotFound();
+            }
+            ViewBag.Location = location;
+            return View(location.Offices);
+        }
+
+        public IActionResult OfficeAdd(int locationId)
+        {
+            ViewBag.LocationId = locationId;
+            return View(new Office());
+        }
+
+        public IActionResult NewOffice(Office office, int locationId)
+        {
+            // Ensure the Office is linked to a valid Location
+            if (!_context.Location.Any(l => l.LocationId == locationId))
+            {
+                TempData["InputError"] = "Invalid location selected.";
+                return View("OfficeAdd", office);
+            }
+            office.LocationId = locationId;
+            _context.Office.Add(office);
+            _context.SaveChanges();
+            return RedirectToAction("ManageOffices", new { locationId = locationId });
+        }
+
         /*
 		 *  Return the view for the Category Add Form
 		 */
@@ -299,10 +335,11 @@ namespace TrackPoint.Controllers
 		 */
         public IActionResult AssetAdd(Asset a)
         {
-            // Pass the locations, categories, and users to the view via the AssetAddViewModel
+            // Pass the locations, categories, offices, and users to the view via the AssetAddViewModel
             AssetAddViewModel model = new AssetAddViewModel();
             model._locations = locations.ToList();
             model._categories = categories.ToList();
+            model._offices = offices.ToList();
             model._users = _userManager.Users.ToList();
             model.asset = a;
             return View(model);
@@ -529,6 +566,7 @@ namespace TrackPoint.Controllers
             AssetAddViewModel model = new AssetAddViewModel();
             model._categories = categories.ToList();
             model._locations = locations.ToList();
+            model._offices = offices.ToList();
             model._users = _userManager.Users.ToList();
             model.asset = asset;
             return View(model);
@@ -541,6 +579,7 @@ namespace TrackPoint.Controllers
             AssetAddViewModel model = new AssetAddViewModel();
             model._categories = categories.ToList();
             model._locations = locations.ToList();
+            model._offices = offices.ToList();
             model._users = _userManager.Users.ToList();
             model.asset = a;
             return View("AssetEdit", model);
@@ -623,7 +662,11 @@ namespace TrackPoint.Controllers
 
         public IActionResult AssetView(string AssetTag)
         {
-            var asset = _context.Asset.FirstOrDefault(a => a.AssetTag == AssetTag);
+            var asset = _context.Asset
+                .Include(a => a.Location)
+                .Include(a => a.Category)
+                .Include(a => a.Office)
+                .FirstOrDefault(a => a.AssetTag == AssetTag);
             if (asset == null)
             {
                 return NotFound();

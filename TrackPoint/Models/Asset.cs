@@ -39,6 +39,12 @@ public class Asset
     public int LocationId { get; set; }
     public Location Location { get; set; }
 
+    // Office FK
+    public int? OfficeId { get; set; }
+
+    [ForeignKey(nameof(OfficeId))]
+    public Office? Office { get; set; }
+
     // ---------------------
     // Status Fields
     // ---------------------
