@@ -45,6 +45,7 @@
 
     var categoryName = Model.Category?.Name ?? (Model.CategoryId > 0 ? $"ID {Model.CategoryId}" : "—");
     var locationName = Model.Location?.Name ?? (Model.LocationId > 0 ? $"ID {Model.LocationId}" : "—");
+    var officeName = Model.Office?.Name ?? (Model.OfficeId > 0 ? $"ID {Model.OfficeId}" : "None");
 
     var borrowModalId = $"confirmModal-Borrow-{Model.AssetId}";
     var barcodeModalId = $"confirmModal-Barcode-{Model.AssetId}";
@@ -145,6 +146,7 @@
                             <div class="section-title">Notes</div>
                             <div class="notes-box">
                                 @(String.IsNullOrWhiteSpace(Model.Notes) ? "No notes available." : Model.Notes)
+                                <br/><br/> Office Location: @officeName
                             </div>
                         </div>
 

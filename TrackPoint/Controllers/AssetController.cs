@@ -662,7 +662,11 @@ namespace TrackPoint.Controllers
 
         public IActionResult AssetView(string AssetTag)
         {
-            var asset = _context.Asset.FirstOrDefault(a => a.AssetTag == AssetTag);
+            var asset = _context.Asset
+                .Include(a => a.Location)
+                .Include(a => a.Category)
+                .Include(a => a.Office)
+                .FirstOrDefault(a => a.AssetTag == AssetTag);
             if (asset == null)
             {
                 return NotFound();
