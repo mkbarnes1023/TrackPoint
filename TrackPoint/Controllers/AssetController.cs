@@ -51,6 +51,75 @@ namespace TrackPoint.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Admin")]
+        public IActionResult Overdue()
+        {
+            var filtered = _context.Asset
+                .Where(a => a.WarrantyExpirationDate != null && a.WarrantyExpirationDate < DateTime.Now)
+                .ToList();
+
+            AssetBrowserViewModel model = new AssetBrowserViewModel();
+            model._assets = filtered;
+            model._categories = categories.ToList();
+            model._locations = locations.ToList();
+
+            return View("AssetBrowser", model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        public IActionResult ExpiringSoon()
+        {
+            var limit = DateTime.Now.AddMonths(6);
+            var filtered = _context.Asset
+                .Where(a => a.WarrantyExpirationDate.HasValue && a.WarrantyExpirationDate >= DateTime.Now && a.WarrantyExpirationDate <= limit)
+                .ToList();
+
+            AssetBrowserViewModel model = new AssetBrowserViewModel();
+            model._assets = filtered;
+            model._categories = categories.ToList();
+            model._locations = locations.ToList();
+
+            return View("AssetBrowser", model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        public IActionResult Unassigned()
+        {
+            var filtered = _context.Asset
+                .Where(a => string.IsNullOrEmpty(a.IssuedToUserId))
+                .ToList();
+
+            AssetBrowserViewModel model = new AssetBrowserViewModel();
+            model._assets = filtered;
+            model._categories = categories.ToList();
+            model._locations = locations.ToList();
+
+            return View("AssetBrowser", model);
+        }
+
+        /// <summary>
+        /// Show only assets that need immediate attention.
+        /// This returns the same AssetBrowser view but with the asset list filtered
+        /// to statuses considered "needs immediate action" on the admin dashboard.
+        /// </summary>
+        [Authorize(Roles = "Admin")]
+        public IActionResult Attention()
+        {
+            // Statuses defined as needing attention (match dashboard logic)
+            var attentionStatuses = new[] { "undermaintenance", "pendingdeployment", "lost", "needsreplacement" };
+
+            var filtered = _context.Asset
+                .Where(a => a.AssetStatus != null && attentionStatuses.Contains(a.AssetStatus.ToLower()))
+                .ToList();
+
+            AssetBrowserViewModel model = new AssetBrowserViewModel();
+            model._assets = filtered;
+            model._categories = categories.ToList();
+            model._locations = locations.ToList();
+
+            return View("AssetBrowser", model);
+        }
+
         /*
          *  Return the view for the Location Add Form
          */

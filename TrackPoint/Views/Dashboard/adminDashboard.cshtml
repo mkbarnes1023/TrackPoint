@@ -54,22 +54,30 @@
         <h4>Priority Overview</h4>
         <div class="d-flex flex-wrap">
             <div class="priority-card priority-needs-attention">
-                <div class="priority-number">@Model.NeedsAttention</div>
+                <div class="priority-number">
+                    <a style="text-decoration: none; color: #be185d" asp-controller="Asset" asp-action="Attention">@Model.NeedsAttention</a>
+                </div>
                 <div class="priority-label">Needs Attention</div>
             </div>
 
             <div class="priority-card priority-overdue">
-                <div class="priority-number">@Model.Overdue</div>
+                <div class="priority-number">
+                    <a style="text-decoration: none; color:#7c3aed;" asp-controller="Asset" asp-action="Overdue">@Model.Overdue</a>
+                </div>
                 <div class="priority-label">Overdue</div>
             </div>
 
             <div class="priority-card priority-warranty-expiring">
-                <div class="priority-number">@Model.ExpiringSoonCount</div>
+                <div class="priority-number">
+                    <a style="text-decoration: none;" asp-controller="Asset" asp-action="ExpiringSoon">@Model.ExpiringSoonCount</a>
+                </div>
                 <div class="priority-label">Warranty Expiring</div>
             </div>
 
             <div class="priority-card priority-unassigned">
-                <div class="priority-number">@Model.UnassignedCount</div>
+                <div class="priority-number">
+                    <a style="text-decoration: none;" asp-controller="Asset" asp-action="Unassigned">@Model.UnassignedCount</a>
+                </div>
                 <div class="priority-label">Unassigned</div>
             </div>
         </div>
@@ -147,7 +155,6 @@
                                 {
                                     <tr>
                                         <td colspan="4" style="text-align:center;">
-                                            <i class="bi bi-plus"></i>
                                             <a asp-controller="Asset"
                                                asp-action="Attention"
                                                

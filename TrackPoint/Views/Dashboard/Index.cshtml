@@ -111,12 +111,7 @@
                                 {
                                     <tr>
                                         <td colspan="3" style="text-align:center;">
-                                            <i class="bi bi-plus"></i>
-                                            <a asp-controller="Asset"
-                                               asp-action="Assigned"
-                                               style="color:#2563eb; font-weight:500;">
-                                                View all assigned assets →
-                                            </a>
+                                            <a asp-controller="Asset" asp-action="AssetBrowser" asp-route-issuedTo="@User.Identity.Name">View Your Assets</a>
                                         </td>
                                     </tr>
                                 }
