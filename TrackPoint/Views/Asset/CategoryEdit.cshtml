@@ -63,6 +63,37 @@
                         <input type="number" asp-for="category.DefaultLoanPeriodDays" value="@Model.category.DefaultLoanPeriodDays" min="0">
                     </div>
 
+                    <div>
+                        <label asp-for="category.Icon">Icon</label>
+                        <div style="display:flex;">
+                            <select asp-for="category.Icon" class="form-select" placeholder="Icon" onchange="document.getElementById('iconPreview').innerHTML='<i class=\'bi '+this.value+'\'></i>'">
+                                <option value="bi-question-circle" selected="@(Model.category.Icon == "bi-question-circle" ? "selected" : null)">Unassigned</option>
+                                <option value="bi-laptop" selected="@(Model.category.Icon == "bi-laptop" ? "selected" : null)">Laptop</option>
+                                <option value="bi-display" selected="@(Model.category.Icon == "bi-display" ? "selected" : null)">Monitor</option>
+                                <option value="bi-tv" selected="@(Model.category.Icon == "bi-tv" ? "selected" : null)">Smart TV</option>
+                                <option value="bi-phone" selected="@(Model.category.Icon == "bi-phone" ? "selected" : null)">Phone</option>
+                                <option value="bi-speaker" selected="@(Model.category.Icon == "bi-speaker" ? "selected" : null)">Sound Bar</option>
+                                <option value="bi-truck" selected="@(Model.category.Icon == "bi-truck" ? "selected" : null)">Vehicle</option>
+                                <option value="bi-people" selected="@(Model.category.Icon == "bi-people" ? "selected" : null)">Outreach</option>
+                                <option value="bi-boombox" selected="@(Model.category.Icon == "bi-boombox" ? "selected" : null)">AV System</option>
+                                <option value="bi-printer" selected="@(Model.category.Icon == "bi-printer" ? "selected" : null)">Printer</option>
+                                <option value="bi-usb-drive" selected="@(Model.category.Icon == "bi-usb-drive" ? "selected" : null)">USB Drive</option>
+                                <option value="bi-hdd" selected="@(Model.category.Icon == "bi-hdd" ? "selected" : null)">Hard Drive</option>
+                                <option value="bi-router" selected="@(Model.category.Icon == "bi-router" ? "selected" : null)">Router</option>
+                                <option value="bi-camera" selected="@(Model.category.Icon == "bi-camera" ? "selected" : null)">Camera</option>
+                                <option value="bi-lightbulb" selected="@(Model.category.Icon == "bi-lightbulb" ? "selected" : null)">Lighting</option>
+                                <option value="bi-battery-full" selected="@(Model.category.Icon == "bi-battery-full" ? "selected" : null)">Battery</option>
+                                <option value="bi-cpu" selected="@(Model.category.Icon == "bi-cpu" ? "selected" : null)">CPU</option>
+                                <option value="bi-mouse" selected="@(Model.category.Icon == "bi-mouse" ? "selected" : null)">Mouse</option>
+                                <option value="bi-keyboard" selected="@(Model.category.Icon == "bi-keyboard" ? "selected" : null)">Keyboard</option>
+                                <option value="bi-tablet" selected="@(Model.category.Icon == "bi-tablet" ? "selected" : null)">Tablet</option>
+                            </select>
+                            <div id="iconPreview" style="font-size:2rem; margin-bottom:0.5rem;display:flex;justify-content:center;width:100%;height:100%;">
+                                <i class="bi @(Model.category.Icon ?? "bi-question-circle")"></i>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="toggle-row">
                         <label asp-for="category.ContainsConsumables">This category contains consumables that are not individually tracked</label>
                         <label class="switch">

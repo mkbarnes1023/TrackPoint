@@ -19,7 +19,7 @@
     {
         statusBadgeClass = "badge-red";
     }
-    else if (statusKey == "instorage" || statusKey == "transfered" || statusKey == "transferred" || statusKey == "pendingdeployment")
+else if (statusKey == "instorage" || statusKey == "transfered" || statusKey == "transferred" || statusKey == "pendingdeployment" || statusKey == "Available" || statusKey == "available")
     {
         statusBadgeClass = "badge-green";
     }
@@ -83,11 +83,25 @@
                 <div class="asset-grid">
                     <div class="asset-media">
                         <div class="asset-image-wrap">
-                            <img src="https://placehold.co/600x400/000000/FFFFFF.png" class="asset-image" alt="Asset image placeholder" />
+                            @* Display the Asset's image or a placeholder based on the category icon *@
+                            @if (Model.Image != null)
+                            {
+                                <img src="@Model.Image" class="asset-image" alt="Asset Image" />
+                            }
+                            else if (!string.IsNullOrWhiteSpace(Model?.Category?.Icon))
+                            {
+                                <div class="asset-image category-icon">
+                                    <i class="bi @Model.Category.Icon" style=""></i>
+                                </div>
+                            }
+                            else
+                            {
+                                <img src="https://placehold.co/600x400/000000/FFFFFF.png" class="asset-image" alt="Asset image placeholder" />
+                            }
                         </div>
 
                         <div class="asset-cta-row">
-                            @if (statusKey == "instorage" || statusKey == "transfered" || statusKey == "transferred" || statusKey == "pendingdeployment")
+                            @if (statusKey == "instorage" || statusKey == "transfered" || statusKey == "transferred" || statusKey == "pendingdeployment" || statusKey == "Available" || statusKey == "available")
                             {
                                 <button type="button" class="primary-btn asset-action-btn" data-bs-toggle="modal" data-bs-target="#@borrowModalId">
                                     Borrow Asset

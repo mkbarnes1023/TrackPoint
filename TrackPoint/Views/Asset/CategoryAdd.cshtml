@@ -36,6 +36,38 @@
                     <label asp-for="DefaultLoanPeriodDays">Default loan period (In days)</label>
                     <input type="number" asp-for="DefaultLoanPeriodDays" value="@Model.DefaultLoanPeriodDays" min="0">
                 </div>
+
+                <div>
+                    <label asp-for="Icon">Icon</label>
+                    <div style="display:flex;">
+                            <select asp-for="Icon" class="form-select" placeholder="Icon" onchange="document.getElementById('iconPreview').innerHTML='<i class=\'bi '+this.value+'\'></i>'">
+                                <option value="bi-question-circle" selected="@(Model.Icon == "bi-question-circle" ? "selected" : null)">Unassigned</option>
+                                <option value="bi-laptop" selected="@(Model.Icon == "bi-laptop" ? "selected" : null)">Laptop</option>
+                                <option value="bi-display" selected="@(Model.Icon == "bi-display" ? "selected" : null)">Monitor</option>
+                                <option value="bi-tv" selected="@(Model.Icon == "bi-tv" ? "selected" : null)">Smart TV</option>
+                                <option value="bi-phone" selected="@(Model.Icon == "bi-phone" ? "selected" : null)">Phone</option>
+                                <option value="bi-speaker" selected="@(Model.Icon == "bi-speaker" ? "selected" : null)">Sound Bar</option>
+                                <option value="bi-truck" selected="@(Model.Icon == "bi-truck" ? "selected" : null)">Vehicle</option>
+                                <option value="bi-people" selected="@(Model.Icon == "bi-people" ? "selected" : null)">Outreach</option>
+                                <option value="bi-boombox" selected="@(Model.Icon == "bi-boombox" ? "selected" : null)">AV System</option>
+                                <option value="bi-printer" selected="@(Model.Icon == "bi-printer" ? "selected" : null)">Printer</option>
+                                <option value="bi-usb-drive" selected="@(Model.Icon == "bi-usb-drive" ? "selected" : null)">USB Drive</option>
+                                <option value="bi-hdd" selected="@(Model.Icon == "bi-hdd" ? "selected" : null)">Hard Drive</option>
+                                <option value="bi-router" selected="@(Model.Icon == "bi-router" ? "selected" : null)">Router</option>
+                                <option value="bi-camera" selected="@(Model.Icon == "bi-camera" ? "selected" : null)">Camera</option>
+                                <option value="bi-lightbulb" selected="@(Model.Icon == "bi-lightbulb" ? "selected" : null)">Lighting</option>
+                                <option value="bi-battery-full" selected="@(Model.Icon == "bi-battery-full" ? "selected" : null)">Battery</option>
+                                <option value="bi-cpu" selected="@(Model.Icon == "bi-cpu" ? "selected" : null)">CPU</option>
+                                <option value="bi-mouse" selected="@(Model.Icon == "bi-mouse" ? "selected" : null)">Mouse</option>
+                                <option value="bi-keyboard" selected="@(Model.Icon == "bi-keyboard" ? "selected" : null)">Keyboard</option>
+                                <option value="bi-tablet" selected="@(Model.Icon == "bi-tablet" ? "selected" : null)">Tablet</option>
+                            </select>
+                            <div id="iconPreview" style="font-size:2rem; margin-bottom:0.5rem;">
+                                <i class="bi @(Model.Icon ?? "bi-question-circle")"></i>
+                            </div>
+                    </div>
+                </div>
+
             </div>
 
             <div class="section">
