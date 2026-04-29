@@ -74,6 +74,12 @@ public class Asset
     public string Condition { get; set; }
 
     // ---------------------
+    // Asset Image (URL or file path)
+    // ---------------------
+    [StringLength(300)]
+    public string? Image { get; set; }
+
+    // ---------------------
     // Audit Trail
     // ---------------------
     public ICollection<AuditTrail> AuditTrail { get; set; } = new List<AuditTrail>();

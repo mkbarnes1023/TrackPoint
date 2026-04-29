@@ -27,7 +27,8 @@ namespace TrackPoint.Data.SeedData
                         RequiresApproval = true,
                         DefaultLoanPeriodDays = 0,
                         Description = "Needs a proper category",
-                        ContainsConsumables = false
+                        ContainsConsumables = false,
+                        Icon = "bi-question-circle"
                     },
                     new Category
                     {
@@ -36,7 +37,8 @@ namespace TrackPoint.Data.SeedData
                         RequiresApproval = false,
                         DefaultLoanPeriodDays = 14,
                         Description = "Portable computer",
-                        ContainsConsumables = false
+                        ContainsConsumables = false,
+                        Icon = "bi-laptop"
                     },
                     new Category
                     {
@@ -45,7 +47,8 @@ namespace TrackPoint.Data.SeedData
                         RequiresApproval = false,
                         DefaultLoanPeriodDays = 7,
                         Description = "Display screen",
-                        ContainsConsumables = false
+                        ContainsConsumables = false,
+                        Icon = "bi-display"
                     },
                     new Category
                     {
@@ -54,7 +57,8 @@ namespace TrackPoint.Data.SeedData
                         RequiresApproval = false,
                         DefaultLoanPeriodDays = 7,
                         Description = "Smart television",
-                        ContainsConsumables = false
+                        ContainsConsumables = false,
+                        Icon = "bi-tv"
                     },
                     new Category
                     {
@@ -63,7 +67,8 @@ namespace TrackPoint.Data.SeedData
                         RequiresApproval = false,
                         DefaultLoanPeriodDays = 14,
                         Description = "Mobile phone",
-                        ContainsConsumables = false
+                        ContainsConsumables = false,
+                        Icon = "bi-phone"
                     },
                     new Category
                     {
@@ -72,7 +77,8 @@ namespace TrackPoint.Data.SeedData
                         RequiresApproval = false,
                         DefaultLoanPeriodDays = 7,
                         Description = "External speaker bar",
-                        ContainsConsumables = false
+                        ContainsConsumables = false,
+                        Icon = "bi-speaker"
                     },
                     new Category
                     {
@@ -81,7 +87,8 @@ namespace TrackPoint.Data.SeedData
                         RequiresApproval = true,
                         DefaultLoanPeriodDays = 1,
                         Description = "Company vehicles",
-                        ContainsConsumables = false
+                        ContainsConsumables = false,
+                        Icon = "bi-truck"
                     },
                     new Category
                     {
@@ -90,7 +97,8 @@ namespace TrackPoint.Data.SeedData
                         RequiresApproval = false,
                         DefaultLoanPeriodDays = 3,
                         Description = "Outreach equipment and materials",
-                        ContainsConsumables = false
+                        ContainsConsumables = false,
+                        Icon = "bi-people"
                     },
                     new Category
                     {
@@ -99,7 +107,8 @@ namespace TrackPoint.Data.SeedData
                         RequiresApproval = false,
                         DefaultLoanPeriodDays = 7,
                         Description = "Audio/Visual systems",
-                        ContainsConsumables = false
+                        ContainsConsumables = false,
+                        Icon = "bi-boombox"
                     }
                 };
 
