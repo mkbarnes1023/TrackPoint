@@ -4,6 +4,7 @@ using TrackPoint.Configuration;
 using TrackPoint.Data;
 using TrackPoint.Data.SeedData;
 using TrackPoint.Extensions;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,15 @@ builder.Services.AddRazorPages();
 
 builder.Services.Configure<SeedOptions>(
     builder.Configuration.GetSection(SeedOptions.SectionName));
+
+// Claude recommeded solution to error handling in production
+var connectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+// If the connection string is empty, Application Insights won't be added
+// This way, we can still test locally without needing to set up Application Insights, but it will be used in production if configured.
+if (!string.IsNullOrEmpty(connectionString))
+{
+    builder.Services.AddApplicationInsightsTelemetry();
+}
 
 var app = builder.Build();
 
